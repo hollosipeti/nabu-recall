@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.2.5 — 2026-11-19
+- Memóriaparancsok reguláris kifejezésének javítása (escape-hiba).
+- Természetes válasz a háttérben tanult kijelentésekre, hamis tárolási tiltás nélkül.
+
+
 ## 0.2.4 — 2026-11-19
 - Egyedi kifejezett mentés, javítás és törlés szinkron API-val és megerősített SQLite-visszajelzéssel.
 - Az explicit műveleteket a háttérfeldolgozó nem hajtja végre másodszor.

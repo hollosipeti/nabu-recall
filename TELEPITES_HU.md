@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.4 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.5 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -92,3 +92,7 @@ A „törölj minden emléket”, „felejts el mindent”, „full clean” és
 ## 0.2.4 – memóriakezelő parancsok visszaigazolása
 
 **A HAOS alkalmazást ÉS a külön custom integrationt is frissíteni kell.** Core újraindítás szükséges. Teszt: „Jegyezd meg, hogy a tesztállatom neve Maszat.” → megerősítés; „Javítsd ki a tesztállatom nevét Bodzára.” → megerősítés; „Töröld a tesztállatom nevét.” → megerősítés. A rendszer csak a SQLite-ban végrehajtott műveletet jelenti sikeresnek. A korábbi 45 napos napló nem törlődik. A teljes törlésre utasító mondatok továbbra is blokkoltak.
+
+## 0.2.5 – fontos hotfix
+
+A v0.2.4-ben a szinkron memóriautasítások felismerése hibás volt. Válts 0.2.5-re, és frissítsd a **külön HA integrációt is**, majd indítsd újra a HA Core-t. A meglévő 45 napos adatbázist ne töröld.
