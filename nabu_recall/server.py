@@ -5,7 +5,7 @@ import logging
 import os
 from aiohttp import web
 from store import Store
-from ai import AI
+from ai import AI, OpenAIRequestError
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger("nabu_recall")
@@ -22,7 +22,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.1.0"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.1.1"})
 
 async def log_turn(request):
     data = await request.json()
@@ -50,6 +50,9 @@ async def process_pending():
                         and x.get("action") in ("add", "update", "delete")]
                 store.apply(safe, pending[-1]["id"])
                 store.processed([x["id"] for x in pending])
+            except OpenAIRequestError as exc:
+                LOG.warning("AI memory extraction failed; pending retained: %s", exc)
+                break
             except Exception as exc:
                 LOG.warning("AI memory extraction failed; pending retained: %s", type(exc).__name__)
                 break
@@ -75,6 +78,9 @@ async def recall(request):
         lines += [f"Previous conversation ({x['created']}): USER: {x['user_text']} ASSISTANT: {x['assistant_text']}"
                   for x in selected_turns]
         return web.json_response({"context": "\n".join(lines)[:10000] if len(lines) > 1 else ""})
+    except OpenAIRequestError as exc:
+        LOG.warning("Recall failed: %s", exc)
+        return web.json_response({"context": "", "warning": "AI unavailable"})
     except Exception as exc:
         LOG.warning("Recall failed: %s", type(exc).__name__)
         return web.json_response({"context": "", "warning": "AI unavailable"})
