@@ -1,5 +1,11 @@
 # Nabu Recall – változások
 
+## 0.2.6 — 2026-11-19
+- Magyar mentés/javítás/törlés parancsalakok bővítése, szabályos reguláris kifejezésekkel.
+- Javító AI részletesebb személy–tárgy kapcsolatmegőrzési utasítása.
+- Kevesebb téves „nem tudom menteni” válasz a parancsoknál.
+
+
 ## 0.2.5 — 2026-11-19
 - Memóriaparancsok reguláris kifejezésének javítása (escape-hiba).
 - Természetes válasz a háttérben tanult kijelentésekre, hamis tárolási tiltás nélkül.

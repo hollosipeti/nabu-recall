@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.5
+# 🧠 Nabu Recall v0.2.6
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -41,3 +41,7 @@ A kifejezett „jegyezd meg”, „javítsd/módosítsd” és „töröld” k�
 ### 0.2.5 – parancsfelismerési hotfix
 
 Javítottuk a beszélgetőintegráció hibásan escape-elt reguláris kifejezését. A kifejezett „jegyezd meg”, „töröld”, „javítsuk” utasítások így beléphetnek a visszaigazolást kérő útvonalba. A normál kijelentésekre az alap beszélgetőügynöknek természetes visszajelzést kell adnia, és nem állíthatja, hogy semmilyen memóriát nem tud tárolni. A szinkron memóriamódosítás helyi, éles HAOS-tesztje továbbra is szükséges.
+
+### 0.2.6 – magyar memóriaparancsok
+
+Egységesítettük a magyar parancsfelismerést. A „Mentsd el”, „Jegyezd meg”, „Javítsd” és „Töröld” kifejezéseket a külön HA integráció a szinkron memóriakezelő API-nak továbbítja. A teljes tömeges törlés elleni korlát megmaradt. Az ugyanarról a háztartásról szóló emlékeket az AI nem keverheti össze a bevásárlólisták tulajdonosaival. A memóriát a HAOS add-on adatbázisa tárolja; frissítés előtt készíts biztonsági mentést.

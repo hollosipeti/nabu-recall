@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.5 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.6 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -96,3 +96,7 @@ A „törölj minden emléket”, „felejts el mindent”, „full clean” és
 ## 0.2.5 – fontos hotfix
 
 A v0.2.4-ben a szinkron memóriautasítások felismerése hibás volt. Válts 0.2.5-re, és frissítsd a **külön HA integrációt is**, majd indítsd újra a HA Core-t. A meglévő 45 napos adatbázist ne töröld.
+
+## 0.2.6 – parancsok javítása
+
+Frissítsd **mindkét** elemet: Nabu Recall HAOS app és a `custom_components/nabu_recall` integráció. Indítsd újra a HA Core-t. Tesztparancsok: „Mentsd el! A házban Anya (Betti), Apa (Peti), Enikő és Gyöngyi laknak.”; „Javítsd az Anna bevásárlólistáján ... emléket úgy, hogy név nélkül csak bevásárlólistán szerepel zöldség és gyümölcs.”. Az utóbbinál ellenőrizd, hogy az eredeti #8-as emlék módosult, és nem jött létre párhuzamos új bejegyzés.

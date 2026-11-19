@@ -44,18 +44,21 @@ class RecallAgent(ConversationEntity):
         # Handle explicit memory commands synchronously. Ordinary speech still
         # flows to the original OpenAI agent, preserving device-control tools.
         memory_command = re.search(
-            r"\\b(?:töröld|törölj|felejtsd|felejts|javítsd|javítsuk|"
-            r"módosítsd|módosítsuk|jegyezd\\s+meg|emlékezz\\s+rá)\\b",
+            r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|"
+            r"javítsd|javítsuk|javíts|módosítsd|módosítsuk|módosíts|"
+            r"változtasd|írd\s+át|helyesbítsd|jegyezd\s+meg|"
+            r"emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|"
+            r"tárold\s+el|rögzítsd)\b",
             user_input.text, re.IGNORECASE)
         if memory_command:
             try:
                 outcome = await bridge.manage(user_input.text)
             except Exception:
                 outcome = {"status": "error", "message": "A memóriaműveletet nem sikerült ellenőrizni."}
-            if outcome.get("status") in ("confirmed", "blocked", "not_found", "error"):
+            if outcome.get("status") in ("confirmed", "blocked", "not_found", "error", "not_command"):
                 from homeassistant.helpers import intent
                 response = intent.IntentResponse(language=user_input.language)
-                spoken = outcome.get("message") or "A memóriaművelet eredménye nem ismert."
+                spoken = outcome.get("message") or "Ez nem egyértelmű memóriaművelet."
                 response.async_set_speech(spoken)
                 result = conversation.ConversationResult(
                     response=response, conversation_id=user_input.conversation_id or "")

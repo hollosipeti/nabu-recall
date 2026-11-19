@@ -1,20 +1,18 @@
-"""Conservative, synchronous memory-command detection and validation."""
+"""Lightweight Hungarian memory-command routing. No new memory layers."""
 import re
 
 DELETE = re.compile(r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|távolíts)\b", re.I)
-EDIT = re.compile(r"\b(?:javítsd|javítsuk|módosítsd|módosítsuk|változtasd|írd\s+át|helyesbítsd)\b", re.I)
-SAVE = re.compile(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra))\b", re.I)
-BULK = re.compile(r"(?:mindent|mindet|összes|valamennyi|teljes\s+memóri|reset|full\s*clean|ürítsd|minden\s+emlék)", re.I)
+EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módosítsuk|módosíts|változtasd|írd\s+át|helyesbítsd|helyesbíts|ezt\s+is\s+javítsuk)\b", re.I)
+SAVE = re.compile(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|tárold\s+el|rögzítsd)\b", re.I)
+BULK = re.compile(r"\b(?:mindent|mindet|összes(?:et|t)?|valamennyit|teljes(?:en)?|reset|full\s*clean|ürítsd|minden\s+emlék)\b", re.I)
 
 def operation_kind(text):
     if not isinstance(text, str) or len(text) > 2000:
         return None
-    if BULK.search(text) and (DELETE.search(text) or EDIT.search(text)):
-        return "blocked"
-    if DELETE.search(text):
-        return "delete"
-    if EDIT.search(text):
-        return "update"
+    if DELETE.search(text) or EDIT.search(text):
+        if BULK.search(text):
+            return "blocked"
+        return "delete" if DELETE.search(text) else "update"
     if SAVE.search(text):
         return "add"
     return None
