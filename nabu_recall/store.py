@@ -1,5 +1,6 @@
 """SQLite journal and durable memories. Verbatim transcript retention: 45 days."""
-import sqlite3
+import sqlcipher3 as sqlite3
+from encryption import encrypted_connect
 import time
 from pathlib import Path
 
@@ -8,7 +9,7 @@ RETENTION_DAYS = 45
 class Store:
     def __init__(self, path):
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.db = sqlite3.connect(path, check_same_thread=False)
+        self.db = encrypted_connect(path)
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript("""

@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.1
+# 🧠 Nabu Recall v0.3.2
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -14,7 +14,7 @@ A teljes felhasználó–asszisztens párbeszédet szó szerint megőrzi egy **4
 
 A HAOS alkalmazás és a külön Home Assistant custom integration **egyaránt szükséges**. Az OpenAI API kulcs csak az alkalmazás beállításában szerepelhet, a `bridge_token` belső kapcsolat hitelesítésére szolgál.
 
-> **Kísérleti kiadás:** Home Assistant 2026.11 alatt a 0.1.2 memória-visszakeresése felhasználói tesztben működött; a 0.2.0 új diagnosztikája még HAOS-on ellenőrizendő. A helyi SQLite nincs titkosítva. Ne nyisd a 8765/8766 portot LAN-ra, és ne tedd GitHubra a kulcsokat.
+> **Kísérleti kiadás:** Home Assistant 2026.11 alatt a 0.1.2 memória-visszakeresése felhasználói tesztben működött; a 0.2.0 új diagnosztikája még HAOS-on ellenőrizendő. A v0.3.2 kiadástól a teljes SQLite fájl SQLCipherrel titkosított. Ne nyisd a 8765/8766 portot LAN-ra, és ne tedd GitHubra a kulcsokat.
 
 License: MIT.
 
@@ -65,3 +65,9 @@ Kiterjesztett offline tesztek a HTTP bridge API-ra (mock AI), hitelesítésre, e
 ### 0.3.1 – tesztkörnyezet javítása
 
 A HTTP integrációs tesztek a szerver importja előtt izolált ideiglenes DB_PATH értéket kapnak; így nem írnak a HAOS alkalmazás /data könyvtárába.
+
+### 0.3.2 – titkosított SQLite, funkcionális változás nélkül
+
+**Az alkalmazás SQLite fájlja SQLCipher AES-256 titkosítást kap** (nem csak mezőszinten). A független, 32 bájtos véletlen kulcs automatikusan az alkalmazás privát `/data/recall.key` fájljában jön létre, 0600 jogosultsággal. Nem a `bridge_token` és nem kell új mezőt beállítani. A meglévő `recall.sqlite3` első induláskor ellenőrzött, ideiglenes titkosított másolatba migrál, adatszám-egyezőséget ellenőriz, majd atomikusan cserél; hibánál nem nyit üres adatbázist. A titkosítás nem változtatja meg a 45 napos lejáratot, a mentést vagy az AI-feldolgozást.
+
+**Frissítés előtt kötelező teljes HAOS alkalmazásmentést készíteni.** Őrizd meg biztonságosan a `recall.key` fájlt is: ha elveszik, az emlékek többé nem olvashatók. A Home Assistant teljes biztonsági mentése a kulcsot is tartalmazhatja, ezért védd a mentéseket. A titkosítás nem védi meg az adatokat attól, aki a futó alkalmazáshoz és a kulcsfájlhoz is hozzáfér.

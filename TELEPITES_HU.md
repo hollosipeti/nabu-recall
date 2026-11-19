@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.6 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.3.2 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -104,3 +104,12 @@ Frissítsd **mindkét** elemet: Nabu Recall HAOS app és a `custom_components/na
 ## 0.2.8 – kontextusos memóriaparancs
 
 Tesztelés: mondd ugyanabban az Assist-beszélgetésben „Anya a feleségem.” majd „Mentsd el!”. A mentéshez az előző felhasználói mondatot adja át az AI-nak; az asszisztens válaszát nem használja tényforrásként. Ha már nincs ugyanazon beszélgetésen belüli friss mondat, visszakérdez. Külön eszközön és külön beszélgetésben nem használhat átvezetés nélküli kontextust. Frissítéskor a HAOS alkalmazást és a custom integrationt is frissítsd, majd Core újraindítás.
+
+## 0.3.2 – az adatbázis titkosítása
+
+**FRISSÍTÉS ELŐTT készíts teljes Home Assistant-mentést az Nabu Recall alkalmazásról, a /data tartalmával.**
+A v0.3.2 induláskor titkosított SQLCipher SQLite fájllá alakítja a korábbi `/data/recall.sqlite3` állományt. A kulcs automatikusan jön létre a `/data/recall.key` fájlban, külön a `bridge_token` értékétől. Nem szükséges új beállítás és a Home Assistant custom integration nem változott.
+
+**Fontos:** a `recall.key` elvesztése esetén a titkosított adatbázis nem állítható helyre; a kulcsot az adatbázissal együtt mentsd és állítsd vissza. A v0.3.1 vagy korábbi alkalmazásra visszaállás titkosított DB mellett nem támogatott. A helyi /data könyvtárban az átállás után nem marad titkosítatlan másolat; egy régebbi HA-mentés továbbra is tartalmazhatja az eredeti, titkosítatlan adatbázist. A tokent ne változtasd emiatt.
+
+A régebbi szakaszokban szereplő „titkosítatlan adatbázis” megjegyzések csak a v0.3.1 és korábbi verziókra vonatkoznak.
