@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.1
+# 🧠 Nabu Recall v0.2.2
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -25,3 +25,7 @@ License: MIT.
 - TAJ-szám, egészségügyi azonosító és más kiemelten érzékeny azonosító **nem kerül automatikusan a tartós tárba**, mivel az adatbázis továbbra is titkosítatlan.
 - **Fontos:** a 45 napos szó szerinti napló minden feldolgozott beszélgetést tartalmazhat, így az ilyen beírt vagy bemondott azonosítókat is. Ne használj valódi TAJ-számot próbához.
 - A meglévő bejegyzések nem törlődnek ezzel a frissítéssel; a tárolt adatokhoz hozzáférést a HAOS biztonságos helyi mentéseinek is korlátozniuk kell.
+
+### 0.2.2 – kifejezetten engedélyezett azonosítók
+
+Kifejezett **„jegyezd meg”** kérés esetén a telefonszám, személyi igazolványszám és TAJ-szám az AI által tartós memóriaként kezelhető. Automatikus kiválasztásuk tilos. Bankszámla/IBAN, bankkártya, kriptotárca, seed phrase, privát kulcs, jelszó, PIN és hozzáférési kulcs tartós tárolása továbbra is tilos. A 45 napos szó szerinti napló ezek említését is tartalmazhatja; az adatbázis titkosítatlan, és a közös háztartási asszisztens memóriáját az engedélyezett felhasználók lekérdezhetik. Az AI kiválasztása nem helyettesít hozzáférésvédelmet vagy titkosítást.

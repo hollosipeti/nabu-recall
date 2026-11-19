@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.1 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.2 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -78,3 +78,9 @@ A szkript a régi `custom_components/nabu_recall` mappát időbélyeges biztons�
 ## Személyes adatok — v0.2.1
 
 A Nabu Recall nem tiltja általánosan a személyes adatok megbeszélését. Kifejezett felhasználói kérésre a telefonszám és a szokásos kapcsolatfelvételi preferenciák megjegyezhetők. A kiemelten érzékeny TAJ-szám és egészségügyi azonosítók nem kerülnek automatikusan a tartós tárba. A **45 napos szó szerinti naplóban azonban a bemondott adat ugyanúgy megjelenhet**, és a napló jelenleg nincs titkosítva. Éles azonosítószámot ne használj teszthez; a korábbi naplóbejegyzéseket a frissítés nem törli.
+
+## 0.2.2 — Kifejezett személyes azonosító memória
+
+Az asszisztens kérésre megjegyezhet telefonszámot, személyi igazolványszámot és TAJ-számot. Ezek az adatok a **titkosítatlan** SQLite tartós tárba kerülhetnek, amelyet az azonos HUN ügynököt használó háztartástagok visszakérdezhetnek. Ez nem biztonságos irattár: csak akkor add meg őket, ha ezt a kockázatot vállalod. Bankszámlaszámot/IBAN-t, kártyaadatot, kriptotárcát, seed phrase-t és hitelesítő titkot ne mondj be; automatikus tartós mentésük tiltott. A 45 napos szó szerinti naplózást ez a változás nem módosítja.
+
+Frissítéskor az **alkalmazást és a külön Nabu Recall custom integrationt is** frissítsd; a Home Assistant Core újraindítása szükséges a módosított ügynökutasítás érvényesítéséhez. A meglévő adatbázist ne töröld.
