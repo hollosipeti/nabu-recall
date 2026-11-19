@@ -18,7 +18,7 @@ key = os.getenv("OPENAI_API_KEY", "")
 ai = AI(key, os.getenv("OPENAI_MODEL", "gpt-4.1-mini")) if key else None
 token = os.getenv("BRIDGE_TOKEN", "")
 lock = asyncio.Lock()
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '0.3.6'}
+state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.0.0'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -27,7 +27,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.3.6"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "1.0.0"})
 
 async def log_turn(request):
     data = await request.json()
@@ -157,7 +157,7 @@ async def cleanup_task(app):
 
 async def startup(app):
     # The read-only dashboard is on a separate ingress-only HTTP port.
-    app["dash_runner"] = web.AppRunner(create_dashboard(store, state))
+    app["dash_runner"] = web.AppRunner(create_dashboard(store, state, os.getenv('DASHBOARD_PASSWORD', '')))
     await app["dash_runner"].setup()
     app["dash_site"] = web.TCPSite(app["dash_runner"], host="0.0.0.0", port=8766)
     await app["dash_site"].start()

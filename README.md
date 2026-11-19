@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.6
+# 🧠 Nabu Recall v1.0.0
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -83,3 +83,12 @@ Az alaprendszer továbbra is kezelheti a felhasználó által megadott személye
 ### 0.3.6 – Naptárparancsok és UI verzió
 
 A „mentsd el a naptárba” típusú mondatok nem memóriamentések: változtatás nélkül átmennek a beállított Home Assistant beszélgetőügynökhöz, amely csak ténylegesen elérhető naptáríró eszközzel tudja végrehajtani őket. A memória továbbra is tudja, melyik a megjegyzett alapértelmezett naptár; ez önmagában nem hoz létre eseményt és nem ad az ügynöknek naptárírási jogosultságot. A Web UI a futó alkalmazás aktuális verzióját mutatja.
+
+
+### 1.0.0 – Első hivatalos kiadás
+
+A Web UI-ban a **Memória és tárhely** fül a tartós emlékek és naplóbejegyzések számát, valamint az adatbázis és kísérő WAL/SHM fájlok tényleges méretét és az adatpartíció szabad helyét mutatja. Az emlékeknek **nincs 200 darabos tárolási limitje**; ez csak az AI-hívásba bevont tételek száma.
+
+**Fontos új beállítás:** a Nabu Recall alkalmazás **Konfiguráció / dashboard_password** mezőjében adj meg külön, erős jelszót, majd indítsd újra az alkalmazást. Amíg nincs jelszó, a Web UI **zárolva marad**, de a memória és az eredeti hangasszisztens működése nem áll le. Bejelentkezés után 8 órás webes munkamenet keletkezik, amely az alkalmazás újraindításakor lejár. A panel megnyitásához továbbra is HA-bejelentkezés szükséges. Az alkalmazás portjait továbbra se nyisd ki a hálózatra.
+
+**Frissítés előtt:** készíts teljes HAOS-alkalmazásmentést a titkosított adatbázissal **és a `recall.key` fájllal együtt**. Az adatbázis és a titkosítás működésén ez a kiadás nem változtat.

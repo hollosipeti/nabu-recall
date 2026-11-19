@@ -17,6 +17,6 @@ class DashboardStorageTests(unittest.TestCase):
             store.processed([1])
             self.assertEqual(store.statistics()["pending"], 0)
             page=render(store, {"version":"0.3.6"}, "turns")
-            self.assertIn("v0.3.6 · HAOS ingress",page)
+            self.assertIn("v1.0.0 · HAOS ingress",page)
             self.assertNotIn("v0.2.0 · HAOS ingress",page)
             store.db.close()

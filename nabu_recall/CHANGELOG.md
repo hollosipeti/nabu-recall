@@ -1,5 +1,12 @@
 # Nabu Recall – változások
 
+## 1.0.0 — 2026-11-19 (első hivatalos kiadás)
+- Új, csak olvasható „Memória és tárhely” panel: memóriák, naplóbejegyzések, titkosított adatbázis/WAL/SHM lemezmérete, szabad adatpartíció-tárhely.
+- Külön, jelszóval védett Ingress Web UI. Jelszó nélkül zárolva; 8 órás, újraindításkor érvénytelenedő munkamenet; kijelentkezés.
+- A jelszó a Home Assistant alkalmazás opciói között található, nem az emlékekben. Ne adj meg valódi jelszót hangparancsban.
+- A memóriafeldolgozás, visszakeresés, adatbázisséma és SQLCipher titkosítás nem változott.
+
+
 ## 0.3.6 — 2026-11-19
 - A naptárba mentési, naptáresemény-létrehozási és naptárból törlési kérések átmennek az eredeti Home Assistant ügynökhöz, nem kapnak téves memória-mentési visszajelzést.
 - Kifejezett naptár-preferencia megjegyzése továbbra is memória utasítás.
