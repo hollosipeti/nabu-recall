@@ -10,6 +10,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "nabu_recall"))
 from aiohttp import web
 from aiohttp.test_utils import TestClient, TestServer
 from store import Store
+import tempfile as _tmpmod
+_GLOBAL_DB = _tmpmod.TemporaryDirectory()
+os.environ['DB_PATH'] = os.path.join(_GLOBAL_DB.name, 'server-import.sqlite3')
 import server
 
 class FakeAI:

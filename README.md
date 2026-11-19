@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.0
+# 🧠 Nabu Recall v0.3.1
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -61,3 +61,7 @@ Javítottuk az új adatalapú regresszióteszt Python literáljait. Az elliptiku
 ### 0.3.0 – mélyebb regressziótesztelés
 
 Kiterjesztett offline tesztek a HTTP bridge API-ra (mock AI), hitelesítésre, elutasított tömeges törlésre, sikeresen visszaigazolt SQLite mentés/javítás/törlésre, hibaágakra és ugyanazon beszélgetés közvetlen kontextusára. A kódellenőrzés nem bizonyítja, hogy az élő OpenAI modell minden természetes megfogalmazást mindig helyesen értelmez; a HAOS + HUN Assist integrációt külön kell ellenőrizni.
+
+### 0.3.1 – tesztkörnyezet javítása
+
+A HTTP integrációs tesztek a szerver importja előtt izolált ideiglenes DB_PATH értéket kapnak; így nem írnak a HAOS alkalmazás /data könyvtárába.

@@ -1,5 +1,9 @@
 # Nabu Recall – változások
 
+## 0.3.1 – 2026-11-19
+- HTTP integration test isolated DB_PATH fix.
+
+
 ## 0.3.0 – 2026-11-19
 - Offline HTTP bridge integrációs tesztek mock AI-val, biztonsági és adatbázis-hibaforgatókönyvekkel.
 - A felhasználói adatokat és OpenAI-kulcsot nem használó tesztfuttatás.
