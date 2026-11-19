@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.0 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.1 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -74,3 +74,7 @@ A szkript a régi `custom_components/nabu_recall` mappát időbélyeges biztons�
 - Ha az app nem elérhető, az eredeti OpenAI hangasszisztens eszközvezérlése tovább működik, de memoria nélkül.
 - Eltávolítás előtt exportálj HAOS backupot. A `/data/recall.sqlite3` fájl a helyi naplót és tartós memóriát együtt tartalmazza.
 - Ne írd be a titkos kulcsot vagy a bridge tokent a GitHubra vagy nyilvános naplóba.
+
+## Személyes adatok — v0.2.1
+
+A Nabu Recall nem tiltja általánosan a személyes adatok megbeszélését. Kifejezett felhasználói kérésre a telefonszám és a szokásos kapcsolatfelvételi preferenciák megjegyezhetők. A kiemelten érzékeny TAJ-szám és egészségügyi azonosítók nem kerülnek automatikusan a tartós tárba. A **45 napos szó szerinti naplóban azonban a bemondott adat ugyanúgy megjelenhet**, és a napló jelenleg nincs titkosítva. Éles azonosítószámot ne használj teszthez; a korábbi naplóbejegyzéseket a frissítés nem törli.

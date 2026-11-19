@@ -1,14 +1,10 @@
-# Változások
+# Nabu Recall – változások
 
-## 0.2.0 — 2026-11-19
-- Read-only HA ingress diagnostics: transcript count, unprocessed turns, enduring memories, latest recall source counts.
-- Show escaped saved transcript and durable memory records for test verification.
-- Explicit cleanup logging for the strict 45-day rolling journal.
-- Multi-architecture builds (amd64 / aarch64).
-- App-store icon and logo.
-- Clean installation and upgrade documentation.
+## 0.2.1 — 2026-11-19
+- Megszüntettük a személyes adatok általános elutasítását a beszélgetőügynök utasításában.
+- Telefonszám mentése kifejezett felhasználói kérésre az AI döntése alapján megengedett.
+- TAJ- és egészségügyi azonosítók automatikus tartós megőrzése továbbra sem engedélyezett titkosítás nélkül.
+- A 45 napos nyers napló továbbra is szó szerinti, így érzékeny adatot is tartalmazhat.
 
-## 0.1.2 — 2026-11-19
-- Fixed JSON mode API request compatibility.
-
-**Status:** experimental. HAOS production integration and 45-day wall-clock expiry require live verification.
+## 0.2.0
+- Állapotlap, napló- és tartós memórialista, telepítés, ikon.

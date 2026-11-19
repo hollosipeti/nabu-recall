@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.0
+# 🧠 Nabu Recall v0.2.1
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -17,3 +17,11 @@ A HAOS alkalmazás és a külön Home Assistant custom integration **egyaránt s
 > **Kísérleti kiadás:** Home Assistant 2026.11 alatt a 0.1.2 memória-visszakeresése felhasználói tesztben működött; a 0.2.0 új diagnosztikája még HAOS-on ellenőrizendő. A helyi SQLite nincs titkosítva. Ne nyisd a 8765/8766 portot LAN-ra, és ne tedd GitHubra a kulcsokat.
 
 License: MIT.
+
+### 0.2.1 – személyes adatok kezelése
+
+- A személyes adatok megbeszélése nincs általánosan tiltva; a modell nem állíthatja tévesen, hogy telefonszámot egyáltalán nem képes kezelni.
+- Kifejezetten kért telefonszám tartós memóriába kerülhet az AI döntésével. Ezt a megőrzést csak megbízható, hozzáférés-védett környezetben használd.
+- TAJ-szám, egészségügyi azonosító és más kiemelten érzékeny azonosító **nem kerül automatikusan a tartós tárba**, mivel az adatbázis továbbra is titkosítatlan.
+- **Fontos:** a 45 napos szó szerinti napló minden feldolgozott beszélgetést tartalmazhat, így az ilyen beírt vagy bemondott azonosítókat is. Ne használj valódi TAJ-számot próbához.
+- A meglévő bejegyzések nem törlődnek ezzel a frissítéssel; a tárolt adatokhoz hozzáférést a HAOS biztonságos helyi mentéseinek is korlátozniuk kell.
