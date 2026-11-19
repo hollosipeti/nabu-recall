@@ -27,7 +27,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.8"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.9"})
 
 async def log_turn(request):
     data = await request.json()

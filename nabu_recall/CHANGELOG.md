@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.2.9 — 2026-11-19
+- Kontextusteszt Python-literál javítása.
+- Közvetlen előzményre korlátozott elliptikus parancsok.
+
+
 ## 0.2.8 – 2026-11-19
 - A „Mentsd el!” kifejezés megkapja a friss, azonos beszélgetésből származó előző mondatot, ha egyértelmű.
 - Korlátozás: maximum 5 perc; másik beszélgetés és asszisztensszöveg nem forrás.

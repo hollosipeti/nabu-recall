@@ -48,13 +48,13 @@ def previous_context(turns, conversation_id, now, max_age=300):
             continue
         created = item.get("created")
         if type(created) is not int or not (0 <= now - created <= max_age):
-            continue
+            return None
         candidate = item.get("user_text", "")
         if not isinstance(candidate, str) or not candidate.strip():
-            continue
+            return None
         if operation_kind(candidate) in ("delete", "blocked"):
-            continue
+            return None
         if context_needed(candidate):
-            continue
+            return None
         return candidate[:2000]
     return None

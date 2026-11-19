@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.8
+# 🧠 Nabu Recall v0.2.9
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -53,3 +53,7 @@ A „Töröld minden emlékemet” parancsot a szerver már biztosan tömeges t�
 ### 0.2.8 – kontextusos rövid parancsok és regressziótesztek
 
 A „Mentsd el!” típusú rövid utasítás legfeljebb 5 percen belüli, **azonos beszélgetésből** származó előző felhasználói kijelentést használhatja. Másik beszélgetésből és a segéd válaszából nem találhat ki tényt. A kifejezett javítások változatlanul egyedi, ellenőrzött műveletek. A háttér AI-feldolgozás minden új naplózás után, és 15 percenként újrapróbálva fut; **nem napi egyszeri ütemezésű**. A 45 napos lejárat ettől független.
+
+### 0.2.9 – tesztjavítás
+
+Javítottuk az új adatalapú regresszióteszt Python literáljait. Az elliptikus „Mentsd el!” most csak a legközelebbi, azonos beszélgetésbeli felhasználói mondatot használhatja; kihagyott vagy lejárt köztes forduló esetén nem ugrik régebbi témára.
