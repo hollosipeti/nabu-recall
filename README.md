@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.4
+# 🧠 Nabu Recall v0.3.6
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -79,3 +79,7 @@ Fájlkezelési figyelmeztetés megszüntetve; külön tesztek a korábbi SQLite 
 ### 0.3.4 – TAJ-adatokkal kapcsolatos hibás beszédválasz javítása
 
 Az alaprendszer továbbra is kezelheti a felhasználó által megadott személyes azonosítókat; az integráció most egyértelműen tiltja a hamis „TAJ-számokat nem tudok kezelni” állítást. Kifejezett visszakérdezésnél a kiválasztott, megfelelő személyhez tartozó emléket használhatja, találgatás nélkül; beszédfelismerési félrehallás esetén a kontextust veszi figyelembe. Egy TAJ-szám puszta bemondása továbbra sem jelent automatikus, tartós tárolási engedélyt; explicit kérésre menthető, vagy a 45 napos naplóból visszakereshető. A jelenlegi SQLCipher titkosítási állapotot a háttér AI-utasítás is helyesen írja le. A kulcs, adatbázisséma, 45 napos lejárat és a többi memóriafunkció változatlan.
+
+### 0.3.6 – Naptárparancsok és UI verzió
+
+A „mentsd el a naptárba” típusú mondatok nem memóriamentések: változtatás nélkül átmennek a beállított Home Assistant beszélgetőügynökhöz, amely csak ténylegesen elérhető naptáríró eszközzel tudja végrehajtani őket. A memória továbbra is tudja, melyik a megjegyzett alapértelmezett naptár; ez önmagában nem hoz létre eseményt és nem ad az ügynöknek naptárírási jogosultságot. A Web UI a futó alkalmazás aktuális verzióját mutatja.

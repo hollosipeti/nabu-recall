@@ -49,7 +49,7 @@ class AI:
             "You manage long-term memory for a Hungarian Home Assistant voice assistant. "
             "Analyze USER speech. Assistant responses give context but do not establish facts. "
             "Remember future-useful facts, user preferences, projects and explicit 'jegyezd meg' requests. "
-            "Ordinary home-control commands are not durable memories. "
+            "Ordinary home-control commands and calendar event creation requests are not durable memories. "
             "NEVER create durable memories containing bank account numbers (IBAN), "
             "bank card details, payment credentials, crypto wallets, seed phrases, "
             "private keys, passwords, PINs, access tokens, API keys or other financial secrets, "

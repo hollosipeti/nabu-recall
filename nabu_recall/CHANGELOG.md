@@ -1,5 +1,13 @@
 # Nabu Recall – változások
 
+## 0.3.6 — 2026-11-19
+- A naptárba mentési, naptáresemény-létrehozási és naptárból törlési kérések átmennek az eredeti Home Assistant ügynökhöz, nem kapnak téves memória-mentési visszajelzést.
+- Kifejezett naptár-preferencia megjegyzése továbbra is memória utasítás.
+- A 45 napos napló háttértanulása nem tekintheti a naptáresemény-létrehozást tartós ténynek.
+- A webes állapotlap verziója a futó kiszolgáló verzióját követi.
+- Adatbázis-séma és titkosítás változatlan.
+
+
 ## 0.3.5 — 2026-11-19
 - Beszélgetőügynök személyes és hétköznapi családi adatokat általánosan kezelő utasítása, TAJ-specifikus szűkítés helyett.
 - A beszélgetés, memóriafeldolgozás, tároló, titkosítás és hálózati API logikája változatlan.

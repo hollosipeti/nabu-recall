@@ -54,11 +54,11 @@ def render(store, state, tab="memories"):
             "<meta http-equiv='Cache-Control' content='no-store'>"
             "<title>Nabu Recall</title><style>%s</style></head><body>"
             "<header><span class='brain'>🧠</span><div><h1>%s</h1>"
-            "<small>v0.2.0 · HAOS ingress · csak olvasható diagnosztika</small></div></header>"
+            "<small>v%s · HAOS ingress · csak olvasható diagnosztika</small></div></header>"
             "<section class='metrics'>%s</section>%s<main>%s</main>"
             "<footer>Adatvédelem: a tartalom csak Home Assistant bejelentkezés után érhető el."
             " A felület nem továbbít naplóadatot az OpenAI API-hoz.</footer></body></html>"
-            % (css, title, summary, nav, body))
+            % (css, title, escape(str(state.get("version", "ismeretlen"))), summary, nav, body))
 
 def create_dashboard(store, state):
     async def home(request):

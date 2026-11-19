@@ -10,6 +10,19 @@ import re
 
 _LOGGER = logging.getLogger(__name__)
 
+# Calendar requests are routed to the original HA agent, not to memory management.
+CALENDAR_DESTINATION = re.compile(
+    r"\b(?:naptárba|naptárban|naptárból|naptáramba|naptáramban|"
+    r"naptáradba|naptáradban|naptáresemény\w*|naptárbejegyzés\w*)\b", re.I)
+
+def calendar_action(text):
+    if not isinstance(text, str):
+        return False
+    if re.search(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra))\b", text, re.I):
+        return False
+    return bool(CALENDAR_DESTINATION.search(text))
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([RecallAgent(entry)])
 
@@ -50,7 +63,7 @@ class RecallAgent(ConversationEntity):
             r"emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|"
             r"tárold\s+el|rögzítsd)\b",
             user_input.text, re.IGNORECASE)
-        if memory_command:
+        if memory_command and not calendar_action(user_input.text):
             try:
                 outcome = await bridge.manage(user_input.text, user_input.conversation_id or "")
             except Exception:

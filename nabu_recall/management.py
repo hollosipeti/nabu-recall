@@ -6,8 +6,23 @@ EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módos
 SAVE = re.compile(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|tárold\s+el|rögzítsd)\b", re.I)
 BULK = re.compile(r"\b(?:mindent|mindet|minden|összes(?:et|t)?|valamennyit|teljes(?:en)?|reset|full\s*clean|ürítsd|minden\s+emlék)\b", re.I)
 
+# Requests targeting the Home Assistant calendar are actions, not durable-memory commands.
+CALENDAR_DESTINATION = re.compile(
+    r"\b(?:naptárba|naptárban|naptárból|naptáramba|naptáramban|"
+    r"naptáradba|naptáradban|naptáresemény\w*|naptárbejegyzés\w*)\b", re.I)
+
+def calendar_action(text):
+    if not isinstance(text, str):
+        return False
+    # An explicit "remember that..." is a memory fact even if it mentions a calendar.
+    if re.search(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra))\b", text, re.I):
+        return False
+    return bool(CALENDAR_DESTINATION.search(text))
+
 def operation_kind(text):
     if not isinstance(text, str) or len(text) > 2000:
+        return None
+    if calendar_action(text):
         return None
     if DELETE.search(text) or EDIT.search(text):
         if BULK.search(text):
