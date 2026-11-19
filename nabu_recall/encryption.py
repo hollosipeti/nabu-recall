@@ -127,7 +127,10 @@ def encrypted_connect(path):
     path.parent.mkdir(parents=True, exist_ok=True)
     key_path = path.with_suffix(".key")
     exists = path.exists() and path.stat().st_size > 0
-    plain = exists and path.open("rb").read(16) == _SQLITE_HEADER
+    plain = False
+    if exists:
+        with path.open("rb") as file:
+            plain = file.read(16) == _SQLITE_HEADER
     key = _read_key(key_path, create=not exists or plain)
     if plain:
         _migrate(path, key)

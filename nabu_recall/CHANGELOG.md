@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.3.3 — 2026-11-19
+- SQLCipher migráció: fájlkezelési figyelmeztetés javítása.
+- WAL és sérült régi adatbázis regresszióteszt.
+
+
 ## 0.3.2 — 2026-11-19
 - SQLCipher AES-256 titkosítás a teljes SQLite fájlon.
 - Automatikusan generált független kulcs /data/recall.key, 0600 jogosultsággal.

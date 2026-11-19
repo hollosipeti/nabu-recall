@@ -91,3 +91,34 @@ class EncryptionTests(unittest.TestCase):
         self.assertEqual(s.memory_list(),[])
         self.assertEqual(s.pending()[0]["id"],id)
         s.db.close()
+
+    def test_legacy_wal_pending_transactions(self):
+        """A live old DB may have committed entries only in its WAL file."""
+        legacy=sqlite3.connect(self.path)
+        legacy.executescript("""
+            PRAGMA journal_mode=WAL;
+            CREATE TABLE turns(id INTEGER PRIMARY KEY,created INTEGER NOT NULL,
+                conversation_id TEXT,user_text TEXT NOT NULL,
+                assistant_text TEXT NOT NULL,processed INTEGER NOT NULL DEFAULT 0);
+            CREATE TABLE memories(id INTEGER PRIMARY KEY,created INTEGER NOT NULL,
+                updated INTEGER NOT NULL,fact TEXT NOT NULL,
+                source_turn INTEGER, UNIQUE(fact));
+        """)
+        legacy.execute("INSERT INTO turns VALUES(3,?,?,?,?,0)",
+                       (2026,"sess","Uncheckpointed memory","Acknowledged"))
+        legacy.execute("INSERT INTO memories VALUES(7,?,?,?,?)",
+                       (2026,2026,"WAL-teszt tartós emlék",3))
+        legacy.commit()
+        # Checkpoint occurs while migration opens a second connection.
+        legacy.close()
+        s=Store(self.path)
+        self.assertEqual(s.memory_list()[0]["id"],7)
+        self.assertEqual(s.recent_turns()[0]["user_text"],"Uncheckpointed memory")
+        s.db.close()
+
+    def test_corrupted_legacy_stays_unmodified(self):
+        self.path.write_bytes(HEADER + b"not-a-valid-sqlite-db")
+        before=self.path.read_bytes()
+        with self.assertRaises(Exception):
+            Store(self.path)
+        self.assertEqual(self.path.read_bytes(),before)

@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.2
+# 🧠 Nabu Recall v0.3.3
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -71,3 +71,7 @@ A HTTP integrációs tesztek a szerver importja előtt izolált ideiglenes DB_PA
 **Az alkalmazás SQLite fájlja SQLCipher AES-256 titkosítást kap** (nem csak mezőszinten). A független, 32 bájtos véletlen kulcs automatikusan az alkalmazás privát `/data/recall.key` fájljában jön létre, 0600 jogosultsággal. Nem a `bridge_token` és nem kell új mezőt beállítani. A meglévő `recall.sqlite3` első induláskor ellenőrzött, ideiglenes titkosított másolatba migrál, adatszám-egyezőséget ellenőriz, majd atomikusan cserél; hibánál nem nyit üres adatbázist. A titkosítás nem változtatja meg a 45 napos lejáratot, a mentést vagy az AI-feldolgozást.
 
 **Frissítés előtt kötelező teljes HAOS alkalmazásmentést készíteni.** Őrizd meg biztonságosan a `recall.key` fájlt is: ha elveszik, az emlékek többé nem olvashatók. A Home Assistant teljes biztonsági mentése a kulcsot is tartalmazhatja, ezért védd a mentéseket. A titkosítás nem védi meg az adatokat attól, aki a futó alkalmazáshoz és a kulcsfájlhoz is hozzáfér.
+
+### 0.3.3 – SQLCipher migrációs tesztek
+
+Fájlkezelési figyelmeztetés megszüntetve; külön tesztek a korábbi SQLite WAL üzemmódjáról és a sérült régi adatbázis megőrzéséről. A titkosítási algoritmus és a memóriafunkciók változatlanok.
