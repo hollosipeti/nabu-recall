@@ -2,6 +2,15 @@
 import aiohttp
 import json
 
+class OpenAIRequestError(Exception):
+    """Safe, sanitized HTTP diagnostics: status and API error code only."""
+
+    def __init__(self, status, code="unknown"):
+        self.status = int(status)
+        self.code = str(code)[:80]
+        super().__init__(f"OpenAI HTTP {self.status}, code={self.code}")
+
+
 class AI:
     def __init__(self, key, model="gpt-4.1-mini"):
         self.key = key
@@ -19,7 +28,19 @@ class AI:
             async with session.post(
                 "https://api.openai.com/v1/chat/completions", json=req,
                 headers={"Authorization": "Bearer " + self.key}) as response:
-                response.raise_for_status()
+                if response.status >= 400:
+                    # Never print response bodies, prompts, credentials or user text.
+                    error_code = "unknown"
+                    try:
+                        body = await response.json()
+                        detail = body.get("error", {}) if isinstance(body, dict) else {}
+                        if isinstance(detail, dict):
+                            candidate = detail.get("code") or detail.get("type")
+                            if isinstance(candidate, str) and candidate.replace("_", "").replace("-", "").isalnum():
+                                error_code = candidate[:80]
+                    except (aiohttp.ContentTypeError, ValueError):
+                        pass
+                    raise OpenAIRequestError(response.status, error_code)
                 result = await response.json()
         return json.loads(result["choices"][0]["message"]["content"])
 
