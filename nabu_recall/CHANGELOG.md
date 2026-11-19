@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.2.7 — 2026-11-19
+- Szerveroldali teljes törlés elleni védelem: a „minden” szóalak felismerése.
+- Automatikus teszthiba javítása.
+
+
 ## 0.2.6 — 2026-11-19
 - Magyar mentés/javítás/törlés parancsalakok bővítése, szabályos reguláris kifejezésekkel.
 - Javító AI részletesebb személy–tárgy kapcsolatmegőrzési utasítása.

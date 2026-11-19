@@ -4,7 +4,7 @@ import re
 DELETE = re.compile(r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|távolíts)\b", re.I)
 EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módosítsuk|módosíts|változtasd|írd\s+át|helyesbítsd|helyesbíts|ezt\s+is\s+javítsuk)\b", re.I)
 SAVE = re.compile(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|tárold\s+el|rögzítsd)\b", re.I)
-BULK = re.compile(r"\b(?:mindent|mindet|összes(?:et|t)?|valamennyit|teljes(?:en)?|reset|full\s*clean|ürítsd|minden\s+emlék)\b", re.I)
+BULK = re.compile(r"\b(?:mindent|mindet|minden|összes(?:et|t)?|valamennyit|teljes(?:en)?|reset|full\s*clean|ürítsd|minden\s+emlék)\b", re.I)
 
 def operation_kind(text):
     if not isinstance(text, str) or len(text) > 2000:
