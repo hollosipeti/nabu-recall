@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.3.0 – 2026-11-19
+- Offline HTTP bridge integrációs tesztek mock AI-val, biztonsági és adatbázis-hibaforgatókönyvekkel.
+- A felhasználói adatokat és OpenAI-kulcsot nem használó tesztfuttatás.
+
+
 ## 0.2.9 — 2026-11-19
 - Kontextusteszt Python-literál javítása.
 - Közvetlen előzményre korlátozott elliptikus parancsok.

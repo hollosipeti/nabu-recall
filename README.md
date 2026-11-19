@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.9
+# 🧠 Nabu Recall v0.3.0
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -57,3 +57,7 @@ A „Mentsd el!” típusú rövid utasítás legfeljebb 5 percen belüli, **azo
 ### 0.2.9 – tesztjavítás
 
 Javítottuk az új adatalapú regresszióteszt Python literáljait. Az elliptikus „Mentsd el!” most csak a legközelebbi, azonos beszélgetésbeli felhasználói mondatot használhatja; kihagyott vagy lejárt köztes forduló esetén nem ugrik régebbi témára.
+
+### 0.3.0 – mélyebb regressziótesztelés
+
+Kiterjesztett offline tesztek a HTTP bridge API-ra (mock AI), hitelesítésre, elutasított tömeges törlésre, sikeresen visszaigazolt SQLite mentés/javítás/törlésre, hibaágakra és ugyanazon beszélgetés közvetlen kontextusára. A kódellenőrzés nem bizonyítja, hogy az élő OpenAI modell minden természetes megfogalmazást mindig helyesen értelmez; a HAOS + HUN Assist integrációt külön kell ellenőrizni.
