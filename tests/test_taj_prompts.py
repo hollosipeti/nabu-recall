@@ -8,9 +8,10 @@ class TajPromptTests(unittest.TestCase):
     def test_agent_prompt_supports_requested_taj(self):
         source=(ROOT / "custom_components/nabu_recall/conversation.py").read_text()
         ast.parse(source)
-        for phrase in ("TAJ healthcare numbers", "explicitly asks to retrieve",
-                       "never invent", "two people's numbers", "categorically",
-                       "Spoken recognition", "without guaranteeing"):
+        for phrase in ("Ordinary personal and family facts", "identification numbers",
+                       "names, birthdays, relationships", "health facts",
+                       "Do not categorically refuse", "Do not invent missing facts",
+                       "without a relevant user request"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, source)
     def test_learning_prompt_does_not_claim_plaintext_sqlite(self):

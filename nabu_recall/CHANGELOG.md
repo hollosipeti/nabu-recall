@@ -1,5 +1,10 @@
 # Nabu Recall – változások
 
+## 0.3.5 — 2026-11-19
+- Beszélgetőügynök személyes és hétköznapi családi adatokat általánosan kezelő utasítása, TAJ-specifikus szűkítés helyett.
+- A beszélgetés, memóriafeldolgozás, tároló, titkosítás és hálózati API logikája változatlan.
+
+
 ## 0.3.4 – 2026-11-19
 - HAMIS TAJ-kezelési elutasítás elleni explicit HUN agent útmutatás, célzott visszakeresési viselkedés.
 - Elírt/hibásan felismert TAJ kérdések kontextusfüggő értelmezése, számok kitalálása nélkül.
