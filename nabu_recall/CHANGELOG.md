@@ -1,5 +1,9 @@
 # Nabu Recall – változások
 
+## 1.0.1 — 2026-11-19
+- Első hivatalos kiadás automatikus UI-verziótesztjének javítása. A memóriafeldolgozás változatlan.
+
+
 ## 1.0.0 — 2026-11-19 (első hivatalos kiadás)
 - Új, csak olvasható „Memória és tárhely” panel: memóriák, naplóbejegyzések, titkosított adatbázis/WAL/SHM lemezmérete, szabad adatpartíció-tárhely.
 - Külön, jelszóval védett Ingress Web UI. Jelszó nélkül zárolva; 8 órás, újraindításkor érvénytelenedő munkamenet; kijelentkezés.

@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v1.0.0
+# 🧠 Nabu Recall v1.0.1
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
