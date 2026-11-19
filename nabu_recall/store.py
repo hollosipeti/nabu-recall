@@ -92,3 +92,18 @@ class Store:
     def remove_memory(self, id):
         with self.db:
             return self.db.execute("DELETE FROM memories WHERE id=?", (id,)).rowcount
+
+    def statistics(self):
+        row = self.db.execute(
+            "SELECT COUNT(*) AS turns, COALESCE(SUM(CASE WHEN processed=0 THEN 1 ELSE 0 END),0) AS pending, "
+            "MIN(created) AS oldest, MAX(created) AS newest FROM turns"
+        ).fetchone()
+        memories = self.db.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
+        return {"turns": row["turns"], "pending": row["pending"],
+                "memories": memories, "oldest": row["oldest"], "newest": row["newest"],
+                "retention_days": RETENTION_DAYS}
+
+    def recent_turns(self, limit=35):
+        return [dict(r) for r in self.db.execute(
+            "SELECT id,created,conversation_id,user_text,assistant_text,processed "
+            "FROM turns ORDER BY id DESC LIMIT ?", (min(int(limit), 100),))]
