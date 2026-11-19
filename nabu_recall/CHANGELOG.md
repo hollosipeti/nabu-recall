@@ -1,5 +1,12 @@
 # Nabu Recall – változások
 
+## 0.3.4 – 2026-11-19
+- HAMIS TAJ-kezelési elutasítás elleni explicit HUN agent útmutatás, célzott visszakeresési viselkedés.
+- Elírt/hibásan felismert TAJ kérdések kontextusfüggő értelmezése, számok kitalálása nélkül.
+- Háttér AI prompt helyes SQLCipher leírása; a puszta bemondás nem automatikus tartós mentési engedély.
+- Sem adatbázis-, sem memória-API módosítás nincs.
+
+
 ## 0.3.3 — 2026-11-19
 - SQLCipher migráció: fájlkezelési figyelmeztetés javítása.
 - WAL és sérült régi adatbázis regresszióteszt.

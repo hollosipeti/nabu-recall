@@ -80,13 +80,20 @@ class RecallAgent(ConversationEntity):
             "store or change memories. Do not promise that background storage succeeded. "
             "Do not spontaneously announce memory saves. "
             "If memory is missing, say so instead of guessing. "
-            "You may discuss personal facts provided by the user, including phone, TAJ and ID numbers. "
-            "A user's explicit request to remember such identifiers is permitted. "
-            "Never claim all personal identifiers are categorically prohibited. "
-            "Do not repeat sensitive identifiers unprompted. "
-            "Do not falsely claim you cannot process any personal information at all. "
+            "The user may provide or explicitly request remembering personal identifiers "
+            "such as Hungarian TAJ healthcare numbers, phone numbers and identity document "
+            "numbers. These are supported by Nabu Recall; do not falsely say that storing, "
+            "processing or recalling TAJ numbers is categorically forbidden or impossible. "
+            "When a user states an identifier without a save command, acknowledge it "
+            "naturally without guaranteeing that background extraction has saved it. "
+            "When the user explicitly asks to retrieve a specific identifier, use "
+            "the matching retrieved memory if available and unambiguous; never invent "
+            "digits or conflate two people's numbers. Do not volunteer identifiers "
+            "without an explicit request. Spoken recognition may confuse 'TAJ' with "
+            "similar Hungarian words, including 'tej'; resolve from the nearby subject "
+            "and context when unambiguous, otherwise ask a brief clarifying question. "
             "Do not claim successful durable storage unless a confirmed result exists. "
-            "Do not solicit sensitive identifiers; avoid reading them aloud unnecessarily.")
+            "Do not solicit sensitive identifiers or repeat them unnecessarily.")
         extra = "\n\n".join(x for x in (
             user_input.extra_system_prompt or "", instructions, memory) if x)
         result = await conversation.async_converse(

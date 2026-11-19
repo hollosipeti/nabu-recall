@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.3.3
+# 🧠 Nabu Recall v0.3.4
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -75,3 +75,7 @@ A HTTP integrációs tesztek a szerver importja előtt izolált ideiglenes DB_PA
 ### 0.3.3 – SQLCipher migrációs tesztek
 
 Fájlkezelési figyelmeztetés megszüntetve; külön tesztek a korábbi SQLite WAL üzemmódjáról és a sérült régi adatbázis megőrzéséről. A titkosítási algoritmus és a memóriafunkciók változatlanok.
+
+### 0.3.4 – TAJ-adatokkal kapcsolatos hibás beszédválasz javítása
+
+Az alaprendszer továbbra is kezelheti a felhasználó által megadott személyes azonosítókat; az integráció most egyértelműen tiltja a hamis „TAJ-számokat nem tudok kezelni” állítást. Kifejezett visszakérdezésnél a kiválasztott, megfelelő személyhez tartozó emléket használhatja, találgatás nélkül; beszédfelismerési félrehallás esetén a kontextust veszi figyelembe. Egy TAJ-szám puszta bemondása továbbra sem jelent automatikus, tartós tárolási engedélyt; explicit kérésre menthető, vagy a 45 napos naplóból visszakereshető. A jelenlegi SQLCipher titkosítási állapotot a háttér AI-utasítás is helyesen írja le. A kulcs, adatbázisséma, 45 napos lejárat és a többi memóriafunkció változatlan.
