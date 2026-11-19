@@ -7,6 +7,7 @@ from aiohttp import web
 from store import Store
 from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
+from policy import filter_memory_operations
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger("nabu_recall")
@@ -24,7 +25,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.2"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.3"})
 
 async def log_turn(request):
     data = await request.json()
@@ -48,8 +49,14 @@ async def process_pending():
                 break
             try:
                 operations = await ai.learn(pending, store.memory_list(200))
-                safe = [x for x in operations if isinstance(x, dict)
-                        and x.get("action") in ("add", "update", "delete")]
+                safe = filter_memory_operations(
+                    operations, [x["user_text"] for x in pending]
+                )
+                blocked = sum(1 for x in operations if isinstance(x, dict)
+                              and x.get("action") == "delete") - sum(
+                              1 for x in safe if x.get("action") == "delete")
+                if blocked:
+                    LOG.warning("Blocked %d unauthorized/bulk memory deletions", blocked)
                 store.apply(safe, pending[-1]["id"])
                 store.processed([x["id"] for x in pending])
                 state["last_learn"] = f"{len(pending)} párbeszéd feldolgozva, {len(safe)} memória-művelet." 

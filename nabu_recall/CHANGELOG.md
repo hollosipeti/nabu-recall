@@ -1,5 +1,11 @@
 # Nabu Recall – változások
 
+## 0.2.3 — 2026-11-19
+- Szerveroldali védelem a tömeges hangos memóriatörlés ellen.
+- Egy feldolgozási adagban maximum egy konkrét, kifejezetten kért azonosító szerinti törlés engedélyezett.
+- A 45 napos napló lejárata továbbra is automatikus.
+
+
 ## 0.2.2 — 2026-11-19
 - A felhasználó kifejezett kérésére megengedett telefonszám, TAJ és személyi igazolványszám tartós tárolása.
 - Bankszámla, bankkártya, kripto és hitelesítési titkok továbbra is kizárva a tartós memóriából.

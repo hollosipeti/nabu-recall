@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.2
+# 🧠 Nabu Recall v0.2.3
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -29,3 +29,7 @@ License: MIT.
 ### 0.2.2 – kifejezetten engedélyezett azonosítók
 
 Kifejezett **„jegyezd meg”** kérés esetén a telefonszám, személyi igazolványszám és TAJ-szám az AI által tartós memóriaként kezelhető. Automatikus kiválasztásuk tilos. Bankszámla/IBAN, bankkártya, kriptotárca, seed phrase, privát kulcs, jelszó, PIN és hozzáférési kulcs tartós tárolása továbbra is tilos. A 45 napos szó szerinti napló ezek említését is tartalmazhatja; az adatbázis titkosítatlan, és a közös háztartási asszisztens memóriáját az engedélyezett felhasználók lekérdezhetik. Az AI kiválasztása nem helyettesít hozzáférésvédelmet vagy titkosítást.
+
+### 0.2.3 — törlésvédelem
+
+A hangasszisztens **nem rendelkezik teljes memóriaürítési művelettel**. Az AI által javasolt törlések közül egy feldolgozási adagban legfeljebb egy ID-alapú művelet engedélyezhető, kizárólag egy konkrét, kifejezett felhasználói törlési kéréssel. A teljes, összes, mindent törlő vagy reset jellegű kérések nem engedélyeznek memóriatörlést. A 45 napos automatikus lejárat ettől független. A napló és a tartós memória törlése továbbra sem kínál hangos „full clean” műveletet. A védelem nem alkalmas rosszindulatú rendszergazdai hozzáférés vagy az adatfájl kézi törlése ellen.

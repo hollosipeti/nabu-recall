@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.2 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.3 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -84,3 +84,7 @@ A Nabu Recall nem tiltja általánosan a személyes adatok megbeszélését. Kif
 Az asszisztens kérésre megjegyezhet telefonszámot, személyi igazolványszámot és TAJ-számot. Ezek az adatok a **titkosítatlan** SQLite tartós tárba kerülhetnek, amelyet az azonos HUN ügynököt használó háztartástagok visszakérdezhetnek. Ez nem biztonságos irattár: csak akkor add meg őket, ha ezt a kockázatot vállalod. Bankszámlaszámot/IBAN-t, kártyaadatot, kriptotárcát, seed phrase-t és hitelesítő titkot ne mondj be; automatikus tartós mentésük tiltott. A 45 napos szó szerinti naplózást ez a változás nem módosítja.
 
 Frissítéskor az **alkalmazást és a külön Nabu Recall custom integrationt is** frissítsd; a Home Assistant Core újraindítása szükséges a módosított ügynökutasítás érvényesítéséhez. A meglévő adatbázist ne töröld.
+
+## 0.2.3 – Hangos törlésvédelem
+
+A „törölj minden emléket”, „felejts el mindent”, „full clean” és hasonló parancsok **nem törlik** a tartós memóriát. A törlés egyetlen konkrét emlékre korlátozott, és csak kifejezett kérésre történhet. Az adatbázis rendszergazdai törlése és a 45 napos napló automatikus lejárata más mechanizmus. A korábbi v0.2.2-ről a HAOS alkalmazás frissítésével a meglévő adatok megmaradnak; ezt a védelmet az alkalmazás szerveroldalon érvényesíti.
