@@ -1,5 +1,11 @@
 # Nabu Recall – változások
 
+## 1.0.2 — 2026-11-19 (csak custom integration)
+- Helyi ikon és logó a custom integration brand/ mappájában.
+- Telepítő visszajelzi a bemásolt integráció pontos manifest-verzióját és az ikon jelenlétét.
+- A HAOS alkalmazás és a memória/AI feldolgozás változatlan (alkalmazás v1.0.1).
+
+
 ## 1.0.1 — 2026-11-19
 - Első hivatalos kiadás automatikus UI-verziótesztjének javítása. A memóriafeldolgozás változatlan.
 

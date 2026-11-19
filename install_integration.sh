@@ -23,4 +23,6 @@ if [ -d "$DEST" ]; then
 fi
 cp -R "$SRC" "$DEST"
 echo "Nabu Recall integráció telepítve: $DEST"
+echo "Telepített manifest: $(cat "$DEST/manifest.json")"
+[ -f "$DEST/brand/icon.png" ] && echo "Integráció ikon: telepítve" || echo "FIGYELEM: integráció ikon hiányzik!"
 echo "Indítsd újra a Home Assistant Core-t, az alkalmazást önmagában nem elég frissíteni."
