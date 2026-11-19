@@ -8,6 +8,7 @@ from store import Store
 from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
+from management import operation_kind, validate_change
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger("nabu_recall")
@@ -25,7 +26,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.3"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.4"})
 
 async def log_turn(request):
     data = await request.json()
@@ -36,8 +37,41 @@ async def log_turn(request):
     if not user.strip() or len(user) > 12000 or len(assistant) > 16000:
         raise web.HTTPBadRequest()
     turn_id = store.add_turn(user, assistant, str(data.get("conversation_id", ""))[:160])
-    asyncio.create_task(process_pending())
+    if operation_kind(user) is not None:
+        store.processed([turn_id])  # Explicit command handled synchronously; never run it twice.
+    else:
+        asyncio.create_task(process_pending())
     return web.json_response({"ok": True, "id": turn_id})
+
+async def manage(request):
+    """Single-command operation: no bulk reset and no optimistic confirmations."""
+    data = await request.json()
+    utterance = data.get("utterance", "")
+    kind = operation_kind(utterance)
+    if kind == "blocked":
+        return web.json_response({"status": "blocked", "message": "A teljes memória törlése hangutasítással tiltott."})
+    if kind is None:
+        return web.json_response({"status": "not_command"})
+    if ai is None:
+        return web.json_response({"status": "error", "message": "A memória API nem elérhető."})
+    async with lock:
+        try:
+            memories = store.memory_list(200)
+            operations = await ai.manage(utterance, kind, memories)
+            op = validate_change(kind, operations, memories)
+            if op is None:
+                return web.json_response({"status": "not_found", "message": "Nem sikerült egyértelműen azonosítani az emléket."})
+            changed = store.apply_confirmed(op)
+            if not changed:
+                return web.json_response({"status": "not_found", "message": "Nem történt módosítás."})
+            LOG.info("Confirmed memory operation: %s, memory id=%s", kind, op.get("id", "new"))
+            return web.json_response({"status": "confirmed", "action": kind,
+                                      "message": {"delete": "A kért tartós emléket töröltem.",
+                                                  "update": "A kért tartós emléket módosítottam.",
+                                                  "add": "A kért információt megjegyeztem."}[kind]})
+        except Exception as exc:
+            LOG.warning("Synchronous memory operation failed: %s", type(exc).__name__)
+            return web.json_response({"status": "error", "message": "A memóriaműveletet nem sikerült megerősíteni."})
 
 async def process_pending():
     if not ai or lock.locked():
@@ -130,6 +164,7 @@ app = web.Application(middlewares=[authorization], client_max_size=64 * 1024)
 app.router.add_post("/bridge/ping", ping)
 app.router.add_post("/bridge/turn", log_turn)
 app.router.add_post("/bridge/recall", recall)
+app.router.add_post("/bridge/manage", manage)
 app.on_startup.append(startup)
 app.on_cleanup.append(cleanup)
 

@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.3 — tiszta telepítés és frissítés
+# 🧠 Nabu Recall v0.2.4 — tiszta telepítés és frissítés
 
 ## 0. Fontos előfeltételek
 
@@ -88,3 +88,7 @@ Frissítéskor az **alkalmazást és a külön Nabu Recall custom integrationt i
 ## 0.2.3 – Hangos törlésvédelem
 
 A „törölj minden emléket”, „felejts el mindent”, „full clean” és hasonló parancsok **nem törlik** a tartós memóriát. A törlés egyetlen konkrét emlékre korlátozott, és csak kifejezett kérésre történhet. Az adatbázis rendszergazdai törlése és a 45 napos napló automatikus lejárata más mechanizmus. A korábbi v0.2.2-ről a HAOS alkalmazás frissítésével a meglévő adatok megmaradnak; ezt a védelmet az alkalmazás szerveroldalon érvényesíti.
+
+## 0.2.4 – memóriakezelő parancsok visszaigazolása
+
+**A HAOS alkalmazást ÉS a külön custom integrationt is frissíteni kell.** Core újraindítás szükséges. Teszt: „Jegyezd meg, hogy a tesztállatom neve Maszat.” → megerősítés; „Javítsd ki a tesztállatom nevét Bodzára.” → megerősítés; „Töröld a tesztállatom nevét.” → megerősítés. A rendszer csak a SQLite-ban végrehajtott műveletet jelenti sikeresnek. A korábbi 45 napos napló nem törlődik. A teljes törlésre utasító mondatok továbbra is blokkoltak.

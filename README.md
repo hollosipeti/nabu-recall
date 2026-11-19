@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.2.3
+# 🧠 Nabu Recall v0.2.4
 
 **Egyszerű, AI-alapú beszélgetési memória a Home Assistant magyar hangasszisztenséhez.**
 
@@ -33,3 +33,7 @@ Kifejezett **„jegyezd meg”** kérés esetén a telefonszám, személyi igazo
 ### 0.2.3 — törlésvédelem
 
 A hangasszisztens **nem rendelkezik teljes memóriaürítési művelettel**. Az AI által javasolt törlések közül egy feldolgozási adagban legfeljebb egy ID-alapú művelet engedélyezhető, kizárólag egy konkrét, kifejezett felhasználói törlési kéréssel. A teljes, összes, mindent törlő vagy reset jellegű kérések nem engedélyeznek memóriatörlést. A 45 napos automatikus lejárat ettől független. A napló és a tartós memória törlése továbbra sem kínál hangos „full clean” műveletet. A védelem nem alkalmas rosszindulatú rendszergazdai hozzáférés vagy az adatfájl kézi törlése ellen.
+
+### 0.2.4 — ellenőrzött memóriaműveletek
+
+A kifejezett „jegyezd meg”, „javítsd/módosítsd” és „töröld” kéréseket a HUN agent most már szinkron módban intézi: egyetlen AI-értelmezés, pontos célazonosító, SQLite-végrehajtás és csak ezután megerősített válasz. Nem ad hamis „nem tudok tárolni” visszajelzést egy sikeres műveletre. Teljes törlés továbbra is tiltott. A háttérnapló elmenti a párbeszédet, de nem futtatja újra ugyanazt a memóriamódosítást. A szokásos automatikus tartós tanulás változatlanul háttérben történik, és nem küld optimista mentési visszaigazolást.

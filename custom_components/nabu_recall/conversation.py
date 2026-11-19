@@ -6,6 +6,7 @@ from homeassistant.components.conversation.const import ConversationEntityFeatur
 from homeassistant.const import MATCH_ALL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .gateway import Bridge
+import re
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +41,29 @@ class RecallAgent(ConversationEntity):
         if upstream in (self.entity_id, user_input.agent_id):
             raise ValueError("Nabu Recall cannot call itself as upstream agent")
         bridge = Bridge(async_get_clientsession(self.hass), opts["url"], opts["token"])
+        # Handle explicit memory commands synchronously. Ordinary speech still
+        # flows to the original OpenAI agent, preserving device-control tools.
+        memory_command = re.search(
+            r"\\b(?:töröld|törölj|felejtsd|felejts|javítsd|javítsuk|"
+            r"módosítsd|módosítsuk|jegyezd\\s+meg|emlékezz\\s+rá)\\b",
+            user_input.text, re.IGNORECASE)
+        if memory_command:
+            try:
+                outcome = await bridge.manage(user_input.text)
+            except Exception:
+                outcome = {"status": "error", "message": "A memóriaműveletet nem sikerült ellenőrizni."}
+            if outcome.get("status") in ("confirmed", "blocked", "not_found", "error"):
+                from homeassistant.helpers import intent
+                response = intent.IntentResponse(language=user_input.language)
+                spoken = outcome.get("message") or "A memóriaművelet eredménye nem ismert."
+                response.async_set_speech(spoken)
+                result = conversation.ConversationResult(
+                    response=response, conversation_id=user_input.conversation_id or "")
+                try:
+                    await bridge.log(user_input.text, spoken, result.conversation_id)
+                except Exception:
+                    _LOGGER.warning("Nabu Recall management transcript logging failed")
+                return result
         try:
             memory = await bridge.recall(user_input.text)
         except Exception:

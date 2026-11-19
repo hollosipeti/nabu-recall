@@ -23,6 +23,9 @@ class Bridge:
     async def recall(self, query):
         return (await self.post("recall", {"query": query}, timeout=20)).get("context", "")
 
+    async def manage(self, utterance):
+        return await self.post("manage", {"utterance": utterance}, timeout=25)
+
     async def log(self, user, assistant, conversation_id):
         return await self.post(
             "turn", {"user": user, "assistant": assistant, "conversation_id": conversation_id})

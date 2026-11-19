@@ -89,6 +89,25 @@ class Store:
                 elif action == "delete" and type(op.get("id")) is int:
                     self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
 
+    def apply_confirmed(self, op):
+        """Apply one checked operation and confirm a real database change."""
+        action = op["action"]
+        with self.db:
+            if action == "delete":
+                cursor = self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
+                return cursor.rowcount == 1
+            if action == "update":
+                cursor = self.db.execute(
+                    "UPDATE memories SET fact=?,updated=? WHERE id=?",
+                    (op["fact"].strip(), int(time.time()), op["id"]))
+                return cursor.rowcount == 1
+            if action == "add":
+                cursor = self.db.execute(
+                    "INSERT OR IGNORE INTO memories(created,updated,fact) VALUES(?,?,?)",
+                    (int(time.time()), int(time.time()), op["fact"].strip()))
+                return cursor.rowcount == 1
+        return False
+
     def remove_memory(self, id):
         with self.db:
             return self.db.execute("DELETE FROM memories WHERE id=?", (id,)).rowcount

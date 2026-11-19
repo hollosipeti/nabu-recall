@@ -1,5 +1,11 @@
 # Nabu Recall – változások
 
+## 0.2.4 — 2026-11-19
+- Egyedi kifejezett mentés, javítás és törlés szinkron API-val és megerősített SQLite-visszajelzéssel.
+- Az explicit műveleteket a háttérfeldolgozó nem hajtja végre másodszor.
+- Teljes memóriatörlés továbbra sincs engedélyezve.
+
+
 ## 0.2.3 — 2026-11-19
 - Szerveroldali védelem a tömeges hangos memóriatörlés ellen.
 - Egy feldolgozási adagban maximum egy konkrét, kifejezetten kért azonosító szerinti törlés engedélyezett.
