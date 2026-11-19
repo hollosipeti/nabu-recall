@@ -74,7 +74,7 @@ class AI:
         output = await self.json_answer(instruction, {"turns": turns, "memories": memories})
         return output.get("operations", []) if isinstance(output.get("operations"), list) else []
 
-    async def manage(self, utterance, kind, memories):
+    async def manage(self, utterance, kind, memories, recent_user_statement=None):
         prompt = (
             "You are an exact memory-editing parser. Return JSON with an operations array. "
             "Only the user's CURRENT utterance authorizes an operation. "
@@ -94,6 +94,7 @@ class AI:
             "Return JSON object with operations array only.")
         result = await self.json_answer(
             prompt, {"utterance": utterance, "requested_action": kind,
+                     "recent_user_statement": recent_user_statement,
                      "existing_memories": memories}, timeout=16)
         return result.get("operations", [])
 

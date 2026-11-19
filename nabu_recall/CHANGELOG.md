@@ -1,5 +1,11 @@
 # Nabu Recall – változások
 
+## 0.2.8 – 2026-11-19
+- A „Mentsd el!” kifejezés megkapja a friss, azonos beszélgetésből származó előző mondatot, ha egyértelmű.
+- Korlátozás: maximum 5 perc; másik beszélgetés és asszisztensszöveg nem forrás.
+- „ki kell javítani” parancsalak felismerése; részletesebb kontextus-regressziótesztek.
+
+
 ## 0.2.7 — 2026-11-19
 - Szerveroldali teljes törlés elleni védelem: a „minden” szóalak felismerése.
 - Automatikus teszthiba javítása.

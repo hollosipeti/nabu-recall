@@ -2,7 +2,7 @@
 import re
 
 DELETE = re.compile(r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|távolíts)\b", re.I)
-EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módosítsuk|módosíts|változtasd|írd\s+át|helyesbítsd|helyesbíts|ezt\s+is\s+javítsuk)\b", re.I)
+EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módosítsuk|módosíts|változtasd|írd\s+át|helyesbítsd|helyesbíts|ki\s+kell\s+javítani|ezt\s+is\s+javítsuk)\b", re.I)
 SAVE = re.compile(r"\b(?:jegyezd\s+meg|emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|tárold\s+el|rögzítsd)\b", re.I)
 BULK = re.compile(r"\b(?:mindent|mindet|minden|összes(?:et|t)?|valamennyit|teljes(?:en)?|reset|full\s*clean|ürítsd|minden\s+emlék)\b", re.I)
 
@@ -30,3 +30,31 @@ def validate_change(kind, operations, memories):
         if not isinstance(op.get("fact"), str) or not op["fact"].strip() or len(op["fact"]) > 1500:
             return None
     return op
+
+def context_needed(text):
+    """Only elliptical imperative requests may consult the preceding conversation turn."""
+    if not isinstance(text, str):
+        return False
+    compact = re.sub(r"[.!?\s]+", " ", text).strip().casefold()
+    return compact in ("mentsd el", "mentsük el", "jegyezd meg", "tárold el",
+                       "ezt mentsd el", "azt mentsd el", "ezt jegyezd meg")
+
+def previous_context(turns, conversation_id, now, max_age=300):
+    """Never infer an antecedent across conversations, missing IDs or old turns."""
+    if not conversation_id or not isinstance(conversation_id, str):
+        return None
+    for item in turns:
+        if item.get("conversation_id") != conversation_id:
+            continue
+        created = item.get("created")
+        if type(created) is not int or not (0 <= now - created <= max_age):
+            continue
+        candidate = item.get("user_text", "")
+        if not isinstance(candidate, str) or not candidate.strip():
+            continue
+        if operation_kind(candidate) in ("delete", "blocked"):
+            continue
+        if context_needed(candidate):
+            continue
+        return candidate[:2000]
+    return None

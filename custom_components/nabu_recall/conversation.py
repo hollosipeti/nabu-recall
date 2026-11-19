@@ -46,13 +46,13 @@ class RecallAgent(ConversationEntity):
         memory_command = re.search(
             r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|"
             r"javítsd|javítsuk|javíts|módosítsd|módosítsuk|módosíts|"
-            r"változtasd|írd\s+át|helyesbítsd|jegyezd\s+meg|"
+            r"változtasd|írd\s+át|helyesbítsd|ki\s+kell\s+javítani|jegyezd\s+meg|"
             r"emlékezz\s+(?:rá|arra)|mentsd\s+el|mentsük\s+el|"
             r"tárold\s+el|rögzítsd)\b",
             user_input.text, re.IGNORECASE)
         if memory_command:
             try:
-                outcome = await bridge.manage(user_input.text)
+                outcome = await bridge.manage(user_input.text, user_input.conversation_id or "")
             except Exception:
                 outcome = {"status": "error", "message": "A memóriaműveletet nem sikerült ellenőrizni."}
             if outcome.get("status") in ("confirmed", "blocked", "not_found", "error", "not_command"):

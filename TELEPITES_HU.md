@@ -100,3 +100,7 @@ A v0.2.4-ben a szinkron memóriautasítások felismerése hibás volt. Válts 0.
 ## 0.2.6 – parancsok javítása
 
 Frissítsd **mindkét** elemet: Nabu Recall HAOS app és a `custom_components/nabu_recall` integráció. Indítsd újra a HA Core-t. Tesztparancsok: „Mentsd el! A házban Anya (Betti), Apa (Peti), Enikő és Gyöngyi laknak.”; „Javítsd az Anna bevásárlólistáján ... emléket úgy, hogy név nélkül csak bevásárlólistán szerepel zöldség és gyümölcs.”. Az utóbbinál ellenőrizd, hogy az eredeti #8-as emlék módosult, és nem jött létre párhuzamos új bejegyzés.
+
+## 0.2.8 – kontextusos memóriaparancs
+
+Tesztelés: mondd ugyanabban az Assist-beszélgetésben „Anya a feleségem.” majd „Mentsd el!”. A mentéshez az előző felhasználói mondatot adja át az AI-nak; az asszisztens válaszát nem használja tényforrásként. Ha már nincs ugyanazon beszélgetésen belüli friss mondat, visszakérdez. Külön eszközön és külön beszélgetésben nem használhat átvezetés nélküli kontextust. Frissítéskor a HAOS alkalmazást és a custom integrationt is frissítsd, majd Core újraindítás.

@@ -3,12 +3,13 @@ import asyncio
 import hmac
 import logging
 import os
+import time
 from aiohttp import web
 from store import Store
 from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
-from management import operation_kind, validate_change
+from management import operation_kind, validate_change, previous_context, context_needed
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger("nabu_recall")
@@ -26,7 +27,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.7"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "0.2.8"})
 
 async def log_turn(request):
     data = await request.json()
@@ -48,6 +49,9 @@ async def manage(request):
     data = await request.json()
     utterance = data.get("utterance", "")
     kind = operation_kind(utterance)
+    conversation_id = data.get("conversation_id", "")
+    if not isinstance(conversation_id, str) or len(conversation_id) > 160:
+        conversation_id = ""
     if kind == "blocked":
         return web.json_response({"status": "blocked", "message": "A teljes memória törlése hangutasítással tiltott."})
     if kind is None:
@@ -57,7 +61,14 @@ async def manage(request):
     async with lock:
         try:
             memories = store.memory_list(200)
-            operations = await ai.manage(utterance, kind, memories)
+            context = None
+            if context_needed(utterance):
+                context = previous_context(
+                    store.recent_turns(30), conversation_id, int(time.time()))
+                if context is None:
+                    return web.json_response({"status": "not_found",
+                        "message": "Mit szeretnél elmenteni? Mondd el a tényt is."})
+            operations = await ai.manage(utterance, kind, memories, context)
             op = validate_change(kind, operations, memories)
             if op is None:
                 return web.json_response({"status": "not_found", "message": "Nem sikerült egyértelműen azonosítani az emléket."})
