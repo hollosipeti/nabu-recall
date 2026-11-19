@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall v0.1.0
+# 🧠 Nabu Recall v0.1.2
 
 **Independent Home Assistant Voice memory**: 45-day verbatim rolling transcript and AI-curated durable facts. Built as a new project; the earlier Nabu Memory repositories remain unchanged.
 
@@ -24,3 +24,7 @@ Plaintext local SQLite in this version; no management UI or encrypted database y
 Run `python -m unittest discover -s tests -v`.
 
 MIT License.
+
+## v0.1.2 fix
+
+Fixed a repeated OpenAI HTTP 400 during search-term generation: JSON mode now always has explicit JSON output instructions. Removed the optional temperature parameter for broader chat-model compatibility. Existing SQLite data is not intentionally changed by this update.

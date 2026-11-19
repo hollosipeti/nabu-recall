@@ -18,10 +18,10 @@ class AI:
 
     async def json_answer(self, instruction, payload, timeout=25):
         req = {
-            "model": self.model, "temperature": 0,
+            "model": self.model,
             "response_format": {"type": "json_object"},
             "messages": [
-                {"role": "system", "content": instruction},
+                {"role": "system", "content": instruction + "\nRespond with a valid JSON object only."},
                 {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
         }
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=timeout)) as session:
@@ -64,7 +64,7 @@ class AI:
     async def search_terms(self, query):
         output = await self.json_answer(
             'Plan keyword and phrase search in Hungarian 45-day conversation transcripts. '
-            'Include synonyms and Hungarian stems. Output {"terms":["..."]} only.',
+            'Include synonyms and Hungarian stems. Output JSON object with terms array only.',
             {"query": query}, timeout=7)
         return [x for x in output.get("terms", []) if isinstance(x, str)][:10]
 
