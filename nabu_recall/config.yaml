@@ -1,0 +1,20 @@
+name: Nabu Recall
+version: "0.1.0"
+slug: nabu_recall
+description: 45-day verbatim conversation journal with AI-curated long-term memory
+arch:
+  - amd64
+startup: services
+boot: auto
+init: false
+panel_icon: mdi:brain
+ports:
+  8765/tcp: null
+options:
+  openai_api_key: ""
+  openai_model: "gpt-4.1-mini"
+  bridge_token: ""
+schema:
+  openai_api_key: password
+  openai_model: str
+  bridge_token: password
