@@ -60,7 +60,12 @@ async def manage(request):
         return web.json_response({"status": "error", "message": "A memória API nem elérhető."})
     async with lock:
         try:
-            memories = store.memory_search(store.memory_query_terms(utterance), limit=160)
+            relevant = store.memory_search(
+                store.memory_query_terms(utterance), limit=120)
+            # Keep recent facts available for corrections phrased without an
+            # exact lexical match, while searching ALL historical facts.
+            memories = list({m["id"]: m for m in
+                             (relevant + store.memory_list(40))}.values())[:160]
             context = None
             if context_needed(utterance):
                 context = previous_context(
