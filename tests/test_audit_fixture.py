@@ -1,5 +1,7 @@
 """End-to-end read-only audit against a real encrypted SQLCipher fixture."""
 import hashlib
+import random
+import shutil
 import os
 import sys
 import tempfile
@@ -73,6 +75,87 @@ class AuditFixtureTests(unittest.TestCase):
                                  key_before)
             finally:
                 store.db.close()
+
+    def test_random_320_turn_database_and_cold_restore(self):
+        """Synthetic fixture: 230 missing replies, provenance and cold backup."""
+        rng = random.Random(20261120)
+        classes = (["pending"] * 40 + ["linked"] * 60 +
+                   ["unlinked"] * 130 + ["complete"] * 90)
+        rng.shuffle(classes)
+        with tempfile.TemporaryDirectory() as tmp:
+            primary = Path(tmp) / "live" / "recall.sqlite3"
+            primary.parent.mkdir()
+            store = Store(primary)
+            try:
+                expected = {"pending": [], "linked": [], "unlinked": []}
+                for index, kind in enumerate(classes):
+                    user_text = "SYNTHETIC-%06d-%06d" % (
+                        rng.randrange(1000000), index
+                    )
+                    assistant = ("OK-%06d" % rng.randrange(1000000)
+                                 if kind == "complete" else
+                                 (" " if index % 3 == 0 else ""))
+                    turn_id = store.add_turn(
+                        user_text, assistant,
+                        "session-%d" % rng.randrange(7)
+                    )
+                    if kind != "pending":
+                        store.processed([turn_id])
+                    if kind == "linked":
+                        store.apply([{"action": "add",
+                                     "fact": "Synthetic fact %06d" % turn_id}],
+                                    turn_id)
+                    if kind != "complete":
+                        expected[kind].append(turn_id)
+
+                report = store.journal_integrity_summary()
+                groups = store.journal_cleanup_preview()
+                page = render(store, {"version": "test"}, "audit")
+                self.assertEqual(report["total"], 320)
+                self.assertEqual(report["missing"], 230)
+                self.assertEqual(report["complete"], 90)
+                self.assertEqual(report["missing_pending"], 40)
+                self.assertEqual(report["referenced_turns"], 60)
+                self.assertEqual(report["referenced_memories"], 60)
+                self.assertEqual(report["unreferenced_processed"], 130)
+                self.assertEqual(report["orphan_sources"], 0)
+                for kind in expected:
+                    self.assertEqual(groups[kind]["count"], len(expected[kind]))
+                    self.assertEqual(groups[kind]["sample_ids"],
+                                     sorted(expected[kind], reverse=True)[:10])
+                self.assertEqual(sum(g["count"] for g in groups.values()), 230)
+                self.assertIn("NINCS VÉGREHAJTÁS", page)
+                self.assertNotIn("SYNTHETIC-", page)
+                fingerprint = hashlib.sha256(
+                    repr([(x["id"], x["user_text"], x["assistant_text"],
+                           x["processed"]) for x in store.recent_turns(100)]
+                         ).encode("utf-8")
+                ).hexdigest()
+            finally:
+                # Cold backup simulation: close sole writer and flush WAL.
+                store.db.close()
+
+            archive = Path(tmp) / "backup"
+            archive.mkdir()
+            restored = archive / "recall.sqlite3"
+            shutil.copy2(primary, restored)
+            shutil.copy2(primary.with_suffix(".key"),
+                         restored.with_suffix(".key"))
+            self.assertNotEqual(restored.read_bytes()[:16],
+                                b"SQLite format 3\\x00")
+            cloned = Store(restored)
+            try:
+                self.assertEqual(cloned.statistics()["turns"], 320)
+                self.assertEqual(cloned.statistics()["memories"], 60)
+                self.assertEqual(cloned.journal_cleanup_preview(), groups)
+                self.assertEqual(cloned.journal_integrity_summary(), report)
+                self.assertEqual(hashlib.sha256(
+                    repr([(x["id"], x["user_text"], x["assistant_text"],
+                           x["processed"]) for x in cloned.recent_turns(100)]
+                         ).encode("utf-8")
+                ).hexdigest(), fingerprint)
+            finally:
+                cloned.db.close()
 
     def test_database_is_still_encrypted_after_audit(self):
         with tempfile.TemporaryDirectory() as tmp:
