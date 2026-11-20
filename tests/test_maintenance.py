@@ -73,6 +73,18 @@ class MaintenanceTests(unittest.TestCase):
             "SELECT COUNT(*) FROM journal_archive"
         ).fetchone()[0], 0)
 
+    def test_add_turn_never_reuses_archived_highest_id(self):
+        a = self.add("complete", "keep")
+        b = self.add("unlinked", "archive highest")
+        self.assertGreater(b, a)
+        preview = cleanup_preview(self.store)
+        cleanup_commit(self.store, preview["digest"], preview["count"])
+        new_id = self.store.add_turn("fresh", "response")
+        self.assertGreater(new_id, b)
+        history = latest_cleanup(self.store)
+        self.assertEqual(cleanup_restore(self.store, history["history_id"]), 1)
+        self.assertEqual(self.store.statistics()["turns"], 3)
+
     def test_rejects_stale_snapshot_and_pending(self):
         self.add("unlinked", "one")
         plan = cleanup_preview(self.store)

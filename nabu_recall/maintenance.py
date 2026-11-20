@@ -99,6 +99,12 @@ def latest_cleanup(store):
     if not item:
         return None
     payload = json.loads(item["payload"])
+    found = store.db.execute(
+        "SELECT COUNT(*) FROM journal_archive WHERE batch_id=?",
+        (payload["batch"],)
+    ).fetchone()[0]
+    if found != payload["count"]:
+        return None
     return {"history_id": item["id"], "batch": payload["batch"],
             "count": payload["count"], "created": item["created"]}
 

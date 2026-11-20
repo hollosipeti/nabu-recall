@@ -29,10 +29,26 @@ class Store:
 
     def add_turn(self, user, assistant, conversation_id="", created=None):
         with self.db:
+            timestamp = int(time.time()) if created is None else int(created)
+            # SQLite INTEGER PRIMARY KEY may reuse the last deleted ID.
+            # Preserve exact-ID restoration of archived journal rows.
+            highest_archive = self.db.execute(
+                "SELECT MAX(id) FROM journal_archive"
+            ).fetchone()[0]
+            if highest_archive is not None:
+                highest_active = self.db.execute(
+                    "SELECT MAX(id) FROM turns"
+                ).fetchone()[0] or 0
+                next_id = max(highest_active, highest_archive) + 1
+                return self.db.execute(
+                    "INSERT INTO turns(id,created,conversation_id,user_text,assistant_text)"
+                    " VALUES(?,?,?,?,?)",
+                    (next_id, timestamp, conversation_id, user, assistant)
+                ).lastrowid
             return self.db.execute(
-                "INSERT INTO turns(created,conversation_id,user_text,assistant_text) VALUES(?,?,?,?)",
-                (int(time.time()) if created is None else int(created),
-                 conversation_id, user, assistant)).lastrowid
+                "INSERT INTO turns(created,conversation_id,user_text,assistant_text)"
+                " VALUES(?,?,?,?)",
+                (timestamp, conversation_id, user, assistant)).lastrowid
 
     def pending(self, limit=20):
         return [dict(r) for r in self.db.execute(
