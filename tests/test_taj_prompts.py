@@ -10,8 +10,8 @@ class TajPromptTests(unittest.TestCase):
         ast.parse(source)
         for phrase in ("Ordinary personal and family facts", "identification numbers",
                        "names, birthdays, relationships", "health facts",
-                       "Do not categorically refuse", "Do not invent missing facts",
-                       "without a relevant user request"):
+                       "Do not automatically refuse", "Do not invent missing facts",
+                       "without a relevant user request", "identity-card number", "not reliably available"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, source)
     def test_learning_prompt_does_not_claim_plaintext_sqlite(self):
