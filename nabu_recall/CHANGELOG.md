@@ -4,6 +4,14 @@ Only the latest two software release notes are kept here. Documentation updates 
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.
 
+## 1.0.3 — 2026-11-20 (HAOS app only)
+
+- Adds a password-protected, read-only journal audit with incomplete assistant replies, durable-memory source references, and disjoint cleanup preview categories.
+- No deletion, archiving, edit or mutation controls were introduced. The diagnostic queries use SQL SELECT.
+- Offline tests include 320 randomized synthetic journal rows, source links, a SQLCipher encrypted cold backup and restore validation.
+- Separate app 1.0.3 / integration 1.0.4. The baseline and ALFA branches remain unchanged.
+- Live deployment requires a verified HA backup. The test fixture is not a substitute for a real HA backup.
+
 ## 1.0.4 — 2026-11-20 (custom integration only)
 
 - Fix HA IntentResponse assistant reply extraction: Home Assistant returns `response.speech` as a dictionary, while the previous integration accessed it as object attributes.

@@ -1,4 +1,4 @@
-# Nabu Recall — teljes magyar kézikönyv (v1.0.2)
+# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.3 / integráció v1.0.4)
 
 *Frissítve: 2026. november 20. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
 
@@ -60,7 +60,7 @@ A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozz�
 4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
 5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
 
-**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.2, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.3, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
 
 A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
 
@@ -171,3 +171,7 @@ A példaszkript és a [részletes példák](examples/README.md) dokumentálják 
 ## 13. Fejlesztői jegyzetek
 
 A repóban a `.github/workflows/tests.yml` szintaxis- és offline teszteket futtat. A tesztek nem használnak élő API-kulcsot és nem ellenőrzik automatikusan a tényleges HAOS-t vagy a Google naptár szkriptet. A Web UI csak olvas, az API-t és az SQLCipher adatbázist más munkafolyamat kezeli. A Git előzmények megmaradnak; a [HISTORY.md](HISTORY.md) történeti jegyzeteket tartalmaz. [LICENSE](LICENSE): MIT.
+
+## HAOS v1.0.3 — naplóellenőrzés
+
+A jelszóval védett Web UI új **Naplóellenőrzés** oldala az üres asszisztensválaszokat és a tartós emlékek forráshivatkozásait olvassa, valamint az érintett rekordokat feldolgozatlan, hivatkozott és feldolgozott/nem hivatkozott csoportokba sorolja. Az oldal nem módosít adatot és nem tartalmaz törlőgombot. A részletes [mentési terv](docs/SAFE_CLEANUP_HU.md) és [HAOS telepítés előtti ellenőrzés](docs/HAOS_AUDIT_TEST_HU.md) követendő.

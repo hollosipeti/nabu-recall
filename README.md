@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall — v1.0.2 (HAOS app) / v1.0.4 (HA integration)
+# 🧠 Nabu Recall — v1.0.3 (HAOS app) / v1.0.4 (HA integration)
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -33,10 +33,12 @@ Then restart **Home Assistant Core**. Updating only the HAOS app does not replac
 
 ## Preserved reference versions and current maintenance
 
-No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app remains v1.0.2; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
+No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app is v1.0.3; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
 
 MIT License.
 
 ## Fejlesztés: biztonságos naplókarbantartás
 
 A [külön fejlesztői ágon](https://github.com/hollosipeti/nabu-recall/tree/dev-journal-audit-2026-11-20) kizárólag olvasható hiányos-napló ellenőrzés és előnézet készül. A [mentési és visszaállítási eljárás](docs/SAFE_CLEANUP_HU.md) elérhető; **a dokumentált funkció még nem telepített éles javítás, és nem végez törlést**.
+
+**HAOS v1.0.3 journal audit:** read-only inspection and cleanup preview only. Run a verified Home Assistant app backup before installing; no journal or memory deletion tools have been released. See [HAOS audit verification](docs/HAOS_AUDIT_TEST_HU.md).
