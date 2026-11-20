@@ -116,12 +116,23 @@ def render(store, state, tab="memories"):
             "<p><b>Ebből feldolgozott:</b> %d</p>"
             "<p><b>Ebből feldolgozásra vár:</b> %d</p>"
             "<p><b>Legfeljebb 20 érintett ID:</b> %s</p></article>"
+            "<article><h3>Tartós emlékek forráshivatkozásai</h3>"
+            "<p><b>Hiányos naplóhoz kötött emlékek:</b> %d</p>"
+            "<p><b>Hivatkozott hiányos naplóbejegyzések:</b> %d</p>"
+            "<p><b>Feldolgozott, hiányos, nem hivatkozott naplók:</b> %d</p>"
+            "<p><b>Már hiányzó naplóra hivatkozó emlékek:</b> %d</p>"
+            "<p><b>Legfeljebb 20 hivatkozott napló ID:</b> %s</p>"
+            "<p>A nem hivatkozott bejegyzések sem automatikusan törölhetők; "
+            "beszélgetési kontextust tartalmazhatnak.</p></article>"
             "<article><p><b>NINCS VÉGREHAJTÁS.</b> Tisztítás előtt konzisztens "
             "SQLCipher mentés és a recall.key megőrzése szükséges. A tartós emlékek "
             "source_turn hivatkozásait külön ellenőrizni kell.</p></article>"
             % (audit["total"], audit["complete"], audit["missing"],
                audit["missing_processed"], audit["missing_pending"],
-               ", ".join("#%d" % x for x in audit["sample_missing_ids"]) or "—")
+               ", ".join("#%d" % x for x in audit["sample_missing_ids"]) or "—",
+               audit["referenced_memories"], audit["referenced_turns"],
+               audit["unreferenced_processed"], audit["orphan_sources"],
+               ", ".join("#%d" % x for x in audit["sample_referenced_ids"]) or "—")
         )
     elif tab == "storage":
         disk = storage_metrics(store)
