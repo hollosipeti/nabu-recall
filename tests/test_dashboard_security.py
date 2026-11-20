@@ -80,3 +80,5 @@ class DashboardAuthTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(_valid_session(token,key,699))
         self.assertFalse(_valid_session(token,key,700))
         self.assertFalse(_valid_session(token,b"different key",101))
+        self.assertFalse(_valid_session(token,key, 100 + SESSION_AGE))
+

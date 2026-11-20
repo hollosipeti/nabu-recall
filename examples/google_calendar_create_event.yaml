@@ -51,7 +51,7 @@ sequence:
   - variables:
       nap_szoveg: "{{ nap | default('', true) | string | trim | lower }}"
       cim: "{{ esemeny | default('', true) | string | trim }}"
-      h: "{{ ora | default(-1, true) | int(-1) }}"
+      h: "{{ ora | default(-1) | int(-1) }}"
       m: "{{ perc | default(0, true) | int(-1) }}"
       hossz: "{{ idotartam | default(30, true) | int(-1) }}"
       most: "{{ now().isoformat() }}"
