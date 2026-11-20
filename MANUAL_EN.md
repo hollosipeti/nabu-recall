@@ -1,4 +1,4 @@
-# Nabu Recall — complete English manual (v1.0.2)
+# Nabu Recall — complete English manual (HAOS v1.0.4 / integration v1.0.4)
 
 *Updated November 20, 2026. Covers the HAOS v1.0.4 app and its separately installed v1.0.4 custom integration.*
 
@@ -65,7 +65,7 @@ Release notes show the latest two maintained releases in [CHANGELOG](nabu_recall
 - `recall.sqlite3-wal` and `recall.sqlite3-shm` may exist during operation. Use a consistent full app backup instead of copying only the live main file.
 - Journal records expire after **45 days**; durable facts have **no automatic time expiry**.
 - At most **200 memory entries** are provided to the AI at once. This is an API-context selection cap, **not** a 200-fact storage quota.
-- The web dashboard is **read-only**, with memories (first 100), recent conversations (last 35), processing status, database size including WAL/SHM, and free filesystem capacity.
+- The diagnostic tabs in the web dashboard are **read-only**; the dedicated manual maintenance page separately supports approved archive, merge and undo operations, with memories (first 100), recent conversations (last 35), processing status, database size including WAL/SHM, and free filesystem capacity.
 - The Ingress login has an **absolute 10-minute lifetime from successful authentication**, not an idle sliding timeout. After expiration, the next request shows the login form; an already displayed browser page is not forcibly blanked. Restart invalidates sessions; a logout option is available.
 - Login requires HA authentication as well as a separate password. There is no additional per-user memory isolation or explicit administrator-only dashboard authorization.
 - The bridge uses `X-Recall-Token` over private internal **HTTP, not TLS**. Do not expose ports 8765 or 8766 to LAN or WAN.

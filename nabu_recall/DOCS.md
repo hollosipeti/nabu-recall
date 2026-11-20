@@ -28,7 +28,7 @@ Install the HAOS app **and** the separate custom integration. Configure the Open
 
 ## Biztonságos naplókarbantartás (fejlesztői ág)
 
-A napló tisztításának részletes, **nem törlő** ellenőrzőlistája: [biztonsági mentés és naplótisztítás](../docs/SAFE_CLEANUP_HU.md). Az alkalmazásban a teljes adatbázis és a külön titkosítási kulcs együtt szükséges; a puszta élő SQLite-fájl másolása nem elég. A fejlesztői ág előnézete nem végez törlést.
+A napló biztonságos, kézzel jóváhagyott archiválásának és visszavonásának ellenőrzőlistája: [biztonsági mentés és naplótisztítás](../docs/SAFE_CLEANUP_HU.md). Az alkalmazásban a teljes adatbázis és a külön titkosítási kulcs együtt szükséges; a puszta élő SQLite-fájl másolása nem elég. A diagnosztikai előnézet nem módosít adatot, csak a külön karbantartási oldal végezhet kézzel jóváhagyott módosítást.
 
 ## Kézi karbantartás — 1.0.4
 

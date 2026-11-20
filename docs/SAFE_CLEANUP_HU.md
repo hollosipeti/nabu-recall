@@ -1,6 +1,6 @@
 # Nabu Recall — biztonsági mentés és naplótisztítás (fejlesztési terv)
 
-**Állapot:** csak tervezés és olvasható előnézet. Ez az útmutató **nem engedélyez törlést**.
+**Állapot:** v1.0.4 alkalmazáshoz tartozó jóváhagyott karbantartási eljárás. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon lehetséges a titkosított naplóarchiválás, visszaállítás és az emlékek egyenkénti összevonása.
 Az ALFA és a v1.0.4 referenciaágakat tilos módosítani.
 
 ## Miért kell külön mentés?
@@ -60,8 +60,7 @@ A Naplóellenőrzés három, egymást kizáró csoportot mutat:
   Ez **nem jelenti**, hogy a napló biztosan érdektelen:
   az AI-visszakeresés továbbra is használhatja.
 
-A jelentés kizárólag **SELECT** lekérdezésekkel készül. Nincs mentési,
-archiválási vagy törlési végpont, és nincs "Törlés" gomb.
+A **Naplóellenőrzés** jelentés kizárólag SELECT lekérdezéseket használ. A **Kézi karbantartás** oldalon viszont külön, tudatos kattintással a jelölt naplók archívumba helyezhetők; visszaállításuk lehetséges. Az archívum a 45 napos megőrzési szabály alá esik. A tartós emlékek összevonása AI-javaslat után egyenként jóváhagyandó.
 
 ## Jövőbeli tisztító végrehajtás kötelező feltételei
 
@@ -72,7 +71,7 @@ A további fejlesztés csak akkor kerülhet éles rendszerbe, ha:
 - a végrehajtást külön, tudatos felhasználói megerősítés engedélyezi,
 - a tartós emlékek megőrzése és a visszavonás tesztelve van.
 
-**A jelenlegi fejlesztési ág semmilyen adatot nem töröl.**
+**Az alkalmazás nem futtat automatikus naplótisztítást vagy memória-összevonást.** A külön jóváhagyású műveletek visszavonási lehetősége a megőrzési határidőn és adatbázis-ütközésellenőrzésen belül él.
 
 ## Tesztterv
 

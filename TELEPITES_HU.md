@@ -79,7 +79,7 @@ A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válas
 
 Az OPEN WEB UI a Supervisor Ingressen működik. **Home Assistant bejelentkezés + külön `dashboard_password`** szükséges. A munkamenet belépéstől számított **10 percig** érvényes (fix időtartam, nem tétlenségi idő). Lejárat után a következő webes kérés bejelentkezőlapot kap; a nyitva maradt oldalt nem zárja le magától valós időben. Kijelentkezés és újraindítás érvényteleníti az elérést. A HA adminisztrátori szerepkörre külön alapozott finomszemcsés szerepkör-ellenőrzés **nincs**.
 
-A diagnosztikai lapok **csak olvashatók**, míg a külön, kézi jóváhagyással működő karbantartási oldal archiválást és memória-összevonást végezhet: Tartós emlékek (első 100), 45 napos napló (legutóbbi 35), Állapot, Memória és tárhely. A lemezadat a **titkosított adatbázis + WAL/SHM** méretét, valamint a teljes adatpartíció szabad helyét mutatja; nem rendelkezik mesterséges „memória %” kvótával. A Web UI-ból nem végezhető tömeges törlés.
+A diagnosztikai lapok **csak olvashatók**, míg a külön, kézi jóváhagyással működő karbantartási oldal archiválást és memória-összevonást végezhet: Tartós emlékek (első 100), 45 napos napló (legutóbbi 35), Állapot, Memória és tárhely. A lemezadat a **titkosított adatbázis + WAL/SHM** méretét, valamint a teljes adatpartíció szabad helyét mutatja; nem rendelkezik mesterséges „memória %” kvótával. A karbantartási oldalon külön jóváhagyással végzett naplóarchiválás és egyenként jóváhagyott memória-összevonás lehetséges; általános memóriatörlés nincs.
 
 ## 7. API-használat és költség
 
@@ -170,7 +170,7 @@ A példaszkript és a [részletes példák](examples/README.md) dokumentálják 
 
 ## 13. Fejlesztői jegyzetek
 
-A repóban a `.github/workflows/tests.yml` szintaxis- és offline teszteket futtat. A tesztek nem használnak élő API-kulcsot és nem ellenőrzik automatikusan a tényleges HAOS-t vagy a Google naptár szkriptet. A Web UI csak olvas, az API-t és az SQLCipher adatbázist más munkafolyamat kezeli. A Git előzmények megmaradnak; a [HISTORY.md](HISTORY.md) történeti jegyzeteket tartalmaz. [LICENSE](LICENSE): MIT.
+A repóban a `.github/workflows/tests.yml` szintaxis- és offline teszteket futtat. A tesztek nem használnak élő API-kulcsot és nem ellenőrzik automatikusan a tényleges HAOS-t vagy a Google naptár szkriptet. A diagnosztikai lapok csak olvasnak; a jelszóval védett Kézi karbantartás oldal külön jóváhagyott tranzakciókat hajthat végre. A Git előzmények megmaradnak; a [HISTORY.md](HISTORY.md) történeti jegyzeteket tartalmaz. [LICENSE](LICENSE): MIT.
 
 ## HAOS v1.0.3 — naplóellenőrzés
 

@@ -39,9 +39,9 @@ MIT License.
 
 ## Fejlesztés: biztonságos naplókarbantartás
 
-A [külön fejlesztői ágon](https://github.com/hollosipeti/nabu-recall/tree/dev-journal-audit-2026-11-20) kizárólag olvasható hiányos-napló ellenőrzés és előnézet készül. A [mentési és visszaállítási eljárás](docs/SAFE_CLEANUP_HU.md) elérhető; **a dokumentált funkció még nem telepített éles javítás, és nem végez törlést**.
+A [biztonsági mentés és naplótisztítás útmutatója](docs/SAFE_CLEANUP_HU.md) bemutatja a kézi archiválást és visszavonást. A diagnosztikai nézetek változatlanul csak olvasnak; a külön karbantartási oldalon van mód jóváhagyott változtatásra.
 
-**HAOS v1.0.4 journal audit and manual maintenance:** read-only inspection and cleanup preview only. Run a verified Home Assistant app backup before installing; no journal or memory deletion tools have been released. See [HAOS audit verification](docs/HAOS_AUDIT_TEST_HU.md).
+**HAOS v1.0.4 manual maintenance:** authenticated Ingress page with archive, individual memory merge and undo. Run a verified Home Assistant app backup before installing. See [HAOS verification](docs/HAOS_AUDIT_TEST_HU.md).
 
 ## Kézi karbantartás — HAOS v1.0.4
 

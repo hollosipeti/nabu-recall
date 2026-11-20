@@ -1,7 +1,6 @@
-# Nabu Recall — HAOS próba menetrend (csak olvasás)
+# Nabu Recall — HAOS mentés és karbantartási próba
 
-Ez az eljárás a `dev-journal-audit-2026-11-20` fejlesztői ághoz készült.
-**Nincs automatikus éles telepítés, mentés, adatbázistörlés vagy tisztítás.**
+Az első audit-fejlesztéshez készült útmutató, amelyet a HAOS v1.0.4 kézi karbantartási funkcióval egészítettünk ki. **Nincs automatikus éles telepítés, mentés vagy tömeges memóriaoptimalizálás.**
 
 ## 1. Mentés az eredeti HAOS-rendszerben
 
@@ -12,7 +11,7 @@ Ez az eljárás a `dev-journal-audit-2026-11-20` fejlesztői ághoz készült.
 4. **Ne** másold ki külön az élő `recall.sqlite3` fájlt; a SQLCipher
    `recall.key` és a WAL pillanatkép is számít.
 5. Jegyezd fel a mentés időpontját, a napló- és emlékszámot,
-   az alkalmazás 1.0.2 és az integráció 1.0.4 verzióját.
+   az alkalmazás 1.0.4 és az integráció 1.0.4 verzióját.
 
 ## 2. Visszaállíthatósági próba külön környezetben
 
@@ -55,3 +54,7 @@ Tényleges adattisztítás kizárólag mentés-visszaállítási próba,
 
 **Ne küldd el nyilvánosan** a mentés fájlját, `recall.key` tartalmát,
 API-kulcsot, belső tokent vagy teljes beszélgetésnaplót.
+
+## HAOS v1.0.4 — éles működés előtti ellenőrzés
+
+A Kézi karbantartás oldalt a jelszóval védett Ingress felületen használd, nem az Assist hangvezérlésével. Archiválás előtt ellenőrizd a jelöltek számát, és egy külön felhasználói jóváhagyással indítsd a műveletet. A visszaállító gomb az archívum lejáratáig és rekordazonosító-ütközés nélkül használható. Az AI által javasolt memória-összevonás minden egyes tételnél külön jóváhagyandó, és hét napig visszavonható. A valódi Home Assistant adatbázisról készült mentés továbbra is szükséges.
