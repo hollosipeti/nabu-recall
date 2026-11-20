@@ -60,7 +60,7 @@ async def manage(request):
         return web.json_response({"status": "error", "message": "A memória API nem elérhető."})
     async with lock:
         try:
-            memories = store.memory_list(200)
+            memories = store.memory_search([utterance], limit=160)
             context = None
             if context_needed(utterance):
                 context = previous_context(
@@ -93,7 +93,12 @@ async def process_pending():
             if not pending:
                 break
             try:
-                operations = await ai.learn(pending, store.memory_list(200))
+                recent_memories = store.memory_list(40)
+                terms = await ai.search_terms(" ".join(
+                    row["user_text"][:160] for row in pending)[:1000])
+                relevant = store.memory_search(terms, limit=120)
+                by_id = {r["id"]: r for r in recent_memories + relevant}
+                operations = await ai.learn(pending, list(by_id.values())[:160])
                 safe = filter_memory_operations(
                     operations, [x["user_text"] for x in pending]
                 )
@@ -123,8 +128,10 @@ async def recall(request):
     if ai is None:
         return web.json_response({"context": "", "ai_ready": False})
     try:
-        memories = store.memory_list(200)
         terms = await ai.search_terms(query)
+        # Search ALL durable facts before passing a bounded relevance shortlist.
+        # Do not accidentally treat the newest 200 as the whole memory.
+        memories = store.memory_search([query[:80]] + terms, limit=160)
         turns = store.candidates(terms)
         selection = await ai.recall(query, turns, memories)
         tids = set(x for x in selection.get("turn_ids", []) if type(x) is int)

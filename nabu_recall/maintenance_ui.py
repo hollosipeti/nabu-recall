@@ -86,11 +86,17 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                          "undo-cleanup", "Naplók visszaállítása", csrf,
                          {"history_id": rec["history_id"]})))
         body += '<article><h3>Tartós emlékek optimalizálása</h3>'
+        body += '<p>Az elemzés legfeljebb 160 emléket vizsgál egy adagban. '
+        body += 'Az adagok sorban, növekvő memória-ID szerint haladnak; '
+        body += 'a korábbi emlékek sem maradnak ki.</p>'
+        cursor = plan["next_cursor"] if plan and "next_cursor" in plan else 0
+        if cursor:
+            body += '<p><b>Következő adag kezdőazonosítója:</b> #%d</p>' % cursor
         if ai is None:
             body += '<p>AI API-kulcs nélkül a javaslatkészítés nem elérhető.</p>'
         else:
-            body += form_button("analyze", "Duplikációk és átfedések keresése",
-                                csrf)
+            body += form_button("analyze", "Következő adag AI-elemzése",
+                                csrf, {"after_id": cursor})
         body += '</article>'
         if plan:
             body += '<h3>Jóváhagyásra váró javaslatok</h3>'
@@ -155,7 +161,10 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
             elif name == "analyze":
                 if ai is None:
                     raise MaintenanceConflict("AI API is unavailable")
-                memories = store.memory_list(200)
+                cursor = int(form.get("after_id", 0))
+                if cursor < 0:
+                    raise MaintenanceConflict("Invalid cursor")
+                memories = store.memory_page(after_id=cursor, limit=160)
                 if not memories:
                     raise MaintenanceConflict("No durable memories")
                 if lock is not None:
@@ -175,7 +184,8 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                     used.update(ids)
                     candidates.append(proposal)
                 plans[session] = {"nonce": secrets.token_hex(16),
-                                  "at": time.monotonic(), "items": candidates}
+                                  "at": time.monotonic(), "items": candidates,
+                                  "next_cursor": memories[-1]["id"]}
                 notice = "%d ellenőrzött javaslat; semmit nem módosítottam." % len(candidates)
             elif name == "apply":
                 plan = plans.get(session)
