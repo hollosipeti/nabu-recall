@@ -10,6 +10,22 @@ import re
 
 _LOGGER = logging.getLogger(__name__)
 
+def extract_spoken_answer(result):
+    """Read Home Assistant IntentResponse speech in dict or attribute form."""
+    response = getattr(result, "response", None)
+    speech = getattr(response, "speech", None)
+    if isinstance(speech, dict):
+        plain = speech.get("plain")
+    else:
+        plain = getattr(speech, "plain", None)
+    if isinstance(plain, dict):
+        answer = plain.get("speech")
+    else:
+        answer = getattr(plain, "speech", None)
+    return answer if isinstance(answer, str) else ""
+
+
+
 # Calendar requests are routed to the original HA agent, not to memory management.
 CALENDAR_DESTINATION = re.compile(
     r"\b(?:naptárba|naptárban|naptárból|naptáramba|naptáramban|"
@@ -127,10 +143,7 @@ class RecallAgent(ConversationEntity):
             context=user_input.context, language=user_input.language,
             agent_id=upstream, device_id=user_input.device_id,
             satellite_id=user_input.satellite_id, extra_system_prompt=extra)
-        try:
-            answer = result.response.speech.plain.speech or ""
-        except (AttributeError, TypeError):
-            answer = ""
+        answer = extract_spoken_answer(result)
         self.hass.async_create_background_task(
             self._log(bridge, user_input.text, answer,
                       result.conversation_id or user_input.conversation_id or ""),

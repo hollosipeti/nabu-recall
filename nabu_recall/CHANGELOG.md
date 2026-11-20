@@ -1,6 +1,15 @@
 # Nabu Recall — maintained releases
 
-The repository keeps the latest two release notes here. The development history is retained in [../HISTORY.md](../HISTORY.md) and Git commits/tags; previous working source code is not removed from Git history.
+Only the latest two release notes are kept here. Previous commits and development notes remain available in the Git history and [../HISTORY.md](../HISTORY.md).
+
+## 1.0.4 — 2026-11-20 (custom integration only)
+
+- Fix HA IntentResponse assistant reply extraction: Home Assistant returns `response.speech` as a dictionary, while the previous integration accessed it as object attributes.
+- Read either dictionary-style or attribute-style plain speech. No logging of user text or assistant responses.
+- Regression tests cover both response representations and absent/non-string values.
+- No modifications to the memory DB, SQLCipher encryption, bridge, memory extraction, retention, or HA device control.
+- HAOS application remains v1.0.2; companion integration now v1.0.4.
+- The frozen ALFA reference branch remains unchanged.
 
 ## 1.0.3 — 2026-11-20 (custom integration only)
 
@@ -9,11 +18,3 @@ The repository keeps the latest two release notes here. The development history 
 - This does not authenticate the speaker of a shared home voice device.
 - Only the HA integration prompt and the preserved sample user prompt were refined; memory AI, SQLCipher, API, and database remain unchanged. HAOS app remains v1.0.2.
 
-## 1.0.2 — 2026-11-20
-
-- HAOS app: dashboard password session lifetime reduced from 8 hours to **10 minutes**, measured from login; new requests require re-authentication after expiry.
-- Complete maintained Hungarian and English manuals, accurate SQLCipher/backup/API/security documentation.
-- Google Calendar creation YAML example and explanation of unsupported calendar deletion, natural Hungarian interaction examples, prompt guidance.
-- Clean Home Assistant application Documentation tab and concise project README.
-- Memory/AI processing, database schema, encryption, retention and device control **unchanged**.
-- The separately installed companion integration remains v1.0.2; copying its files is necessary only when updating it.

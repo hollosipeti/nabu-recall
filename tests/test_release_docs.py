@@ -34,9 +34,9 @@ class ReleaseDocsTests(unittest.TestCase):
         import json
         manifest=json.loads((ROOT/"custom_components/nabu_recall/manifest.json").read_text())
         config=(ROOT/"nabu_recall/config.yaml").read_text()
-        self.assertEqual(manifest["version"],"1.0.3")
+        self.assertEqual(manifest["version"],"1.0.4")
         self.assertIn('version: "1.0.2"',config)
         changelog=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
         # Only maintained releases in this file; the archive has older records.
         versions=re.findall(r"^##\s+(\d+\.\d+\.\d+)",changelog,re.M)
-        self.assertEqual(versions,["1.0.3","1.0.2"])
+        self.assertEqual(versions,["1.0.4","1.0.3"])
