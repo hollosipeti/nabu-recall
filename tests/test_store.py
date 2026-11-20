@@ -90,6 +90,30 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(report["referenced_turns"], 1)
         self.assertEqual(report["sample_referenced_ids"], [ident])
 
+    def test_cleanup_preview_groups_are_disjoint(self):
+        p = self.store.add_turn("pending", "")
+        linked = self.store.add_turn("linked", "")
+        unlinked = self.store.add_turn("unlinked", " ")
+        self.store.add_turn("complete", "assistant")
+        self.store.processed([linked, unlinked])
+        self.store.apply([{"action":"add","fact":"linked fact"}], linked)
+        before = self.store.statistics()
+        groups = self.store.journal_cleanup_preview()
+        self.assertEqual([groups[n]["count"] for n in
+                          ("pending", "linked", "unlinked")], [1, 1, 1])
+        self.assertEqual(groups["pending"]["sample_ids"], [p])
+        self.assertEqual(groups["linked"]["sample_ids"], [linked])
+        self.assertEqual(groups["unlinked"]["sample_ids"], [unlinked])
+        self.assertEqual(sum(g["count"] for g in groups.values()),
+                         self.store.journal_integrity_summary()["missing"])
+        self.assertEqual(before, self.store.statistics())
+        self.assertEqual(len(self.store.memory_list()), 1)
+
+    def test_cleanup_preview_empty(self):
+        result = self.store.journal_cleanup_preview()
+        self.assertTrue(all(x["count"] == 0 and not x["sample_ids"]
+                            for x in result.values()))
+
     def test_processed(self):
         ident = self.store.add_turn("u", "a")
         self.store.processed([ident])
