@@ -26,6 +26,7 @@ def _csrf(key, session):
 def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None,
                       lock=None):
     plans = {}
+    progress = {}
     messages = {}
 
     def token(request):
@@ -89,9 +90,10 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
         body += '<p>Az elemzés legfeljebb 160 emléket vizsgál egy adagban. '
         body += 'Az adagok sorban, növekvő memória-ID szerint haladnak; '
         body += 'a korábbi emlékek sem maradnak ki.</p>'
-        cursor = plan["next_cursor"] if plan and "next_cursor" in plan else 0
+        cursor = progress.get(request.cookies.get("recall_ui", ""), 0)
         if cursor:
             body += '<p><b>Következő adag kezdőazonosítója:</b> #%d</p>' % cursor
+            body += form_button("restart-analysis", "Újrakezdés az első emléktől", csrf)
         if ai is None:
             body += '<p>AI API-kulcs nélkül a javaslatkészítés nem elérhető.</p>'
         else:
@@ -183,10 +185,15 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                         continue
                     used.update(ids)
                     candidates.append(proposal)
+                progress[session] = memories[-1]["id"]
                 plans[session] = {"nonce": secrets.token_hex(16),
                                   "at": time.monotonic(), "items": candidates,
                                   "next_cursor": memories[-1]["id"]}
                 notice = "%d ellenőrzött javaslat; semmit nem módosítottam." % len(candidates)
+            elif name == "restart-analysis":
+                progress[session] = 0
+                plans.pop(session, None)
+                notice = "Az optimalizálási áttekintés az elejéről indul."
             elif name == "apply":
                 plan = plans.get(session)
                 if not plan or time.monotonic() - plan["at"] > MAX_AGE:

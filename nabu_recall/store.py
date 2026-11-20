@@ -2,6 +2,7 @@
 import sqlcipher3 as sqlite3
 from encryption import encrypted_connect
 import time
+import re
 from pathlib import Path
 
 RETENTION_DAYS = 45
@@ -107,6 +108,21 @@ class Store:
             "SELECT id, created, updated, fact, source_turn FROM memories "
             "WHERE id > ? ORDER BY id LIMIT ?", (after_id, limit)
         )]
+
+    @staticmethod
+    def memory_query_terms(text):
+        """Extract useful Unicode tokens from natural-language user requests."""
+        if not isinstance(text, str):
+            return []
+        stopwords = {
+            "hogy", "mikor", "milyen", "miért", "miert", "van", "volt",
+            "lesz", "egy", "ezt", "azt", "nekem", "meg", "kell",
+            "tudod", "tudsz", "kérlek", "kerlek", "szeretném",
+            "szia", "mondd", "mond", "kérdés", "kerdes", "jegyezd",
+            "emlékszel", "emlekszel", "hozzá", "hozza",
+        }
+        words = re.findall(r"[^\\W_]{3,}", text.casefold(), flags=re.UNICODE)
+        return list(dict.fromkeys(w for w in words if w not in stopwords))[:12]
 
     def memory_search(self, terms, limit=160):
         """Rank matches across the FULL memory table; bounded output for AI.
