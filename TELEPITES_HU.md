@@ -1,4 +1,4 @@
-# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.3 / integráció v1.0.4)
+# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.4 / integráció v1.0.4)
 
 *Frissítve: 2026. november 20. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
 
@@ -60,7 +60,7 @@ A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozz�
 4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
 5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
 
-**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.3, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.4, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
 
 A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
 
@@ -79,7 +79,7 @@ A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válas
 
 Az OPEN WEB UI a Supervisor Ingressen működik. **Home Assistant bejelentkezés + külön `dashboard_password`** szükséges. A munkamenet belépéstől számított **10 percig** érvényes (fix időtartam, nem tétlenségi idő). Lejárat után a következő webes kérés bejelentkezőlapot kap; a nyitva maradt oldalt nem zárja le magától valós időben. Kijelentkezés és újraindítás érvényteleníti az elérést. A HA adminisztrátori szerepkörre külön alapozott finomszemcsés szerepkör-ellenőrzés **nincs**.
 
-A felület **csak olvasható**: Tartós emlékek (első 100), 45 napos napló (legutóbbi 35), Állapot, Memória és tárhely. A lemezadat a **titkosított adatbázis + WAL/SHM** méretét, valamint a teljes adatpartíció szabad helyét mutatja; nem rendelkezik mesterséges „memória %” kvótával. A Web UI-ból nem végezhető tömeges törlés.
+A diagnosztikai lapok **csak olvashatók**, míg a külön, kézi jóváhagyással működő karbantartási oldal archiválást és memória-összevonást végezhet: Tartós emlékek (első 100), 45 napos napló (legutóbbi 35), Állapot, Memória és tárhely. A lemezadat a **titkosított adatbázis + WAL/SHM** méretét, valamint a teljes adatpartíció szabad helyét mutatja; nem rendelkezik mesterséges „memória %” kvótával. A Web UI-ból nem végezhető tömeges törlés.
 
 ## 7. API-használat és költség
 
@@ -175,3 +175,9 @@ A repóban a `.github/workflows/tests.yml` szintaxis- és offline teszteket futt
 ## HAOS v1.0.3 — naplóellenőrzés
 
 A jelszóval védett Web UI új **Naplóellenőrzés** oldala az üres asszisztensválaszokat és a tartós emlékek forráshivatkozásait olvassa, valamint az érintett rekordokat feldolgozatlan, hivatkozott és feldolgozott/nem hivatkozott csoportokba sorolja. Az oldal nem módosít adatot és nem tartalmaz törlőgombot. A részletes [mentési terv](docs/SAFE_CLEANUP_HU.md) és [HAOS telepítés előtti ellenőrzés](docs/HAOS_AUDIT_TEST_HU.md) követendő.
+
+## HAOS v1.0.4 — kézi karbantartás
+
+Az **OPEN WEB UI → Kézi karbantartás** oldalon: (1) a hiányos válaszú, feldolgozott, tartós emlékkel közvetlenül nem hivatkozott naplók titkosított archiválása, (2) az archívum visszaállítása, (3) AI-javaslatok készítése a duplikált, átfedő vagy ellentmondó tartós emlékekhez, (4) az összevonások egyenkénti jóváhagyása és visszavonása érhető el. A javaslat nem tény: mindig ellenőrizd, hogy személyek, dátumok, kapcsolatok nem vesztek el. Az archív naplók is 45 nap után lejárnak; a memória-módosítási előzmények 7 nap után törlődnek. A régi válaszhiányos naplók eredeti válaszai nem rekonstruálhatók. A napi beszélgetéskezelés és a HUN eszközvezérlés továbbra is az eredeti integráción keresztül működik.
+
+**Frissítés előtt készíts Home Assistant alkalmazásmentést**; az SQLCipher adatbázis és a hozzá tartozó kulcs együtt nélkülözhetetlen. A program nem távolítja el automatikusan a 211 jelölt naplót. Archiválás kizárólag kézi jóváhagyás után történik.

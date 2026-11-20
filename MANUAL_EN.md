@@ -1,6 +1,6 @@
 # Nabu Recall — complete English manual (v1.0.2)
 
-*Updated November 20, 2026. Covers the HAOS app and its separately installed v1.0.4 custom integration.*
+*Updated November 20, 2026. Covers the HAOS v1.0.4 app and its separately installed v1.0.4 custom integration.*
 
 ## 1. Overview and architecture
 
@@ -155,3 +155,7 @@ Real failure cases and lessons:
 ## 13. Developer notes
 
 Source tree includes `.github/workflows/tests.yml` for offline Python syntax/unit tests; these do **not** prove a live HAOS/Google Calendar deployment. Only the Ingress session timeout and documentation changed in this app release; the AI-learning algorithm, memory database schema, SQLCipher key logic, and device-control wrapper remain unchanged. [MIT License](LICENSE).
+
+## HAOS app v1.0.4 — manually approved maintenance
+
+The password-protected Ingress UI now has a dedicated **Kézi karbantartás** page. Eligible journal records (processed turns with empty assistant replies that are not currently referenced by a durable memory) can be archived inside the encrypted SQLCipher DB after explicit approval and restored if still present and collision-free. The archive obeys the original 45-day transcript retention. An advisory AI operation can propose duplicate/overlap/conflict memory consolidation; each proposal displays its source facts, replacement and reason, and requires a separate click to apply. The last memory consolidation is reversible for up to seven days. All writes enforce current-state checks within a transaction. Back up the app data and encryption key before installing. Companion integration remains v1.0.4, and voice agents have no maintenance/write access.

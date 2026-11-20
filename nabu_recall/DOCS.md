@@ -19,7 +19,7 @@
 - Az alkalmazás saját `/data` könyvtára **nem** a HA `/config` mappája. Frissítésnél ne töröld vagy telepítsd újra az alkalmazást biztonsági mentés nélkül.
 - A 8765-ös bridge és a 8766-os Ingress portot **ne publikáld** LAN-ra vagy WAN-ra.
 - Az OpenAI API-hívások használatalapúan számlázottak, a ChatGPT-előfizetés ezt nem váltja ki.
-- Az Ingress Web UI **csak olvasható**: emlékek, 45 napos napló, státusz, Memória és tárhely.
+- Az Ingress Web UI alapvető diagnosztikai oldalai olvasásra szolgálnak; a külön **Kézi karbantartás** oldalon jelszóval védett, egyenként jóváhagyott archiválás és memória-összevonás, valamint visszavonás érhető el.
 - Naptárhoz a [frissített, külön éles tesztelendő Google Calendar script példát](https://github.com/hollosipeti/nabu-recall/tree/main/examples) külön kell konfigurálni. **Év nélküli dátumot `MM-DD` formátumban adj át; az évet a HA számolja. Hangos naptáresemény-törlés még nincs.**
 
 ## English quick start
@@ -29,3 +29,7 @@ Install the HAOS app **and** the separate custom integration. Configure the Open
 ## Biztonságos naplókarbantartás (fejlesztői ág)
 
 A napló tisztításának részletes, **nem törlő** ellenőrzőlistája: [biztonsági mentés és naplótisztítás](../docs/SAFE_CLEANUP_HU.md). Az alkalmazásban a teljes adatbázis és a külön titkosítási kulcs együtt szükséges; a puszta élő SQLite-fájl másolása nem elég. A fejlesztői ág előnézete nem végez törlést.
+
+## Kézi karbantartás — 1.0.4
+
+Az **OPEN WEB UI → Kézi karbantartás** oldalon a hiányos, feldolgozott és tartós emlék forrásaként nem hivatkozott naplók titkosított archiválása engedélyezhető, majd az archívum visszaállítható (ha a sorok nem jártak le és nincs azonosítóütközés). Az archívumra is vonatkozik a 45 napos eredeti adatmegőrzés. A tartós emlékek AI-alapú optimalizálása csak javaslatokat készít; minden módosítás külön jóváhagyandó, és visszavonási lehetőséget ad. A visszavonási előzmények hét napig maradnak. **Művelet előtt készíts ellenőrzött Home Assistant biztonsági mentést az alkalmazás adatairól.**

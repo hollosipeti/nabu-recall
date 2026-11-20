@@ -4,6 +4,17 @@ Only the latest two software release notes are kept here. Documentation updates 
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.
 
+## 1.0.4 — 2026-11-20 (HAOS app only)
+
+- Protected Ingress "Kézi karbantartás" page with a deliberate, manual approval flow.
+- Journal cleanup archives only processed, unreferenced, blank-assistant rows in the existing SQLCipher DB. A stable snapshot digest is checked again inside a transaction; undo restores exact IDs and contents if no conflict.
+- Archived transcripts obey the original 45-day retention period; the 27 referenced and 48 complete sample records remain untouched in the synthetic regression.
+- New advisory AI memory optimizer suggests duplicate/overlap/conflict merges; each suggestion shows original facts, proposed text, reasoning and requires separate acceptance.
+- Each approved merge is transactional and recorded for seven-day undo. Stale previews and conflicts are rejected.
+- CSRF-bound authenticated maintenance POST endpoints exist only in the ingress UI; the bridge and voice agent do not gain cleanup tools.
+- Tested with a 286-record synthetic fixture matching the supplied aggregate classification (211 eligible, 27 linked, 48 complete), undo and authentication scenarios.
+- Companion integration remains v1.0.4. The baseline branches remain unchanged.
+
 ## 1.0.3 — 2026-11-20 (HAOS app only)
 
 - Adds a password-protected, read-only journal audit with incomplete assistant replies, durable-memory source references, and disjoint cleanup preview categories.
