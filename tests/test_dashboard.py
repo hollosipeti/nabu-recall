@@ -23,6 +23,8 @@ class DashboardStorageTests(unittest.TestCase):
             self.assertIn("Naplóellenőrzés",audit)
             self.assertIn("Hiányzó válasz",audit)
             self.assertIn("NINCS VÉGREHAJTÁS",audit)
+            self.assertIn("Előzetes tisztítási besorolás",audit)
+            self.assertIn("Feldolgozatlan",audit)
             self.assertNotIn("a <test>",audit)
             self.assertEqual(stats["turns"],store.statistics()["turns"])
             store.db.close()
