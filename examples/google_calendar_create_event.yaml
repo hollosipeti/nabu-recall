@@ -1,15 +1,17 @@
-# Home Assistant script YAML editor (not a complete scripts.yaml mapping).
-# Example for one Google Calendar exposed to Assist: calendar.esemenyek.
-# Test on a dedicated calendar first; verify your HA timezone.
+# Home Assistant Script UI YAML editor; not a complete scripts.yaml mapping.
+# Separate from Nabu Recall. Test with an expendable event first.
+# Home Assistant timezone: Europe/Budapest.
 alias: Naptáresemény létrehozása
 description: >-
-  Only create events in calendar.esemenyek. Supply title, date and hour.
-  The nap field accepts ma, holnap, holnapután, weekday names
-  (hétfő through vasárnap, next occurrence), or YYYY-MM-DD.
-  For "jövő hét kedd" calculate the exact ISO date using llm__GetDateTime.
-  If the user did not say a date OR a time, ask a question; do not call.
-  Minutes default to 0, duration defaults to 30 minutes.
-  Never claim success until the tool returns without error.
+  Új eseményt hoz létre kizárólag a calendar.esemenyek naptárban.
+  Nap: ma, holnap, holnapután, hétfő–vasárnap, MM-DD vagy YYYY-MM-DD.
+  Ha a felhasználó nem adott meg évet, MM-DD formátumot használj
+  (példa: december elseje -> 12-01); az évet a Home Assistant számítja.
+  Soha ne találj ki évet, és az explicit évszámot ne változtasd meg.
+  A hétköznap a következő még jövőbeli előfordulás.
+  Kötelező az esemény címe, napja és kezdőórája. A perc alapértéke 0,
+  az időtartamé 30 perc. Ne hozz létre múltbeli eseményt.
+  Csak sikeres eszközhívás után igazold vissza a létrehozást.
 mode: queued
 fields:
   esemeny:
@@ -19,7 +21,7 @@ fields:
       text:
   nap:
     name: Nap vagy dátum
-    description: "ma, holnap, holnapután, hétköznap vagy YYYY-MM-DD"
+    description: ma, holnap, holnapután, hétköznap, MM-DD vagy YYYY-MM-DD
     required: true
     selector:
       text:
@@ -33,7 +35,7 @@ fields:
         mode: box
   perc:
     name: Perc
-    description: "Ha nincs megadva, 0"
+    description: Ha nincs megadva, 0
     selector:
       number:
         min: 0
@@ -41,7 +43,7 @@ fields:
         mode: box
   idotartam:
     name: Időtartam percben
-    description: "Ha nincs megadva, 30"
+    description: Ha nincs megadva, 30
     selector:
       number:
         min: 1
@@ -49,45 +51,68 @@ fields:
         mode: box
 sequence:
   - variables:
+      aktualis_ido: "{{ now().isoformat() }}"
       nap_szoveg: "{{ nap | default('', true) | string | trim | lower }}"
       cim: "{{ esemeny | default('', true) | string | trim }}"
       h: "{{ ora | default(-1) | int(-1) }}"
       m: "{{ perc | default(0, true) | int(-1) }}"
       hossz: "{{ idotartam | default(30, true) | int(-1) }}"
-      most: "{{ now().isoformat() }}"
+  - variables:
+      ido_szoveg: "{{ '%02d:%02d:00' | format(h | int, m | int) }}"
   - variables:
       datum_nap: >-
-        {% set weekdays = {'hétfő': 0, 'kedd': 1, 'szerda': 2,
-           'csütörtök': 3, 'péntek': 4, 'szombat': 5, 'vasárnap': 6} %}
-        {% set base = as_datetime(most) %}
+        {% set hetnapok = {'hétfő': 0, 'kedd': 1, 'szerda': 2,
+                           'csütörtök': 3, 'péntek': 4, 'szombat': 5,
+                           'vasárnap': 6} %}
+        {% set most = as_datetime(aktualis_ido) %}
+        {% set ma = most.date() %}
         {% if nap_szoveg == 'ma' %}
-          {{ base.strftime('%Y-%m-%d') }}
+          {{ ma.isoformat() }}
         {% elif nap_szoveg == 'holnap' %}
-          {{ (base + timedelta(days=1)).strftime('%Y-%m-%d') }}
+          {{ (ma + timedelta(days=1)).isoformat() }}
         {% elif nap_szoveg == 'holnapután' %}
-          {{ (base + timedelta(days=2)).strftime('%Y-%m-%d') }}
-        {% elif nap_szoveg in weekdays %}
-          {% set offset = (weekdays[nap_szoveg] - base.weekday()) % 7 %}
-          {{ (base + timedelta(days=(offset if offset > 0 else 7))).strftime('%Y-%m-%d') }}
-        {% elif nap_szoveg | regex_match('^\\d{4}-\\d{2}-\\d{2}$') %}
+          {{ (ma + timedelta(days=2)).isoformat() }}
+        {% elif nap_szoveg in hetnapok %}
+          {% set diff = (hetnapok[nap_szoveg] - most.weekday()) % 7 %}
+          {% if diff == 0 %}
+            {% set ma_kezdes = as_datetime(ma.isoformat() ~ 'T' ~ (ido_szoveg | trim), none) %}
+            {% if ma_kezdes is none or as_timestamp(as_local(ma_kezdes)) <= as_timestamp(most) %}
+              {% set diff = 7 %}
+            {% endif %}
+          {% endif %}
+          {{ (ma + timedelta(days=diff)).isoformat() }}
+        {% elif nap_szoveg | regex_match('^[0-9]{2}-[0-9]{2}$') %}
+          {% set ns = namespace(jovobeli='invalid') %}
+          {% for ev in range(most.year, most.year + 9) %}
+            {% if ns.jovobeli == 'invalid' %}
+              {% set jelolt = '%04d-%s' | format(ev, nap_szoveg) %}
+              {% set dt = as_datetime(jelolt ~ 'T' ~ (ido_szoveg | trim), none) %}
+              {% if dt is not none and as_timestamp(as_local(dt)) > as_timestamp(most) %}
+                {% set ns.jovobeli = jelolt %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.jovobeli }}
+        {% elif nap_szoveg | regex_match('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') %}
           {{ nap_szoveg }}
         {% else %}
-          INVALID
+          invalid
         {% endif %}
   - variables:
       kezdes: >-
-        {{ datum_nap | trim }} {{ '%02d:%02d:00' | format(h | int, m | int) }}
-      kezdes_epoch: "{{ as_timestamp(kezdes | trim, 0) }}"
+        {% set dt = as_datetime((datum_nap | trim) ~ 'T' ~ (ido_szoveg | trim), none) %}
+        {{ as_local(dt).isoformat() if dt is not none else 'invalid' }}
   - if:
       - condition: template
         value_template: >-
-          {{ not cim or (datum_nap | trim) == 'INVALID'
+          {{ not cim or (datum_nap | trim) == 'invalid'
+             or (kezdes | trim) == 'invalid'
              or h | int < 0 or h | int > 23
              or m | int < 0 or m | int > 59
              or hossz | int < 1 or hossz | int > 1440
-             or (kezdes_epoch | float(0)) <= as_timestamp(now()) }}
+             or as_timestamp(kezdes | trim, 0) <= as_timestamp(now()) }}
     then:
-      - stop: "Hiányzó, érvénytelen vagy múltbeli eseményidőpont. Nem történt mentés."
+      - stop: "Hibás vagy múltbeli eseményidőpont. Nem történt mentés."
         error: true
   - action: calendar.create_event
     target:
@@ -96,5 +121,4 @@ sequence:
       summary: "{{ cim }}"
       start_date_time: "{{ kezdes | trim }}"
       end_date_time: >-
-        {{ (as_datetime(kezdes | trim) +
-            timedelta(minutes=hossz | int)).strftime('%Y-%m-%d %H:%M:%S') }}
+        {{ (as_datetime(kezdes | trim) + timedelta(minutes=hossz | int)).isoformat() }}

@@ -1,6 +1,8 @@
 # Nabu Recall — maintained releases
 
-Only the latest two release notes are kept here. Previous commits and development notes remain available in the Git history and [../HISTORY.md](../HISTORY.md).
+Only the latest two software release notes are kept here. Documentation updates do not bump application or integration versions. Previous commits and development notes remain available in the Git history and [../HISTORY.md](../HISTORY.md).
+
+Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.
 
 ## 1.0.4 — 2026-11-20 (custom integration only)
 

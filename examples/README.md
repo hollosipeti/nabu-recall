@@ -9,21 +9,23 @@ A tapasztalat szerint a HUN OpenAI Conversation a `calendar__get_events` eszköz
 ## Mit ad át az asszisztens?
 
 - `esemeny`: esemény címe, pl. `Próba esemény`
-- `nap`: `holnap`, `holnapután`, következő hétköznap neve vagy pontos `YYYY-MM-DD`
+- `nap`: `holnap`, `holnapután`, következő hétköznap neve, év nélküli `MM-DD` vagy pontos `YYYY-MM-DD`
 - `ora`: kötelező kezdőóra 0–23
 - `perc`: opcionális; hiány esetén 0
 - `idotartam`: opcionális; hiány esetén 30 perc
 
-Az AI **nem** találhat ki dátumot vagy kezdőórát. Kérdés hiányában a szkriptet meg sem hívhatja. A Home Assistant a `now()` időből számítja a relatív napokat, és elutasítja az érvénytelen/múltbeli időpontokat. A helyi időzónát Home Assistantban **Europe/Budapest** értékre állítsd. A „jövő hét kedd” eltér a „következő kedd”-től: előbbihez a `llm__GetDateTime` alapján pontos ISO-napot kell számolnia az AI-nak. A szkript egyszerű hétköznapnevei mindig a legközelebbi következő előfordulást jelölik.
+Ha a felhasználó csak hónapot és napot mond, az AI **`MM-DD`-t adjon át, soha ne találjon ki évszámot**. A Home Assistant a következő még jövőbeli előfordulást választja; teljes évszám esetén azt változtatás nélkül használja, és elutasítja a múltbeli dátumot. Az AI **nem** találhat ki dátumot vagy kezdőórát. Kérdés hiányában a szkriptet meg sem hívhatja. A Home Assistant a `now()` időből számítja a relatív napokat, és elutasítja az érvénytelen/múltbeli időpontokat. A helyi időzónát Home Assistantban **Europe/Budapest** értékre állítsd. A jelenlegi szkript az `MM-DD` formátummal évváltáskor is működik. A „jövő hét kedd” eltér a „következő kedd”-től: előbbihez a `llm__GetDateTime` alapján pontos ISO-napot kell számolnia az AI-nak. A szkript egyszerű hétköznapnevei mindig a legközelebbi következő előfordulást jelölik.
 
-A szkript példa, **nem teljes, kipróbált Google Calendar-integrációs csomag**. Éles használat előtt ellenőrizd a mentett eseményt a Google naptárban, különösen DST/óraátállás, hiányos dátum és több azonos nevű esemény esetén.
+A szkript **dokumentációs példa**, nem a telepített éles szkript automatikus frissítése. Az itt közzétett `MM-DD` változatot még külön ellenőrizni kell a tényleges HA-sablonmotorban és Google Naptárban; a korábbi beszélgetésben szereplő helyi teszteredmény nem bizonyít HAOS-integrációs futást. A szkript **nem teljes Google Calendar-integrációs csomag**. Éles használat előtt ellenőrizd a mentett eseményt a Google naptárban, különösen DST/óraátállás, hiányos dátum és több azonos nevű esemény esetén.
 
 ## Példák a korábbi tesztekből
 
 | Magyar kérés | Elvárt viselkedés |
 |---|---|
 | „Írd be holnap reggel nyolcra, hogy próba esemény.” | `llm__GetDateTime` szükség szerint → `script__naptaresemeny_letrehozasa` `nap=holnap, ora=8`; 30 perc alapérték |
-| „Írd be december 15-re 16 órára ...” | A dátum a következő releváns évben, pontos idővel; múltba írás tilos |
+| „Írd be december 15-re 16 órára ...” | `nap=12-15`, `ora=16`; a HA választja ki a következő jövőbeli évet |
+| „December 1-jén reggel 6-ra körmös.” | `nap=12-01`, `ora=6`; 2026. november 20-án a dátum 2026-12-01 |
+| „2023. december 1-jén reggel 6-ra ...” | `nap=2023-12-01`; múltbeli időpont, elutasítás |
 | „Jövő hét keddre reggel kilencre ...” | Aktuális idő lekérdezése és pontos dátum ellenőrzése |
 | „Írd be a naptárba, hogy próba esemény.” | „Mikorra írjam be?” — **semmit sem ment** |
 | „Töröld a próba eseményt.” | Nincs beépített törlőszkript; **nem** használható `todo__HassListRemoveItem` |

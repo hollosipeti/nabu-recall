@@ -31,8 +31,8 @@ sh /tmp/install_nabu_recall.sh
 
 Then restart **Home Assistant Core**. Updating only the HAOS app does not replace `/config/custom_components/nabu_recall`.
 
-## What is deliberately unchanged in v1.0.2
+## Preserved reference versions and current maintenance
 
-No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. Only UI session expiry and documentation/repo organization changed.
+No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app remains v1.0.2; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
 
 MIT License.

@@ -1,6 +1,6 @@
 # Nabu Recall — complete English manual (v1.0.2)
 
-*Updated November 20, 2026. Covers the HAOS app and its separately installed v1.0.2 custom integration.*
+*Updated November 20, 2026. Covers the HAOS app and its separately installed v1.0.4 custom integration.*
 
 ## 1. Overview and architecture
 
@@ -110,16 +110,18 @@ The original also contains a **DATE, TIME AND CALENDAR MANAGEMENT** section:
 
 The memory extraction prompt in `nabu_recall/ai.py` is **separate** from the upstream HUN agent's general system prompt. Review household-specific names, location, and calendar entity IDs before reusing the preserved prompt elsewhere.
 
+**Integration v1.0.4 reply logging:** The earlier integration wrote empty assistant messages to the 45-day journal because Home Assistant exposes `IntentResponse.speech` as a dictionary. v1.0.4 fixes future captures, not past missing response text. Journal turns and durable memories reside in distinct tables of the encrypted database. Do not reset the entire application for missing old replies; back up the database and encryption key before any targeted cleanup.
+
 ## 10. Google Calendar example and deletion limitation
 
 See [example README](examples/README.md) and [example script YAML](examples/google_calendar_create_event.yaml). The script is a **separate Home Assistant script**, installed manually and exposed to Assist. It writes **only** into `calendar.esemenyek`. The user found that `calendar__get_events` could read Google Calendar data but **could not create entries**; direct HA `calendar.create_event` worked, which is why a targeted script was exposed instead of broad administrator access.
 
 Real failure cases and lessons:
-1. The model supplied **2023 dates for a 2026 “tomorrow” request**. Use `llm__GetDateTime`, calculate relative dates against HA `now()`, reject timestamps in the past.
+1. The model supplied **2023 dates for a 2026 event request**. When the user omits a year, pass **`MM-DD`** (e.g. December 1 → `12-01`) and let Home Assistant select the next future occurrence against local `now()`. Preserve user-specified `YYYY-MM-DD`, and reject dates in the past.
 2. Missing optional `perc` / `idotartam` yielded `UndefinedError` despite form defaults. The script uses template `default(...)` so missing args do not cause that failure.
 3. The model called `todo__HassListRemoveItem` when asked to delete a calendar entry. This is a to-do-list API; it cannot delete calendar entries.
 
-**Voice event deletion is not implemented**. Calendar read and create permissions do not imply a Google-event-ID deletion tool. The example does not install any Google Calendar deletion integration. Delete events manually in Google Calendar until a separate narrow-scope, authenticated, exact-ID action is implemented. Avoid deleting by title alone when duplicates exist.
+**Voice event deletion is not implemented**. Calendar read and create permissions do not imply a Google-event-ID deletion tool. The documented script also formats start/end consistently with timezone-aware ISO 8601 values. It is a **proposed example that requires live Home Assistant validation**, not an automatically installed update. The example does not install any Google Calendar deletion integration. Delete events manually in Google Calendar until a separate narrow-scope, authenticated, exact-ID action is implemented. Avoid deleting by title alone when duplicates exist.
 
 ## 11. Realistic behavior examples
 

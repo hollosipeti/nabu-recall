@@ -1,6 +1,6 @@
 # Nabu Recall — teljes magyar kézikönyv (v1.0.2)
 
-*Frissítve: 2026. november 20. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.2 integrációra vonatkozik.*
+*Frissítve: 2026. november 20. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
 
 ## 1. Mi a Nabu Recall?
 
@@ -60,7 +60,9 @@ A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozz�
 4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
 5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
 
-**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án mindkettő v1.0.2. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.2, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+
+A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
 
 ## 5. Adatok, memória, titkosítás
 
@@ -109,7 +111,7 @@ A bridge tokent soha ne tedd képernyőképre, dokumentációba vagy nyilvános 
 
 ## 9. HUN asszisztens rendszerutasításai
 
-A kipróbált teljes angol prompt eredetije a repóban **[„AI utasítások. ki ne töröld”](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld)** fájlban található: **megőriztük, nem írtuk át**. Személyes adatok, saját eszköznevek és alapnaptár ellenőrzése nélkül ne másold más háztartásba.
+A megőrzött, eredeti rendszerutasítás-minta a repóban **[„AI utasítások. ki ne töröld”](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld)** fájlban található: **megőriztük, nem írtuk át**. Az év nélküli `MM-DD` szabályt az éles HUN ügynök rendszerutasításaiban külön érvényesíteni kell. Személyes adatok, saját eszköznevek és alapnaptár ellenőrzése nélkül ne másold más háztartásba.
 
 Különösen fontos szabályai:
 - természetes, tegeződő, rövid magyar beszédválasz; az angol HA entity/area neveket jelentés alapján felelteti meg;
@@ -133,7 +135,9 @@ Korábbi hibák:
 - a `llm__GetDateTime` helyes dátumot adott, de az AI kezdetben hibásan mondta a holnap napját;
 - a naptártörléshez tévesen `todo__HassListRemoveItem` került meghívásra.
 
-**A naptár-törlés nincs implementálva.** A HA Google Calendar megjelenítése/írása nem jelent automatikus Google-event-ID alapú törlési API-t. A „töröld a próba eseményt” jelenleg csak biztonságos elutasítást eredményezhet; manuálisan törölhető a Google naptárból. A példaszkript és a [részletes példák](examples/README.md) dokumentálják a megfelelő működési szerződést. Az éles szkriptet másolás után külön teszteld.
+**A naptár-törlés nincs implementálva.** A HA Google Calendar megjelenítése/írása nem jelent automatikus Google-event-ID alapú törlési API-t. A „töröld a próba eseményt” jelenleg csak biztonságos elutasítást eredményezhet; manuálisan törölhető a Google naptárból. Az év nélkül mondott hónap-nap esetén az AI `MM-DD` formátumot adjon át (például `12-01`), és a szkript a Home Assistant ideje alapján válassza ki a következő jövőbeli előfordulást. Az időzóna-aware kezdő/záróértékek megakadályozzák a korábbi vegyes időzóna hibát. A GitHub-példa **külön éles tesztet igényel**, és nem frissíti a Home Assistantban már létrehozott szkriptet.
+
+A példaszkript és a [részletes példák](examples/README.md) dokumentálják a megfelelő működési szerződést. Az éles szkriptet másolás után külön teszteld.
 
 ## 11. Működési példák (valódi tesztesetek mintájára)
 
