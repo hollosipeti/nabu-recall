@@ -106,6 +106,7 @@ def render(store, state, tab="memories"):
                     for x in items) or "<p>Nincs naplóbejegyzés.</p>")
     elif tab == "audit":
         audit = store.journal_integrity_summary()
+        preview = store.journal_cleanup_preview()
         body = (
             "<h2>Naplóellenőrzés — csak előnézet</h2>"
             "<article><p>Hiányos sor: az asszisztens válasza üres, vagy csak szóközökből áll.</p>"
@@ -121,6 +122,15 @@ def render(store, state, tab="memories"):
             "<p><b>Hivatkozott hiányos naplóbejegyzések:</b> %d</p>"
             "<p><b>Feldolgozott, hiányos, nem hivatkozott naplók:</b> %d</p>"
             "<p><b>Már hiányzó naplóra hivatkozó emlékek:</b> %d</p>"
+            "<article><h3>Előzetes tisztítási besorolás</h3>"
+            "<p><b>Feldolgozatlan: </b>%d (nem tisztítható)</p>"
+            "<p><b>Tartós emlék forrása: </b>%d (forrásmegőrzést igényel)</p>"
+            "<p><b>Feldolgozott, közvetlen hivatkozás nélkül: </b>%d (felülvizsgálandó)</p>"
+            "<p><b>Minták — feldolgozatlan:</b> %s</p>"
+            "<p><b>Minták — hivatkozott:</b> %s</p>"
+            "<p><b>Minták — hivatkozás nélkül:</b> %s</p>"
+            "<p>Ez nem törlési javaslat. A nem hivatkozott bejegyzések "
+            "a beszélgetési előzmény miatt továbbra is hasznosak lehetnek.</p></article>"
             "<p><b>Legfeljebb 20 hivatkozott napló ID:</b> %s</p>"
             "<p>A nem hivatkozott bejegyzések sem automatikusan törölhetők; "
             "beszélgetési kontextust tartalmazhatnak.</p></article>"
@@ -132,6 +142,12 @@ def render(store, state, tab="memories"):
                ", ".join("#%d" % x for x in audit["sample_missing_ids"]) or "—",
                audit["referenced_memories"], audit["referenced_turns"],
                audit["unreferenced_processed"], audit["orphan_sources"],
+               preview["pending"]["count"],
+               preview["linked"]["count"],
+               preview["unlinked"]["count"],
+               ", ".join("#%d" % x for x in preview["pending"]["sample_ids"]) or "—",
+               ", ".join("#%d" % x for x in preview["linked"]["sample_ids"]) or "—",
+               ", ".join("#%d" % x for x in preview["unlinked"]["sample_ids"]) or "—",
                ", ".join("#%d" % x for x in audit["sample_referenced_ids"]) or "—")
         )
     elif tab == "storage":
