@@ -97,7 +97,7 @@ class Store:
 
     def memory_list(self, limit=200):
         return [dict(r) for r in self.db.execute(
-            "SELECT * FROM memories ORDER BY updated DESC LIMIT ?", (limit,))]
+            "SELECT * FROM memories ORDER BY updated DESC, id DESC LIMIT ?", (limit,))]
 
     def memory_page(self, after_id=0, limit=200):
         """Stable keyset paging over every durable fact, not the latest 200."""
