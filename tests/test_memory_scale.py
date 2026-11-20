@@ -26,7 +26,7 @@ class DurableMemoryScaleTests(unittest.TestCase):
             cls.store.db.executemany(
                 "INSERT INTO memories(created,updated,fact,source_turn) "
                 "VALUES(?,?,?,NULL)",
-                ((now, now, "Mesterséges projekt %06d: eszközteszt %06d." % (i,i))
+                ((now, now + i, "Mesterséges projekt %06d: eszközteszt %06d." % (i,i))
                  for i in range(100000))
             )
         cls.insert_seconds = time.perf_counter() - started
