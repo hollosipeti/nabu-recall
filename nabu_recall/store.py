@@ -137,6 +137,23 @@ class Store:
             "SELECT id FROM turns WHERE TRIM(assistant_text) = '' "
             "ORDER BY id DESC LIMIT 20"
         )]
+        # Provenance statistics are read-only; never interpret as deletion approval.
+        refs = self.db.execute(
+            "SELECT "
+            "(SELECT COUNT(*) FROM memories m WHERE m.source_turn IN "
+            "(SELECT t.id FROM turns t WHERE TRIM(t.assistant_text) = '')) AS referenced_memories, "
+            "(SELECT COUNT(*) FROM turns t WHERE TRIM(t.assistant_text) = '' "
+            "AND EXISTS (SELECT 1 FROM memories m WHERE m.source_turn=t.id)) AS referenced_turns, "
+            "(SELECT COUNT(*) FROM turns t WHERE TRIM(t.assistant_text) = '' AND t.processed=1 "
+            "AND NOT EXISTS (SELECT 1 FROM memories m WHERE m.source_turn=t.id)) AS unreferenced_processed, "
+            "(SELECT COUNT(*) FROM memories m WHERE m.source_turn IS NOT NULL "
+            "AND NOT EXISTS (SELECT 1 FROM turns t WHERE t.id=m.source_turn)) AS orphan_sources"
+        ).fetchone()
+        referenced_ids = [int(x[0]) for x in self.db.execute(
+            "SELECT t.id FROM turns t WHERE TRIM(t.assistant_text) = '' "
+            "AND EXISTS (SELECT 1 FROM memories m WHERE m.source_turn=t.id) "
+            "ORDER BY t.id DESC LIMIT 20"
+        )]
         return {
             "total": int(row["total"]),
             "missing": int(row["missing"]),
@@ -144,6 +161,11 @@ class Store:
             "missing_pending": int(row["missing_pending"]),
             "complete": int(row["complete"]),
             "sample_missing_ids": sample_ids,
+            "referenced_memories": int(refs["referenced_memories"]),
+            "referenced_turns": int(refs["referenced_turns"]),
+            "unreferenced_processed": int(refs["unreferenced_processed"]),
+            "orphan_sources": int(refs["orphan_sources"]),
+            "sample_referenced_ids": referenced_ids,
         }
 
     def recent_turns(self, limit=35):
