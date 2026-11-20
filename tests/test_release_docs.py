@@ -39,4 +39,4 @@ class ReleaseDocsTests(unittest.TestCase):
         changelog=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
         # Only maintained releases in this file; the archive has older records.
         versions=re.findall(r"^##\s+(\d+\.\d+\.\d+)",changelog,re.M)
-        self.assertEqual(versions,["1.0.2","1.0.1"])
+        self.assertEqual(versions,["1.0.3","1.0.2"])
