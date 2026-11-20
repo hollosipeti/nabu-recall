@@ -186,11 +186,15 @@ class Store:
                           key=lambda g: g[0])
         selected = []
         capacity = 0
+        last_group_start = after_id
+        consumed_groups = 0
         for group in distinct:
             if capacity + len(group) > max_memories:
                 break
             selected.extend(group)
             capacity += len(group)
+            consumed_groups += 1
+            last_group_start = group[0]
         rows = []
         if selected:
             values = ",".join("?" * len(selected))
@@ -198,15 +202,9 @@ class Store:
                 "SELECT id,created,updated,fact,source_turn FROM memories "
                 "WHERE id IN (%s) ORDER BY id" % values, selected
             )]
-        return {
-            "memories": rows, "groups": sum(1 for g in distinct
-                                           if g[0] <= (selected[-1] if selected else 0)),
-            "cursor": max((g[0] for g in distinct
-                           if g[0] <= (selected[-1] if selected else 0)),
-                          default=after_id),
-            "more": len(distinct) > sum(1 for g in distinct
-                                       if g[0] <= (selected[-1] if selected else 0)),
-        }
+        return {"memories": rows, "groups": consumed_groups,
+                "cursor": last_group_start,
+                "more": len(distinct) > consumed_groups}
 
     def apply(self, operations, source_turn=None):
         now = int(time.time())
