@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from aiohttp.test_utils import TestClient, TestServer
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"nabu_recall"))
-from dashboard import create_dashboard, render, storage_metrics, _signed_session, _valid_session
+from dashboard import create_dashboard, render, storage_metrics, _signed_session, _valid_session, SESSION_AGE
 from store import Store
 
 class DashboardAuthTests(unittest.IsolatedAsyncioTestCase):
@@ -76,5 +76,7 @@ class DashboardAuthTests(unittest.IsolatedAsyncioTestCase):
         key=b"test secret"
         token=_signed_session(key,100)
         self.assertTrue(_valid_session(token,key,101))
-        self.assertFalse(_valid_session(token,key,100+8*3600+1))
+        self.assertEqual(SESSION_AGE, 600)
+        self.assertTrue(_valid_session(token,key,699))
+        self.assertFalse(_valid_session(token,key,700))
         self.assertFalse(_valid_session(token,b"different key",101))

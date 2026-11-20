@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 
-SESSION_AGE = 8 * 3600
+SESSION_AGE = 10 * 60  # Absolute lifetime since successful login, not idle timeout.
 
 def _time(value):
     return datetime.fromtimestamp(value, timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if value else "—"
