@@ -1,0 +1,100 @@
+# Home Assistant script YAML editor (not a complete scripts.yaml mapping).
+# Example for one Google Calendar exposed to Assist: calendar.esemenyek.
+# Test on a dedicated calendar first; verify your HA timezone.
+alias: Naptáresemény létrehozása
+description: >-
+  Only create events in calendar.esemenyek. Supply title, date and hour.
+  The nap field accepts ma, holnap, holnapután, weekday names
+  (hétfő through vasárnap, next occurrence), or YYYY-MM-DD.
+  For "jövő hét kedd" calculate the exact ISO date using llm__GetDateTime.
+  If the user did not say a date OR a time, ask a question; do not call.
+  Minutes default to 0, duration defaults to 30 minutes.
+  Never claim success until the tool returns without error.
+mode: queued
+fields:
+  esemeny:
+    name: Esemény neve
+    required: true
+    selector:
+      text:
+  nap:
+    name: Nap vagy dátum
+    description: "ma, holnap, holnapután, hétköznap vagy YYYY-MM-DD"
+    required: true
+    selector:
+      text:
+  ora:
+    name: Óra
+    required: true
+    selector:
+      number:
+        min: 0
+        max: 23
+        mode: box
+  perc:
+    name: Perc
+    description: "Ha nincs megadva, 0"
+    selector:
+      number:
+        min: 0
+        max: 59
+        mode: box
+  idotartam:
+    name: Időtartam percben
+    description: "Ha nincs megadva, 30"
+    selector:
+      number:
+        min: 1
+        max: 1440
+        mode: box
+sequence:
+  - variables:
+      nap_szoveg: "{{ nap | default('', true) | string | trim | lower }}"
+      cim: "{{ esemeny | default('', true) | string | trim }}"
+      h: "{{ ora | default(-1, true) | int(-1) }}"
+      m: "{{ perc | default(0, true) | int(-1) }}"
+      hossz: "{{ idotartam | default(30, true) | int(-1) }}"
+      most: "{{ now().isoformat() }}"
+  - variables:
+      datum_nap: >-
+        {% set weekdays = {'hétfő': 0, 'kedd': 1, 'szerda': 2,
+           'csütörtök': 3, 'péntek': 4, 'szombat': 5, 'vasárnap': 6} %}
+        {% set base = as_datetime(most) %}
+        {% if nap_szoveg == 'ma' %}
+          {{ base.strftime('%Y-%m-%d') }}
+        {% elif nap_szoveg == 'holnap' %}
+          {{ (base + timedelta(days=1)).strftime('%Y-%m-%d') }}
+        {% elif nap_szoveg == 'holnapután' %}
+          {{ (base + timedelta(days=2)).strftime('%Y-%m-%d') }}
+        {% elif nap_szoveg in weekdays %}
+          {% set offset = (weekdays[nap_szoveg] - base.weekday()) % 7 %}
+          {{ (base + timedelta(days=(offset if offset > 0 else 7))).strftime('%Y-%m-%d') }}
+        {% elif nap_szoveg | regex_match('^\\d{4}-\\d{2}-\\d{2}$') %}
+          {{ nap_szoveg }}
+        {% else %}
+          INVALID
+        {% endif %}
+  - variables:
+      kezdes: >-
+        {{ datum_nap | trim }} {{ '%02d:%02d:00' | format(h | int, m | int) }}
+      kezdes_epoch: "{{ as_timestamp(kezdes | trim, 0) }}"
+  - if:
+      - condition: template
+        value_template: >-
+          {{ not cim or (datum_nap | trim) == 'INVALID'
+             or h | int < 0 or h | int > 23
+             or m | int < 0 or m | int > 59
+             or hossz | int < 1 or hossz | int > 1440
+             or (kezdes_epoch | float(0)) <= as_timestamp(now()) }}
+    then:
+      - stop: "Hiányzó, érvénytelen vagy múltbeli eseményidőpont. Nem történt mentés."
+        error: true
+  - action: calendar.create_event
+    target:
+      entity_id: calendar.esemenyek
+    data:
+      summary: "{{ cim }}"
+      start_date_time: "{{ kezdes | trim }}"
+      end_date_time: >-
+        {{ (as_datetime(kezdes | trim) +
+            timedelta(minutes=hossz | int)).strftime('%Y-%m-%d %H:%M:%S') }}
