@@ -108,7 +108,7 @@ def cleanup_restore(store, history_id):
         raise MaintenanceConflict("Invalid history identifier")
     with store.db:
         history = store.db.execute(
-            "SELECT kind,payload,undone FROM maintenance_history WHERE id=?",
+            "SELECT kind,payload,undone,created FROM maintenance_history WHERE id=?",
             (history_id,)
         ).fetchone()
         if not history or history["kind"] != "cleanup" or history["undone"]:
@@ -198,12 +198,14 @@ def memory_apply(store, proposal):
         ).fetchone():
             raise MaintenanceConflict("Resulting fact already exists")
         stamp = int(time.time())
+        # Remove duplicates first, then update keeper; the new fact may
+        # equal one of the removed facts (UNIQUE(fact) constraint).
+        store.db.executemany("DELETE FROM memories WHERE id=?",
+                             [(id_,) for id_ in remove])
         store.db.execute(
             "UPDATE memories SET fact=?, updated=? WHERE id=?",
             (proposal["new_fact"], stamp, keep)
         )
-        store.db.executemany("DELETE FROM memories WHERE id=?",
-                             [(id_,) for id_ in remove])
         payload = {"old": rows, "keep": keep,
                    "after": proposal["new_fact"], "removed": remove}
         return store.db.execute(
@@ -222,6 +224,8 @@ def memory_restore(store, history_id):
         ).fetchone()
         if not history or history["kind"] != "memory" or history["undone"]:
             raise MaintenanceConflict("Undo not available")
+        if history["created"] < int(time.time()) - 7 * 86400:
+            raise MaintenanceConflict("Undo window expired")
         data = json.loads(history["payload"])
         keeper = store.db.execute(
             "SELECT fact FROM memories WHERE id=?", (data["keep"],)

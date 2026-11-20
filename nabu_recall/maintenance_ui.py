@@ -26,6 +26,7 @@ def _csrf(key, session):
 def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None,
                       lock=None):
     plans = {}
+    messages = {}
 
     def token(request):
         return _csrf(key, request.cookies.get("recall_ui", ""))
@@ -49,6 +50,8 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
 
     def render_page(request, notice=""):
         from dashboard import _page
+        session_id = request.cookies.get("recall_ui", "")
+        notice = notice or messages.pop(session_id, "")
         csrf = token(request)
         snap = cleanup_preview(store)
         rec = latest_cleanup(store)
@@ -198,7 +201,8 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
             notice = "Művelet elutasítva. Ellenőrizd és frissítsd az előnézetet."
         except Exception:
             notice = "A művelet nem sikerült. Adatok ellenőrzése szükséges."
-        # Redirect to the canonical page so relative form actions remain correct.
+        # Post/redirect/get: preserve one-time success or error feedback.
+        messages[session] = notice
         response = web.HTTPSeeOther(location="../maintenance")
         return headers(response)
 

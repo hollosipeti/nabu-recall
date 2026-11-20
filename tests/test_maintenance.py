@@ -134,6 +134,23 @@ class MaintenanceTests(unittest.TestCase):
             "SELECT * FROM memories ORDER BY id"
         )])
 
+    def test_merge_when_new_fact_matches_removed_fact(self):
+        self.store.apply([{"action": "add", "fact": "Uncertain preliminary preference"}])
+        self.store.apply([{"action": "add", "fact": "Confirmed preferred tea is ginger"}])
+        ids = [r["id"] for r in self.store.memory_list()]
+        remove_text = self.store.db.execute(
+            "SELECT fact FROM memories WHERE id=?", (ids[1],)
+        ).fetchone()[0]
+        proposal = validate_proposal({
+            "type": "overlap", "keeper_id": ids[0],
+            "remove_ids": [ids[1]], "new_fact": remove_text,
+            "reason": "Replace less precise fact by confirmed fact"
+        }, self.store)
+        self.assertIsNotNone(proposal)
+        history = memory_apply(self.store, proposal)
+        self.assertEqual(self.store.statistics()["memories"], 1)
+        self.assertEqual(memory_restore(self.store, history), 2)
+
     def test_memory_stale_proposal_rejected_without_mutation(self):
         self.store.apply([{"action": "add", "fact": "One original memory"}])
         self.store.apply([{"action": "add", "fact": "Another original memory"}])
