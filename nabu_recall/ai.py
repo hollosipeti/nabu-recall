@@ -128,7 +128,8 @@ class AI:
 
     async def search_terms(self, query):
         output = await self.json_answer(
-            'Plan keyword and phrase search in Hungarian 45-day conversation transcripts. '
+            'Plan keyword and phrase search across Hungarian durable memories and ' 
+            '45-day conversation transcripts. '
             'Include synonyms and Hungarian stems. Output JSON object with terms array only.',
             {"query": query}, timeout=7)
         return [x for x in output.get("terms", []) if isinstance(x, str)][:10]
