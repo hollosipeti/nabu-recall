@@ -71,6 +71,26 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(server.store.memory_list()),2)
         revised=next(m for m in server.store.memory_list() if m["id"]==original["id"])
         self.assertNotIn("Anna",revised["fact"])
+    async def test_historical_memory_outside_latest_200_can_be_managed(self):
+        server.store.apply([{"action": "add",
+                            "fact": "Régi beállítás: műhelylámpa színe kék."}])
+        oldest = server.store.memory_list()[0]
+        for i in range(300):
+            server.store.apply([{"action": "add",
+                                "fact": "Független mesterséges naplóérték %d" % i}])
+        self.assertFalse(any(x["id"] == oldest["id"]
+                             for x in server.store.memory_list(200)))
+        server.ai = FakeAI([{
+            "action": "update", "id": oldest["id"],
+            "fact": "Régi beállítás: műhelylámpa színe zöld."
+        }])
+        _, body = await self.post(
+            "manage", {"utterance": "Javítsd a műhelylámpa színét zöldre"})
+        self.assertEqual(body["status"], "confirmed")
+        self.assertEqual(server.store.db.execute(
+            "SELECT fact FROM memories WHERE id=?", (oldest["id"],)
+        ).fetchone()[0], "Régi beállítás: műhelylámpa színe zöld.")
+
     async def test_unknown_id_not_confirmed(self):
         server.ai=FakeAI([{"action":"update","id":999,"fact":"Apa"}])
         _,body=await self.post("manage",{"utterance":"Javítsd az emléket"})

@@ -101,6 +101,27 @@ class MaintenanceUiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(undone.status, 303)
         self.assertEqual(self.store.statistics()["turns"], 2)
 
+    async def test_duplicate_scan_finds_old_and_new_memory_together(self):
+        self.store.apply([{"action": "add",
+                           "fact": "Kedvenc ital gyömbértea és citrom"}])
+        for i in range(250):
+            self.store.apply([{"action": "add",
+                               "fact": "Egyedi eszközteszt %06d" % i}])
+        self.store.apply([{"action": "add",
+                           "fact": "citrom és gyömbértea kedvenc ital"}])
+        headers = await self.login()
+        csrf, _ = await self.csrf(headers)
+        response = await self.client.post(
+            "/maintenance/scan-duplicates", headers=headers,
+            data={"csrf": csrf, "after_id": "0"},
+            allow_redirects=False
+        )
+        self.assertEqual(response.status, 303)
+        csrf, html = await self.csrf(headers)
+        self.assertIn("Javasolt új tény", html)
+        self.assertIn("Kedvenc ital gyömbértea és citrom", html)
+        self.assertIn("citrom és gyömbértea kedvenc ital", html)
+
     async def test_manual_optimizer_preview_approve_and_undo(self):
         self.store.apply([{"action": "add", "fact": "Kedvenc ital: gyömbértea."}])
         self.store.apply([{"action": "add", "fact": "Szereti a gyömbérteát."}])
