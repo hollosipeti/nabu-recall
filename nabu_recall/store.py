@@ -98,6 +98,52 @@ class Store:
         return [dict(r) for r in self.db.execute(
             "SELECT * FROM memories ORDER BY updated DESC LIMIT ?", (limit,))]
 
+    def memory_page(self, after_id=0, limit=200):
+        """Stable keyset paging over every durable fact, not the latest 200."""
+        if type(after_id) is not int or after_id < 0:
+            raise ValueError("Invalid memory cursor")
+        limit = min(max(int(limit), 1), 200)
+        return [dict(r) for r in self.db.execute(
+            "SELECT id, created, updated, fact, source_turn FROM memories "
+            "WHERE id > ? ORDER BY id LIMIT ?", (after_id, limit)
+        )]
+
+    def memory_search(self, terms, limit=160):
+        """Rank matches across the FULL memory table; bounded output for AI.
+
+        LIKE is deliberately used rather than relying on optional SQLCipher FTS5
+        compile flags. Escaping treats all query text as data. No newest-first
+        window is applied before matching.
+        """
+        if not isinstance(terms, (list, tuple)):
+            return []
+        clean = []
+        for term in terms[:12]:
+            if not isinstance(term, str):
+                continue
+            term = term.strip()
+            if not 2 <= len(term) <= 80 or term in clean:
+                continue
+            clean.append(term)
+        if not clean:
+            return []
+        limit = min(max(int(limit), 1), 200)
+        # A single OR query includes matching old memories regardless of updated
+        # time; score with all terms, then deterministic updated/id tie-breaks.
+        conditions = ["fact LIKE ? ESCAPE '\\'" for _ in clean]
+        patterns = ["%" + s.replace("\\", "\\\\").replace("%", "\\%")
+                    .replace("_", "\\_") + "%" for s in clean]
+        rows = [dict(r) for r in self.db.execute(
+            "SELECT id, created, updated, fact, source_turn FROM memories "
+            "WHERE " + " OR ".join(conditions), patterns
+        )]
+        folded = [s.casefold() for s in clean]
+        rows.sort(key=lambda r: (
+            -sum(1 for s in folded if s in r["fact"].casefold()),
+            -r["updated"], -r["id"]
+        ))
+        return rows[:limit]
+
     def apply(self, operations, source_turn=None):
         now = int(time.time())
         with self.db:
