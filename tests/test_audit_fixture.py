@@ -82,7 +82,7 @@ class AuditFixtureTests(unittest.TestCase):
             store.journal_integrity_summary()
             store.journal_cleanup_preview()
             store.db.close()
-            self.assertNotEqual(path.read_bytes()[:16], b"SQLite format 3\\x00")
+            self.assertNotEqual(path.read_bytes()[:16], b"SQLite format 3\x00")
             self.assertNotIn(b"sensitive transcript", path.read_bytes())
             again = Store(path)
             try:
