@@ -102,7 +102,8 @@ async def process_pending():
                 terms = await ai.search_terms(" ".join(
                     row["user_text"][:160] for row in pending)[:1000])
                 relevant = store.memory_search(
-                    store.memory_query_terms(" ".join(x["user_text"] for x in pending)) + terms,
+                    terms[:6] + store.memory_query_terms(
+                        " ".join(x["user_text"] for x in pending))[:6],
                     limit=120)
                 by_id = {r["id"]: r for r in recent_memories + relevant}
                 operations = await ai.learn(pending, list(by_id.values())[:160])
@@ -138,7 +139,7 @@ async def recall(request):
         terms = await ai.search_terms(query)
         # Search ALL durable facts before passing a bounded relevance shortlist.
         # Do not accidentally treat the newest 200 as the whole memory.
-        memories = store.memory_search(store.memory_query_terms(query) + terms, limit=160)
+        memories = store.memory_search(terms[:6] + store.memory_query_terms(query)[:6], limit=160)
         turns = store.candidates(terms)
         selection = await ai.recall(query, turns, memories)
         tids = set(x for x in selection.get("turn_ids", []) if type(x) is int)
