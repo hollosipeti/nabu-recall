@@ -114,6 +114,18 @@ class StoreTests(unittest.TestCase):
         self.assertTrue(all(x["count"] == 0 and not x["sample_ids"]
                             for x in result.values()))
 
+    def test_unicode_memory_search_including_accented_uppercase(self):
+        self.store.apply([{"action": "add",
+                           "fact": "Az ÁRAMSZÜNET után is megmarad a havi fogyasztás."}])
+        self.store.apply([{"action": "add",
+                           "fact": "Különálló mesterséges adat."}])
+        results = self.store.memory_search(["áramszünet"])
+        self.assertEqual(len(results), 1)
+        self.assertIn("ÁRAMSZÜNET", results[0]["fact"])
+        self.assertEqual(self.store.memory_query_terms(
+            "Miért nem működik az áramszünet után?")[:2],
+            ["nem", "működik"])
+
     def test_processed(self):
         ident = self.store.add_turn("u", "a")
         self.store.processed([ident])
