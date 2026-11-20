@@ -121,7 +121,7 @@ class Store:
             "szia", "mondd", "mond", "kérdés", "kerdes", "jegyezd",
             "emlékszel", "emlekszel", "hozzá", "hozza",
         }
-        words = re.findall(r"[^\\W_]{3,}", text.casefold(), flags=re.UNICODE)
+        words = re.findall(r"[^\W_]{3,}", text.casefold(), flags=re.UNICODE)
         return list(dict.fromkeys(w for w in words if w not in stopwords))[:12]
 
     def memory_search(self, terms, limit=160):
