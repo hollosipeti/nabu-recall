@@ -239,7 +239,7 @@ def memory_restore(store, history_id):
                 raise MaintenanceConflict("Memory ID collision")
             if store.db.execute(
                 "SELECT 1 FROM memories WHERE fact=? AND id<>?",
-                (r["fact"], r["id"])
+                (r["fact"], data["keep"])
             ).fetchone():
                 raise MaintenanceConflict("Memory fact conflict")
         store.db.execute(
