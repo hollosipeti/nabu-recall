@@ -73,3 +73,13 @@ A további fejlesztés csak akkor kerülhet éles rendszerbe, ha:
 - a tartós emlékek megőrzése és a visszavonás tesztelve van.
 
 **A jelenlegi fejlesztési ág semmilyen adatot nem töröl.**
+
+## Tesztterv
+
+Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzés lépései:
+[HAOS_AUDIT_TEST_HU.md](HAOS_AUDIT_TEST_HU.md).
+
+Az `tests/test_audit_fixture.py` ellenőrzése valódi titkosított SQLCipher
+próbaadatbázist használ: bizonyítja, hogy a lekérdezés nem módosítja a
+`turns`, `memories` táblákat vagy a kulcsot. **Ez nem helyettesíti az
+éles rendszer mentés-visszaállítási tesztjét.**
