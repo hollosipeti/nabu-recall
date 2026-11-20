@@ -168,6 +168,33 @@ class Store:
             "sample_referenced_ids": referenced_ids,
         }
 
+    def journal_cleanup_preview(self):
+        """Read-only classification of incomplete journal rows, no deletion approval.
+
+        Classes are disjoint and total exactly the count of blank assistant replies.
+        A source_turn link is provenance, not an authorization to delete anything.
+        """
+        cases = (
+            ("pending", "t.processed = 0"),
+            ("linked", "t.processed = 1 AND EXISTS "
+             "(SELECT 1 FROM memories m WHERE m.source_turn = t.id)"),
+            ("unlinked", "t.processed = 1 AND NOT EXISTS "
+             "(SELECT 1 FROM memories m WHERE m.source_turn = t.id)"),
+        )
+        result = {}
+        for name, condition in cases:
+            where = "TRIM(t.assistant_text) = '' AND " + condition
+            result[name] = {
+                "count": int(self.db.execute(
+                    "SELECT COUNT(*) FROM turns t WHERE " + where
+                ).fetchone()[0]),
+                "sample_ids": [int(r[0]) for r in self.db.execute(
+                    "SELECT t.id FROM turns t WHERE " + where +
+                    " ORDER BY t.id DESC LIMIT 10"
+                )],
+            }
+        return result
+
     def recent_turns(self, limit=35):
         return [dict(r) for r in self.db.execute(
             "SELECT id,created,conversation_id,user_text,assistant_text,processed "
