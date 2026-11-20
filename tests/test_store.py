@@ -55,6 +55,11 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(summary["missing_processed"], 1)
         self.assertEqual(summary["missing_pending"], 1)
         self.assertEqual(len(summary["sample_missing_ids"]), 2)
+        self.assertEqual(summary["referenced_memories"], 1)
+        self.assertEqual(summary["referenced_turns"], 1)
+        self.assertEqual(summary["unreferenced_processed"], 0)
+        self.assertEqual(summary["orphan_sources"], 0)
+        self.assertEqual(summary["sample_referenced_ids"], [m1])
         self.assertEqual(before, self.store.statistics())
         self.assertEqual(self.store.memory_list()[0]["source_turn"], m1)
 
@@ -62,6 +67,28 @@ class StoreTests(unittest.TestCase):
         summary = self.store.journal_integrity_summary()
         self.assertEqual(summary["total"], 0)
         self.assertEqual(summary["sample_missing_ids"], [])
+
+    def test_audit_orphan_sources_and_unreferenced_turns(self):
+        old = self.store.add_turn("old", "")
+        pending = self.store.add_turn("pending", "")
+        self.store.processed([old])
+        self.store.apply([{"action":"add","fact":"unlinked"}], 99999)
+        report = self.store.journal_integrity_summary()
+        self.assertEqual(report["missing"], 2)
+        self.assertEqual(report["unreferenced_processed"], 1)
+        self.assertEqual(report["missing_pending"], 1)
+        self.assertEqual(report["orphan_sources"], 1)
+        self.assertEqual(report["referenced_memories"], 0)
+        self.assertEqual(self.store.pending()[0]["id"], pending)
+
+    def test_audit_multiple_memories_same_source(self):
+        ident = self.store.add_turn("q", "")
+        self.store.processed([ident])
+        self.store.apply([{"action":"add","fact":"A"}, {"action":"add","fact":"B"}], ident)
+        report = self.store.journal_integrity_summary()
+        self.assertEqual(report["referenced_memories"], 2)
+        self.assertEqual(report["referenced_turns"], 1)
+        self.assertEqual(report["sample_referenced_ids"], [ident])
 
     def test_processed(self):
         ident = self.store.add_turn("u", "a")
