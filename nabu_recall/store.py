@@ -46,7 +46,16 @@ class Store:
     def purge(self, now=None):
         cutoff = (int(time.time()) if now is None else int(now)) - RETENTION_DAYS * 86400
         with self.db:
-            return self.db.execute("DELETE FROM turns WHERE created < ?", (cutoff,)).rowcount
+            deleted = self.db.execute("DELETE FROM turns WHERE created < ?", (cutoff,)).rowcount
+            # Archived transcripts have exactly the same 45-day retention.
+            self.db.execute("DELETE FROM journal_archive WHERE created < ?", (cutoff,))
+            # Reversible old memory edits expire after seven days, so deleted facts
+            # cannot be retained indefinitely in maintenance history.
+            self.db.execute(
+                "DELETE FROM maintenance_history WHERE kind='memory' AND created < ?",
+                ((int(time.time()) if now is None else int(now)) - 7 * 86400,)
+            )
+            return deleted
 
     def candidates(self, terms, recent=12, max_matches=45):
         cutoff = int(time.time()) - RETENTION_DAYS * 86400

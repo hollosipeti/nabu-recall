@@ -165,6 +165,20 @@ class MaintenanceTests(unittest.TestCase):
         ]
         self.assertTrue(all(validate_proposal(x, self.store) is None for x in bad))
 
+    def test_archived_transcripts_still_expire_at_45_days(self):
+        now = 2_000_000_000
+        old = self.store.add_turn("old archive", "", created=now - 46 * 86400)
+        self.store.processed([old])
+        plan = cleanup_preview(self.store)
+        cleanup_commit(self.store, plan["digest"], plan["count"])
+        self.assertEqual(self.store.db.execute(
+            "SELECT COUNT(*) FROM journal_archive"
+        ).fetchone()[0], 1)
+        self.store.purge(now)
+        self.assertEqual(self.store.db.execute(
+            "SELECT COUNT(*) FROM journal_archive"
+        ).fetchone()[0], 0)
+
     def test_encrypted_history_not_plaintext(self):
         i = self.add("unlinked", "synthetic private sentence")
         plan = cleanup_preview(self.store)

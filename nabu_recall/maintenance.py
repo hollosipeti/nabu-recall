@@ -256,6 +256,7 @@ def memory_restore(store, history_id):
 def recent_memory_undo(store):
     row = store.db.execute(
         "SELECT id,created FROM maintenance_history "
-        "WHERE kind='memory' AND undone=0 ORDER BY id DESC LIMIT 1"
+        "WHERE kind='memory' AND undone=0 AND created>=? ORDER BY id DESC LIMIT 1"
+        , (int(time.time()) - 7 * 86400,)
     ).fetchone()
     return dict(row) if row else None
