@@ -157,7 +157,7 @@ async def cleanup_task(app):
 
 async def startup(app):
     # The read-only dashboard is on a separate ingress-only HTTP port.
-    app["dash_runner"] = web.AppRunner(create_dashboard(store, state, os.getenv('DASHBOARD_PASSWORD', '')))
+    app["dash_runner"] = web.AppRunner(create_dashboard(store, state, os.getenv('DASHBOARD_PASSWORD', ''), ai, lock))
     await app["dash_runner"].setup()
     app["dash_site"] = web.TCPSite(app["dash_runner"], host="0.0.0.0", port=8766)
     await app["dash_site"].start()

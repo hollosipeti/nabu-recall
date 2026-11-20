@@ -84,7 +84,7 @@ def render(store, state, tab="memories"):
     title = "Nabu Recall — állapot"
     nav = ('<nav><a href="./?tab=memories">Tartós emlékek</a> · '
            '<a href="./?tab=turns">45 napos napló</a> · <a href="./?tab=audit">Naplóellenőrzés</a> · '
-           '<a href="./?tab=storage">Memória és tárhely</a> · '
+           '<a href="./?tab=storage">Memória és tárhely</a> · <a href="./maintenance">Kézi karbantartás</a> · '
            '<a href="./">Állapot</a></nav>'
            '<form action="./logout" method="post">'
            '<button type="submit">Kijelentkezés</button></form>')
@@ -201,7 +201,7 @@ def _valid_session(value, key, now=None):
     except (TypeError, ValueError, AttributeError):
         return False
 
-def create_dashboard(store, state, password=None):
+def create_dashboard(store, state, password=None, ai=None, lock=None):
     """HA ingress restriction plus independent fail-closed password session."""
     password = password if password is not None else os.getenv("DASHBOARD_PASSWORD", "")
     key = secrets.token_bytes(32)  # Restart revokes all web sessions.
@@ -277,4 +277,6 @@ def create_dashboard(store, state, password=None):
     app.router.add_get("/", home)
     app.router.add_post("/login", login)
     app.router.add_post("/logout", logout)
+    from maintenance_ui import setup_maintenance
+    setup_maintenance(app, store, state, key, authorized, headers, _page, ai, lock)
     return app

@@ -198,7 +198,9 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
             notice = "Művelet elutasítva. Ellenőrizd és frissítsd az előnézetet."
         except Exception:
             notice = "A művelet nem sikerült. Adatok ellenőrzése szükséges."
-        return render_page(request, notice)
+        # Redirect to the canonical page so relative form actions remain correct.
+        response = web.HTTPSeeOther(location="../maintenance")
+        return headers(response)
 
     app.router.add_get("/maintenance", home)
     app.router.add_post("/maintenance/{action}", perform)
