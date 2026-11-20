@@ -41,6 +41,28 @@ class StoreTests(unittest.TestCase):
         self.store.remove_memory(ident)
         self.assertFalse(self.store.memory_list())
 
+    def test_read_only_journal_audit(self):
+        m1 = self.store.add_turn("első", "", "c1")
+        self.store.add_turn("második", "  ", "c1")
+        self.store.add_turn("harmadik", "válasz", "c2")
+        self.store.processed([m1])
+        self.store.apply([{"action": "add", "fact": "Megőrzendő emlék."}], m1)
+        before = self.store.statistics()
+        summary = self.store.journal_integrity_summary()
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(summary["missing"], 2)
+        self.assertEqual(summary["complete"], 1)
+        self.assertEqual(summary["missing_processed"], 1)
+        self.assertEqual(summary["missing_pending"], 1)
+        self.assertEqual(len(summary["sample_missing_ids"]), 2)
+        self.assertEqual(before, self.store.statistics())
+        self.assertEqual(self.store.memory_list()[0]["source_turn"], m1)
+
+    def test_empty_journal_audit(self):
+        summary = self.store.journal_integrity_summary()
+        self.assertEqual(summary["total"], 0)
+        self.assertEqual(summary["sample_missing_ids"], [])
+
     def test_processed(self):
         ident = self.store.add_turn("u", "a")
         self.store.processed([ident])

@@ -123,6 +123,29 @@ class Store:
                 "memories": memories, "oldest": row["oldest"], "newest": row["newest"],
                 "retention_days": RETENTION_DAYS}
 
+    def journal_integrity_summary(self):
+        """Read-only audit; no user or assistant text in the report."""
+        row = self.db.execute(
+            "SELECT COUNT(*) AS total, "
+            "COALESCE(SUM(CASE WHEN TRIM(assistant_text) = '' THEN 1 ELSE 0 END),0) AS missing, "
+            "COALESCE(SUM(CASE WHEN TRIM(assistant_text) = '' AND processed = 1 THEN 1 ELSE 0 END),0) AS missing_processed, "
+            "COALESCE(SUM(CASE WHEN TRIM(assistant_text) = '' AND processed = 0 THEN 1 ELSE 0 END),0) AS missing_pending, "
+            "COALESCE(SUM(CASE WHEN TRIM(assistant_text) <> '' THEN 1 ELSE 0 END),0) AS complete "
+            "FROM turns"
+        ).fetchone()
+        sample_ids = [int(item[0]) for item in self.db.execute(
+            "SELECT id FROM turns WHERE TRIM(assistant_text) = '' "
+            "ORDER BY id DESC LIMIT 20"
+        )]
+        return {
+            "total": int(row["total"]),
+            "missing": int(row["missing"]),
+            "missing_processed": int(row["missing_processed"]),
+            "missing_pending": int(row["missing_pending"]),
+            "complete": int(row["complete"]),
+            "sample_missing_ids": sample_ids,
+        }
+
     def recent_turns(self, limit=35):
         return [dict(r) for r in self.db.execute(
             "SELECT id,created,conversation_id,user_text,assistant_text,processed "

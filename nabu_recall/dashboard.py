@@ -83,7 +83,7 @@ def render(store, state, tab="memories"):
     stats = store.statistics()
     title = "Nabu Recall — állapot"
     nav = ('<nav><a href="./?tab=memories">Tartós emlékek</a> · '
-           '<a href="./?tab=turns">45 napos napló</a> · '
+           '<a href="./?tab=turns">45 napos napló</a> · <a href="./?tab=audit">Naplóellenőrzés</a> · '
            '<a href="./?tab=storage">Memória és tárhely</a> · '
            '<a href="./">Állapot</a></nav>'
            '<form action="./logout" method="post">'
@@ -104,6 +104,25 @@ def render(store, state, tab="memories"):
                      "feldolgozva" if x["processed"] else "feldolgozásra vár",
                      escape(x["user_text"][:2000]), escape(x["assistant_text"][:2000]))
                     for x in items) or "<p>Nincs naplóbejegyzés.</p>")
+    elif tab == "audit":
+        audit = store.journal_integrity_summary()
+        body = (
+            "<h2>Naplóellenőrzés — csak előnézet</h2>"
+            "<article><p>Hiányos sor: az asszisztens válasza üres, vagy csak szóközökből áll.</p>"
+            "<p>A nézet kizárólag SELECT lekérdezést végez; nem töröl, nem javít.</p>"
+            "<p><b>Összes napló:</b> %d</p>"
+            "<p><b>Teljes kérdés–válasz:</b> %d</p>"
+            "<p><b>Hiányzó válasz:</b> %d</p>"
+            "<p><b>Ebből feldolgozott:</b> %d</p>"
+            "<p><b>Ebből feldolgozásra vár:</b> %d</p>"
+            "<p><b>Legfeljebb 20 érintett ID:</b> %s</p></article>"
+            "<article><p><b>NINCS VÉGREHAJTÁS.</b> Tisztítás előtt konzisztens "
+            "SQLCipher mentés és a recall.key megőrzése szükséges. A tartós emlékek "
+            "source_turn hivatkozásait külön ellenőrizni kell.</p></article>"
+            % (audit["total"], audit["complete"], audit["missing"],
+               audit["missing_processed"], audit["missing_pending"],
+               ", ".join("#%d" % x for x in audit["sample_missing_ids"]) or "—")
+        )
     elif tab == "storage":
         disk = storage_metrics(store)
         body = ("<h2>Memória és tárhely</h2><div class='metrics'>"
