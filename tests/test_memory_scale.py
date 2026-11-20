@@ -54,6 +54,52 @@ class DurableMemoryScaleTests(unittest.TestCase):
         self.assertFalse(any(x["id"] == 1 for x in candidates))
         self.assertEqual(candidates[0]["id"], 100000)
 
+    def test_search_retrieves_oldest_memory_not_in_recent_200(self):
+        terms = self.store.memory_query_terms(
+            "Mit tudsz a mesterséges projekt 000000 eszköztesztjéről?")
+        self.assertIn("000000", terms)
+        results = self.store.memory_search(["000000"], limit=40)
+        self.assertTrue(any(row["id"] == 1 for row in results))
+        self.assertFalse(any(row["id"] == 1
+                             for row in self.store.memory_list(200)))
+
+    def test_keyset_pages_reach_entire_100k_without_missing_ids(self):
+        cursor = 0
+        seen = 0
+        while True:
+            page = self.store.memory_page(after_id=cursor, limit=200)
+            if not page:
+                break
+            self.assertGreater(page[0]["id"], cursor)
+            cursor = page[-1]["id"]
+            seen += len(page)
+        self.assertEqual(seen, 100000)
+        self.assertEqual(cursor, 100000)
+
+    def test_duplicate_groups_across_distant_ids(self):
+        # Two near-duplicates whose IDs are 89,900 records apart.
+        original = self.store.db.execute(
+            "SELECT id,fact FROM memories WHERE id IN (100,90000)"
+        ).fetchall()
+        with self.store.db:
+            self.store.db.execute(
+                "UPDATE memories SET fact=? WHERE id=100",
+                ("Kedvenc ital: gyömbértea és citrom",))
+            self.store.db.execute(
+                "UPDATE memories SET fact=? WHERE id=90000",
+                ("citrom és gyömbértea kedvenc ital",))
+        try:
+            result = self.store.memory_duplicate_page()
+            ids = [x["id"] for x in result["memories"]]
+            self.assertIn(100, ids)
+            self.assertIn(90000, ids)
+            self.assertGreaterEqual(result["groups"], 1)
+        finally:
+            with self.store.db:
+                for ident, fact in original:
+                    self.store.db.execute(
+                        "UPDATE memories SET fact=? WHERE id=?", (fact, ident))
+
     def test_100k_sqlcipher_exact_lookup_baseline(self):
         start = time.perf_counter()
         facts = self.store.db.execute(
