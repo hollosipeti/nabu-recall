@@ -10,6 +10,45 @@ import re
 
 _LOGGER = logging.getLogger(__name__)
 
+def _response_diagnostic(result):
+    """Metadata-only diagnostics; never stringify the response or speech text."""
+    response = getattr(result, "response", None)
+    try:
+        speech = getattr(response, "speech", None)
+    except Exception as exc:
+        return "speech_get_error=" + type(exc).__name__
+
+    if isinstance(speech, dict):
+        # Fixed expected field names only: never print arbitrary keys or values.
+        plain = speech.get("plain")
+        mapping_plain = "plain" in speech
+        raw_type = type(plain).__name__
+        if isinstance(plain, dict):
+            candidate = plain.get("speech")
+        else:
+            candidate = getattr(plain, "speech", None)
+        mapping_length = len(candidate) if isinstance(candidate, str) else -1
+    else:
+        mapping_plain = False
+        raw_type = "not_mapping"
+        mapping_length = -1
+    try:
+        attr_plain = getattr(speech, "plain", None)
+        attr_text = getattr(attr_plain, "speech", None)
+        attribute_length = len(attr_text) if isinstance(attr_text, str) else -1
+    except Exception as exc:
+        attribute_length = -1
+        attribute_error = type(exc).__name__
+    else:
+        attribute_error = "none"
+    return (
+        "response_type=%s speech_type=%s mapping_plain=%s "
+        "plain_type=%s dict_text_length=%d attr_text_length=%d attr_error=%s"
+        % (type(response).__name__, type(speech).__name__, mapping_plain,
+           raw_type, mapping_length, attribute_length, attribute_error)
+    )
+
+
 # Calendar requests are routed to the original HA agent, not to memory management.
 CALENDAR_DESTINATION = re.compile(
     r"\b(?:naptárba|naptárban|naptárból|naptáramba|naptáramban|"
@@ -127,6 +166,9 @@ class RecallAgent(ConversationEntity):
             context=user_input.context, language=user_input.language,
             agent_id=upstream, device_id=user_input.device_id,
             satellite_id=user_input.satellite_id, extra_system_prompt=extra)
+        # DEBUG BRANCH ONLY: inspect safe response STRUCTURE, never its text.
+        # Keep the ALFA extraction untouched to reproduce the original symptom.
+        _LOGGER.warning("NABU_RESPONSE_DIAG %s", _response_diagnostic(result))
         try:
             answer = result.response.speech.plain.speech or ""
         except (AttributeError, TypeError):
