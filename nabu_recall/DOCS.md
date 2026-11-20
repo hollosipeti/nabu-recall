@@ -25,3 +25,7 @@
 ## English quick start
 
 Install the HAOS app **and** the separate custom integration. Configure the OpenAI API key, bridge token, and distinct dashboard password. Update the integration files separately and restart Home Assistant Core. The web session lasts 10 minutes. The SQLCipher database and its key must be backed up together. See the [complete English manual](https://github.com/hollosipeti/nabu-recall/blob/main/MANUAL_EN.md).
+
+## Biztonságos naplókarbantartás (fejlesztői ág)
+
+A napló tisztításának részletes, **nem törlő** ellenőrzőlistája: [biztonsági mentés és naplótisztítás](../docs/SAFE_CLEANUP_HU.md). Az alkalmazásban a teljes adatbázis és a külön titkosítási kulcs együtt szükséges; a puszta élő SQLite-fájl másolása nem elég. A fejlesztői ág előnézete nem végez törlést.

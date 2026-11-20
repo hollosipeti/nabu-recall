@@ -10,7 +10,7 @@ class ReleaseDocsTests(unittest.TestCase):
         docs=["README.md","TELEPITES_HU.md","MANUAL_EN.md",
               "nabu_recall/DOCS.md","HISTORY.md","examples/README.md",
               "examples/google_calendar_create_event.yaml",
-              "AI utasítások. ki ne töröld"]
+              "AI utasítások. ki ne töröld","docs/SAFE_CLEANUP_HU.md"]
         for filename in docs:
             with self.subTest(filename=filename):
                 self.assertTrue((ROOT/filename).exists())
@@ -40,3 +40,14 @@ class ReleaseDocsTests(unittest.TestCase):
         # Only maintained releases in this file; the archive has older records.
         versions=re.findall(r"^##\s+(\d+\.\d+\.\d+)",changelog,re.M)
         self.assertEqual(versions,["1.0.4","1.0.3"])
+
+    def test_cleanup_requires_backup_and_no_delete_endpoint(self):
+        guide=(ROOT/"docs/SAFE_CLEANUP_HU.md").read_text()
+        for required in ("recall.sqlite3", "recall.key", "WAL",
+                         "visszaállítási", "SELECT", "source_turn"):
+            with self.subTest(required=required):
+                self.assertIn(required, guide)
+        dashboard=(ROOT/"nabu_recall/dashboard.py").read_text()
+        self.assertIn('tab == "audit"',dashboard)
+        self.assertIn("journal_cleanup_preview()",dashboard)
+        self.assertNotIn("journal_cleanup_execute(",dashboard)
