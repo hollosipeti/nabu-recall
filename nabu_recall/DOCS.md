@@ -33,3 +33,7 @@ A napló biztonságos, kézzel jóváhagyott archiválásának és visszavonás�
 ## Kézi karbantartás — 1.0.4
 
 Az **OPEN WEB UI → Kézi karbantartás** oldalon a hiányos, feldolgozott és tartós emlék forrásaként nem hivatkozott naplók titkosított archiválása engedélyezhető, majd az archívum visszaállítható (ha a sorok nem jártak le és nincs azonosítóütközés). Az archívumra is vonatkozik a 45 napos eredeti adatmegőrzés. A tartós emlékek AI-alapú optimalizálása csak javaslatokat készít; minden módosítás külön jóváhagyandó, és visszavonási lehetőséget ad. A visszavonási előzmények hét napig maradnak. **Művelet előtt készíts ellenőrzött Home Assistant biztonsági mentést az alkalmazás adatairól.**
+
+## HAOS v1.0.5 — nagy tartós memóriatáblák
+
+A lekérdezés nem csak az utolsó 200 tartós emléket vizsgálja: a teljes titkosított állományban keres, és a megfelelő találatokat adja át az AI-nak. A külön karbantartási lapon a gyors **Teljes állomány duplikátumjelöltjei** és a lapozható **Következő adag szemantikai AI-elemzése** is elérhető. A találatok csak javaslatok, az összevonáshoz továbbra is kézi jóváhagyás szükséges. A szemantikailag eltérő megfogalmazások teljes körű feltárására nincs garancia; az AI-feldolgozás kötegekben történik.

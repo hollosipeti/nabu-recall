@@ -18,7 +18,7 @@ key = os.getenv("OPENAI_API_KEY", "")
 ai = AI(key, os.getenv("OPENAI_MODEL", "gpt-4.1-mini")) if key else None
 token = os.getenv("BRIDGE_TOKEN", "")
 lock = asyncio.Lock()
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.0.4'}
+state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.0.5'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -27,7 +27,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "1.0.4"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "1.0.5"})
 
 async def log_turn(request):
     data = await request.json()

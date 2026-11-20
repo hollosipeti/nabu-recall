@@ -4,6 +4,17 @@ Only the latest two software release notes are kept here. Documentation updates 
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.
 
+## 1.0.5 — 2026-11-20 (HAOS app only)
+
+- 100,000-entry synthetic SQLCipher scale regression: storage, old fact retrieval, stable keyset paging, distant duplicate prefiltering.
+- Recall and ongoing learning search the entire durable-memory corpus before sending a bounded relevant selection to the OpenAI model. No latest-200-only visibility limitation for lexical search.
+- Voice-based explicit memory editing searches all stored facts by Hungarian query terms while retaining recent context.
+- Hungarian Unicode casefold for accented-term matches; deterministic newest-first ordering on equal timestamps.
+- Manual memory optimizer now offers whole-corpus lexical duplicate candidate scanning and separately paginated semantic AI review (up to 160 memories per request). Every suggestion requires individual confirmation; no autonomous consolidation.
+- No guarantee of catching every semantic paraphrase. All memory AI calls remain bounded, and duplicate prefiltering is conservative.
+- Existing archive retention, SQLCipher encryption, authenticated Ingress approval, undo and integration v1.0.4 remain unchanged.
+- Full regression suite includes end-to-end HTTP recall of old facts and 100k synthetic SQLCipher records.
+
 ## 1.0.4 — 2026-11-20 (HAOS app only)
 
 - Protected Ingress "Kézi karbantartás" page with a deliberate, manual approval flow.

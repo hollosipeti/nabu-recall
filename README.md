@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall — v1.0.4 (HAOS app) / v1.0.4 (HA integration)
+# 🧠 Nabu Recall — v1.0.5 (HAOS app) / v1.0.4 (HA integration)
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -33,7 +33,7 @@ Then restart **Home Assistant Core**. Updating only the HAOS app does not replac
 
 ## Preserved reference versions and current maintenance
 
-No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app is v1.0.4; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
+No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app is v1.0.5; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
 
 MIT License.
 
@@ -46,3 +46,7 @@ A [biztonsági mentés és naplótisztítás útmutatója](docs/SAFE_CLEANUP_HU.
 ## Kézi karbantartás — HAOS v1.0.4
 
 A jelszóval védett Ingress Web UI **Kézi karbantartás** oldalán a feldolgozott, hiányos és a tartós emlékek által közvetlenül nem hivatkozott naplóbejegyzések **visszavonható archiválása** külön kattintásra fut. Az archív rekordok a SQLCipher adatbázisban maradnak, és ugyanúgy lejárnak 45 nap után. A **Memóriaoptimalizálás** gomb AI-javaslatokat készít; minden összevonáshoz külön felhasználói jóváhagyás kell, és az utolsó összevonás legfeljebb hét napig visszavonható. Éles telepítés előtt ellenőrzött Home Assistant alkalmazásmentés szükséges. A rendszer nem tartalmaz automatikus tömeges optimalizálást.
+
+## HAOS v1.0.5 — tartós memória 100 000 bejegyzésig tesztelve
+
+A tartós emlékek keresése a **teljes SQLCipher-adatbázisban** történik, és csak a találatok szűkülnek az AI-nak átadott rövid listára. A régi emlékek nem esnek ki pusztán azért, mert nem szerepelnek az utolsó 200-ban. A magyar ékezetes kis- és nagybetűk egyezése támogatott. A **Kézi karbantartás** oldalon a teljes állományból szövegszerkezet szerint hasonló duplikátumjelöltek kereshetők; a szélesebb szemantikai AI-ellenőrzés 160-as adagokban lapozható. **Ez nem garantálja minden átfogalmazott vagy ellentmondó emlék automatikus felismerését.** Az AI-javaslatok csak jóváhagyással módosíthatnak emléket.
