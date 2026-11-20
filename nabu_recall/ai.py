@@ -102,6 +102,30 @@ class AI:
                      "existing_memories": memories}, timeout=16)
         return result.get("operations", [])
 
+
+    async def optimize_memories(self, memories):
+        """Advisory only: AI cannot modify memory; its JSON is validated by server."""
+        instruction = (
+            "You review existing durable Hungarian smart-home memories for true "
+            "duplicates, overlapping facts, and contradictions. Return JSON object "
+            "with 'proposals' list, maximum 12. Each entry: "
+            "{type:'duplicate'|'overlap'|'conflict', keeper_id: integer, "
+            "remove_ids: [integer], new_fact: exact faithful Hungarian merged fact, "
+            "reason: short explanation in Hungarian}. For conflicts, only suggest "
+            "a merge if the correct outcome is clearly supported; otherwise leave "
+            "them unchanged. Keep distinct people, dates, ownership, context, "
+            "uncertainty and scope intact. Never guess. Existing IDs only. "
+            "Do not introduce any external new information; no independent actions. "
+            "A proposal is only a suggestion requiring explicit human approval."
+        )
+        response = await self.json_answer(
+            instruction,
+            {"memories": [{"id": x["id"], "fact": x["fact"]}
+                          for x in memories[:200]]}, timeout=35
+        )
+        return response.get("proposals", []) if isinstance(
+            response.get("proposals"), list) else []
+
     async def search_terms(self, query):
         output = await self.json_answer(
             'Plan keyword and phrase search in Hungarian 45-day conversation transcripts. '

@@ -24,6 +24,8 @@ class Store:
             source_turn INTEGER, UNIQUE(fact));
         """)
         self.db.commit()
+        from maintenance import init_schema
+        init_schema(self)
 
     def add_turn(self, user, assistant, conversation_id="", created=None):
         with self.db:
