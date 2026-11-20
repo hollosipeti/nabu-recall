@@ -160,6 +160,54 @@ class Store:
         ))
         return rows[:limit]
 
+    def memory_duplicate_page(self, after_id=0, max_memories=120):
+        """Find exact or reordered-token duplicates across ALL durable memories.
+
+        This conservative lexical prefilter is not semantic equivalence and does
+        not authorize deletion. Keyset cursor follows the smallest group ID.
+        """
+        if type(after_id) is not int or after_id < 0:
+            raise ValueError("Invalid cursor")
+        max_memories = min(max(int(max_memories), 2), 160)
+        excluded = {"a", "az", "egy", "és", "es", "van", "volt"}
+        groups = {}
+        for r in self.db.execute(
+                "SELECT id,fact FROM memories ORDER BY id"):
+            tokens = re.findall(r"[^\W_]+", r["fact"].casefold(),
+                                flags=re.UNICODE)
+            key = tuple(sorted(t for t in tokens if t not in excluded))
+            if len(key) < 2:
+                continue
+            group = groups.setdefault(key, [])
+            if len(group) < 8:
+                group.append(int(r["id"]))
+        distinct = sorted((g for g in groups.values()
+                           if len(g) >= 2 and g[0] > after_id),
+                          key=lambda g: g[0])
+        selected = []
+        capacity = 0
+        for group in distinct:
+            if capacity + len(group) > max_memories:
+                break
+            selected.extend(group)
+            capacity += len(group)
+        rows = []
+        if selected:
+            values = ",".join("?" * len(selected))
+            rows = [dict(r) for r in self.db.execute(
+                "SELECT id,created,updated,fact,source_turn FROM memories "
+                "WHERE id IN (%s) ORDER BY id" % values, selected
+            )]
+        return {
+            "memories": rows, "groups": sum(1 for g in distinct
+                                           if g[0] <= (selected[-1] if selected else 0)),
+            "cursor": max((g[0] for g in distinct
+                           if g[0] <= (selected[-1] if selected else 0)),
+                          default=after_id),
+            "more": len(distinct) > sum(1 for g in distinct
+                                       if g[0] <= (selected[-1] if selected else 0)),
+        }
+
     def apply(self, operations, source_turn=None):
         now = int(time.time())
         with self.db:
