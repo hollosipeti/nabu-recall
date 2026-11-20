@@ -219,7 +219,7 @@ def memory_restore(store, history_id):
         raise MaintenanceConflict("Invalid history identifier")
     with store.db:
         history = store.db.execute(
-            "SELECT kind,payload,undone FROM maintenance_history WHERE id=?",
+            "SELECT kind,payload,undone,created FROM maintenance_history WHERE id=?",
             (history_id,)
         ).fetchone()
         if not history or history["kind"] != "memory" or history["undone"]:
