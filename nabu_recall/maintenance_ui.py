@@ -27,6 +27,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                       lock=None):
     plans = {}
     progress = {}
+    duplicate_progress = {}
     messages = {}
 
     def token(request):
@@ -94,10 +95,15 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
         if cursor:
             body += '<p><b>Következő adag kezdőazonosítója:</b> #%d</p>' % cursor
             body += form_button("restart-analysis", "Újrakezdés az első emléktől", csrf)
+        duplicate_cursor = duplicate_progress.get(
+            request.cookies.get("recall_ui", ""), 0)
         if ai is None:
             body += '<p>AI API-kulcs nélkül a javaslatkészítés nem elérhető.</p>'
         else:
-            body += form_button("analyze", "Következő adag AI-elemzése",
+            body += form_button(
+                "scan-duplicates", "Teljes állomány duplikátumjelöltjei",
+                csrf, {"after_id": duplicate_cursor})
+            body += form_button("analyze", "Következő adag szemantikai AI-elemzése",
                                 csrf, {"after_id": cursor})
         body += '</article>'
         if plan:
@@ -160,15 +166,24 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
             elif name == "undo-cleanup":
                 count = cleanup_restore(store, int(form.get("history_id", 0)))
                 notice = "%d naplóbejegyzés visszaállítva." % count
-            elif name == "analyze":
+            elif name in ("analyze", "scan-duplicates"):
                 if ai is None:
                     raise MaintenanceConflict("AI API is unavailable")
                 cursor = int(form.get("after_id", 0))
                 if cursor < 0:
                     raise MaintenanceConflict("Invalid cursor")
-                memories = store.memory_page(after_id=cursor, limit=160)
+                if name == "scan-duplicates":
+                    batch = store.memory_duplicate_page(
+                        after_id=cursor, max_memories=120)
+                    memories = batch["memories"]
+                    duplicate_progress[session] = (
+                        batch["cursor"] if batch["more"] else 0)
+                else:
+                    memories = store.memory_page(after_id=cursor, limit=160)
+                    if memories:
+                        progress[session] = memories[-1]["id"]
                 if not memories:
-                    raise MaintenanceConflict("No durable memories")
+                    raise MaintenanceConflict("No matching durable memories")
                 if lock is not None:
                     async with lock:
                         raw = await ai.optimize_memories(memories)
@@ -176,22 +191,23 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                     raw = await ai.optimize_memories(memories)
                 candidates = []
                 used = set()
+                eligible = {m["id"] for m in memories}
                 for item in raw[:12]:
                     proposal = validate_proposal(item, store)
                     if proposal is None:
                         continue
                     ids = {proposal["keeper_id"], *proposal["remove_ids"]}
-                    if used.intersection(ids):
+                    if not ids.issubset(eligible) or used.intersection(ids):
                         continue
                     used.update(ids)
                     candidates.append(proposal)
-                progress[session] = memories[-1]["id"]
                 plans[session] = {"nonce": secrets.token_hex(16),
                                   "at": time.monotonic(), "items": candidates,
                                   "next_cursor": memories[-1]["id"]}
                 notice = "%d ellenőrzött javaslat; semmit nem módosítottam." % len(candidates)
             elif name == "restart-analysis":
                 progress[session] = 0
+                duplicate_progress[session] = 0
                 plans.pop(session, None)
                 notice = "Az optimalizálási áttekintés az elejéről indul."
             elif name == "apply":
