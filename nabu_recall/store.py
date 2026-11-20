@@ -12,6 +12,10 @@ class Store:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         self.db = encrypted_connect(path)
         self.db.row_factory = sqlite3.Row
+        # SQLite LIKE does not case-fold Hungarian accented letters itself.
+        self.db.create_function("unicode_fold", 1,
+                                lambda value: value.casefold() if isinstance(value, str) else "",
+                                deterministic=True)
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript("""
         CREATE TABLE IF NOT EXISTS turns(
@@ -146,9 +150,13 @@ class Store:
         limit = min(max(int(limit), 1), 200)
         # A single OR query includes matching old memories regardless of updated
         # time; score with all terms, then deterministic updated/id tie-breaks.
-        conditions = ["fact LIKE ? ESCAPE '\\'" for _ in clean]
-        patterns = ["%" + s.replace("\\", "\\\\").replace("%", "\\%")
-                    .replace("_", "\\_") + "%" for s in clean]
+        conditions = [
+            ("unicode_fold(fact)" if any(ord(ch) > 127 for ch in term)
+             else "fact") + " LIKE ? ESCAPE '\\'" for term in clean
+        ]
+        patterns = ["%" + term.casefold().replace("\\", "\\\\")
+                    .replace("%", "\\%").replace("_", "\\_") + "%"
+                    for term in clean]
         rows = [dict(r) for r in self.db.execute(
             "SELECT id, created, updated, fact, source_turn FROM memories "
             "WHERE " + " OR ".join(conditions), patterns
