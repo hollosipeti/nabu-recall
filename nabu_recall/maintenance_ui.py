@@ -106,6 +106,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
         body += '<p>Az elemzés legfeljebb 160 emléket vizsgál egy adagban. '
         body += 'Az adagok sorban, növekvő memória-ID szerint haladnak; '
         body += 'a korábbi emlékek sem maradnak ki.</p>'
+        body += '<p>A keresési előszűrés helyben fut, de az AI által végzett értékelés API-tokeneket használ. Az ellenőrzés nem módosít automatikusan.</p>'
         cursor = progress.get(request.cookies.get("recall_ui", ""), 0)
         if cursor:
             body += '<p><b>Következő adag kezdőazonosítója:</b> #%d</p>' % cursor
