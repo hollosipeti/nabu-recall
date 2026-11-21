@@ -1,5 +1,13 @@
 # Nabu Recall — maintained releases
 
+## 1.1.1 — 2026-11-21 (HAOS app only)
+
+- Atomic transaction: AI learned facts and processed conversation acknowledgments are committed together; rollback is verified on simulated SQLCipher write failure.
+- More precise memory model guidance for same-person corrections, ownership, distinct additional items and selection of multiple relevant facts.
+- No extra rules engine, schema changes, search index, changes to sensitive-identifier policy, or integration updates. Existing encrypted data is preserved.
+- Full CI unit/API regression plus isolated database failure-injection tests; live model semantics still require HA validation.
+
+
 ## 1.1.0 — 2026-11-21 (HAOS app only)
 
 - Hungarian accent-insensitive durable-memory lookup, prioritizing exact-accent matches while preserving stored original facts.
