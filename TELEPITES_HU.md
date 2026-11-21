@@ -1,6 +1,6 @@
-# Nabu Recall — teljes magyar kézikönyv (HAOS v1.1.1 / integráció v1.0.4)
+# Nabu Recall — teljes magyar kézikönyv (HAOS v1.1.2 / integráció v1.0.4)
 
-*Frissítve: 2026. november 21. A kézikönyv a HAOS v1.1.1 alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
+*Frissítve: 2026. november 21. A kézikönyv a HAOS v1.1.2 alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
 
 **A családnak szóló rövid, magyar bemutató:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md). Az ottani mondatok kipróbálható példák, nem garantált szó szerinti parancsok.
 
@@ -202,3 +202,8 @@ Az eredményeknél minden javaslat mellett **jelölőnégyzet** látható, az er
 A memóriakeresés a teljes tartós memóriaállományból indul ki; támogatja a magyar ékezet nélküli keresőszavakat is, és a pontosabb találatokat előrébb sorolja. A háttérmemória-feldolgozás összevonja a gyorsan érkező feldolgozási kéréseket. A v1.1.1-ben a tanult tények mentése és a forrásbeszélgetés feldolgozottságának rögzítése egyetlen SQLCipher-tranzakció: hiba esetén a kettő együtt visszagörgethető. Az AI-utasítások külön hangsúlyozzák a személyek, tulajdonviszonyok, lecserélt és újonnan hozzáadott tárgyak megkülönböztetését, de a természetes nyelvi értelmezés továbbra sem tévedhetetlen. A hangvezérlés és a külön Home Assistant-integráció változatlan.
 
 **Családi használat:** a memória közös, nem beszélőazonosításon alapuló tár. A rendszer nem tudja biztosan azonosítani, ki kérdezi vissza a személyes adatokat. Lásd a [családi útmutatót](CSALADI_UTMUTATO.md).
+
+
+## HAOS v1.1.2 — bevásárlólista és tartós memória
+
+A bevásárlólistára felvétel/törlés művelete és az erre adott visszaigazolás továbbra is megmarad a 45 napos beszélgetésnaplóban, de nem kerül a tartós memória automatikus tanulási bemenetébe. A valódi, hosszabb távra szóló vásárlási preferenciákat és a kifejezetten kért tartós emlékeket a rendszer továbbra is megjegyezheti. A korábban már létrejött téves emlékeket a frissítés nem törli automatikusan; a Web UI-n egyenként ellenőrizhetők és kezelhetők.
