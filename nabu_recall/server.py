@@ -18,7 +18,21 @@ key = os.getenv("OPENAI_API_KEY", "")
 ai = AI(key, os.getenv("OPENAI_MODEL", "gpt-4.1-mini")) if key else None
 token = os.getenv("BRIDGE_TOKEN", "")
 lock = asyncio.Lock()
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.0.6'}
+_learning_task = None
+
+
+def schedule_learning():
+    """Coalesce new-turn triggers into one draining worker.
+
+    Every turn is committed before this call. The worker drains all pending
+    rows, so parallel requests do not require a task per turn.
+    """
+    global _learning_task
+    if _learning_task is None or _learning_task.done():
+        _learning_task = asyncio.create_task(process_pending())
+
+
+state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.1.0'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -27,7 +41,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "1.0.6"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "1.1.0"})
 
 async def log_turn(request):
     data = await request.json()
@@ -41,7 +55,7 @@ async def log_turn(request):
     if operation_kind(user) is not None:
         store.processed([turn_id])  # Explicit command handled synchronously; never run it twice.
     else:
-        asyncio.create_task(process_pending())
+        schedule_learning()
     return web.json_response({"ok": True, "id": turn_id})
 
 async def manage(request):
@@ -90,8 +104,10 @@ async def manage(request):
             return web.json_response({"status": "error", "message": "A memóriaműveletet nem sikerült megerősíteni."})
 
 async def process_pending():
-    if not ai or lock.locked():
+    if not ai:
         return
+    # Queue behind an active memory operation instead of dropping this trigger.
+    # The lock serializes workers, and the first worker drains all pending turns.
     async with lock:
         while True:
             pending = store.pending(12)

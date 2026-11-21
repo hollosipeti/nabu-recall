@@ -1,5 +1,15 @@
 # Nabu Recall — maintained releases
 
+## 1.1.0 — 2026-11-21 (HAOS app only)
+
+- Hungarian accent-insensitive durable-memory lookup, prioritizing exact-accent matches while preserving stored original facts.
+- One coalesced background learning worker; incoming turns remain pending until processed even during concurrent memory operations.
+- Regression coverage for SQLCipher search, busy worker lock, authenticated bridge, OpenAI outage and recovery.
+- Stable `nabu_recall` application slug and existing `/data` memory retained, no data migration.
+- Custom Home Assistant conversation integration stays at 1.0.4; data/privacy policies unchanged.
+- This release does not install the separate beta app or import its isolated test memory.
+
+
 Only the latest two software release notes are kept here. Documentation updates do not bump application or integration versions. Previous commits and development notes remain available in the Git history and [../HISTORY.md](../HISTORY.md).
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.

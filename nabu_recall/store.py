@@ -3,7 +3,15 @@ import sqlcipher3 as sqlite3
 from encryption import encrypted_connect
 import time
 import re
+import unicodedata
 from pathlib import Path
+
+def _search_fold(value):
+    """Accent-tolerant, Unicode-aware folding for Hungarian speech recognition."""
+    if not isinstance(value, str):
+        return ""
+    return "".join(ch for ch in unicodedata.normalize("NFKD", value.casefold())
+                   if not unicodedata.combining(ch))
 
 RETENTION_DAYS = 45
 
@@ -14,7 +22,7 @@ class Store:
         self.db.row_factory = sqlite3.Row
         # SQLite LIKE does not case-fold Hungarian accented letters itself.
         self.db.create_function("unicode_fold", 1,
-                                lambda value: value.casefold() if isinstance(value, str) else "",
+                                _search_fold,
                                 deterministic=True)
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript("""
@@ -150,20 +158,19 @@ class Store:
         limit = min(max(int(limit), 1), 200)
         # A single OR query includes matching old memories regardless of updated
         # time; score with all terms, then deterministic updated/id tie-breaks.
-        conditions = [
-            ("unicode_fold(fact)" if any(ord(ch) > 127 for ch in term)
-             else "fact") + " LIKE ? ESCAPE '\\'" for term in clean
-        ]
-        patterns = ["%" + term.casefold().replace("\\", "\\\\")
+        conditions = ["unicode_fold(fact) LIKE ? ESCAPE '\\'" for term in clean]
+        patterns = ["%" + _search_fold(term).replace("\\", "\\\\")
                     .replace("%", "\\%").replace("_", "\\_") + "%"
                     for term in clean]
         rows = [dict(r) for r in self.db.execute(
             "SELECT id, created, updated, fact, source_turn FROM memories "
             "WHERE " + " OR ".join(conditions), patterns
         )]
-        folded = [s.casefold() for s in clean]
+        folded = [_search_fold(s) for s in clean]
+        exact = [s.casefold() for s in clean]
         rows.sort(key=lambda r: (
-            -sum(1 for s in folded if s in r["fact"].casefold()),
+            -sum(1 for s in exact if s in r["fact"].casefold()),
+            -sum(1 for s in folded if s in _search_fold(r["fact"])),
             -r["updated"], -r["id"]
         ))
         return rows[:limit]
