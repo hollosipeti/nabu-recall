@@ -1,209 +1,206 @@
-# Nabu Recall — teljes magyar kézikönyv (HAOS v1.1.2 / integráció v1.0.4)
+# Nabu Recall — magyar telepítési és használati útmutató
 
-*Frissítve: 2026. november 21. A kézikönyv a HAOS v1.1.2 alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
+**Aktuális verziók:** Nabu Recall Home Assistant-alkalmazás **1.1.2** · Nabu Recall-integráció **1.0.4**  
+*Frissítve: 2026. november 21.*
 
-**A családnak szóló rövid, magyar bemutató:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md). Az ottani mondatok kipróbálható példák, nem garantált szó szerinti parancsok.
+**A családnak szóló rövid útmutató:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md).  
+**Részletes változások:** [CHANGELOG](nabu_recall/CHANGELOG.md). Régebbi fejlesztések: [HISTORY.md](HISTORY.md).
 
 ## 1. Mi a Nabu Recall?
 
-A Nabu Recall a meglévő Home Assistant **OpenAI Conversation** ügynököt egy külön **memóriaréteggel** egészíti ki. Nem cseréli le a HUN agentet vagy annak eszközeit. Két része van:
+A Nabu Recall memóriával egészíti ki a Home Assistant meglévő, OpenAI-alapú beszédasszisztensét. A lámpák és más eszközök vezérlése a korábban beállított asszisztensen keresztül működik tovább. A Nabu Recall segít korábbi beszélgetésekre visszaemlékezni és fontos tényeket hosszabb időre megjegyezni.
 
-1. **HAOS alkalmazás** (`nabu_recall/`): privát HTTP bridge, külön OpenAI memóriafeldolgozó, titkosított SQLCipher SQLite-adatbázis, jelszavas HA Ingress Web UI.
-2. **Custom integration** (`custom_components/nabu_recall/`): az Assist beszélgetéseit a HUN ügynökhöz továbbítja, előtte emlékeket keres, utána naplózza a fordulót. A kifejezett memóriaparancsok külön, szinkron módon futnak.
+Két külön telepítendő része van:
 
-**Fontos:** az alkalmazás és az integráció külön frissül. A 45 napos szó szerinti napló és a lejárat nélküli tartós emlékek az **alkalmazás** adatkönyvtárában vannak, nem a HA `/config` könyvtárában.
+1. **Nabu Recall alkalmazás:** tárolja a beszélgetéseket és a tartós emlékeket, valamint megnyitja a Web UI kezelőfelületet.
+2. **Nabu Recall-integráció:** összekapcsolja a Nabu Recall memóriáját a már működő OpenAI Conversation beszélgetési ügynökkel.
 
-## 2. Előfeltételek
+Az alkalmazás és az integráció verziója különbözhet; frissítésük is külön történik.
 
-- Home Assistant OS / Supervised, alkalmazásbolt-hozzáféréssel; már működő OpenAI Conversation HUN ügynök.
-- OpenAI Platform API-kulcs aktív, **külön számlázással**: a ChatGPT-előfizetés nem ad API-kreditet.
-- Home Assistant megfelelő helyi időzónával (`Europe/Budapest`).
-- Mentés frissítés előtt; meglévő memóriás integrációk megkettőzését kerüld.
-- A Web UI külön jelszóval védett, de a titkosított memória **közös** minden, ezt az ügynököt használó háztartási felhasználónak.
+## 2. Amire szükség lesz
 
-## 3. Tiszta telepítés
+- Home Assistant OS vagy olyan Home Assistant-telepítés, amely támogatja az alkalmazásokat.
+- Már beállított, működő **OpenAI Conversation** beszélgetési ügynök a Home Assistantban.
+- OpenAI Platform API-kulcs. A ChatGPT-előfizetés nem helyettesíti az API-használat külön díjazását.
+- A Home Assistant helyes időzónája (Magyarországon: **Europe/Budapest**).
+- **A Web UI külön jelszóval védett. A beszélgetésmemória azonban közös az ezt az asszisztenst használó felhasználók számára.**
 
-### 3.1 HAOS alkalmazás
+## 3. Telepítés
 
-1. **Beállítások → Alkalmazások → Alkalmazásbolt → Adattárak**: `https://github.com/hollosipeti/nabu-recall`.
-2. Telepítsd a **Nabu Recall** alkalmazást. A konfigurációban töltsd ki:
-   - `openai_api_key`: OpenAI Platform API-kulcs.
-   - `openai_model`: alapérték `gpt-4.1-mini`; az API által támogatott, hozzáférhető modellre cserélhető.
-   - `bridge_token`: külön, legalább 32 karakteres véletlen belső token; generálás: `openssl rand -hex 32`.
-   - `dashboard_password`: **külön**, erős jelszó a diagnosztika megnyitásához.
-3. Indítsd el az alkalmazást, ellenőrizd a naplóját. A **OPEN WEB UI** a HA-bejelentkezés után külön Nabu Recall-jelszót kér. Jelszó nélkül zárolva marad; a memória ettől még működik.
-4. A 8765/TCP és 8766/TCP **host-portok maradjanak üresen**. Ne állíts be routeres porttovábbítást.
+### 3.1 A Nabu Recall alkalmazás telepítése
 
-### 3.2 Külön Home Assistant integráció
+1. Nyisd meg: **Beállítások → Alkalmazások → Alkalmazásbolt → Adattárak**.
+2. Add hozzá ezt az adattárat: `https://github.com/hollosipeti/nabu-recall`.
+3. Telepítsd a **Nabu Recall** alkalmazást.
+4. Nyisd meg az alkalmazás **Konfiguráció** lapját, és töltsd ki a mezőket:
 
-A legkényelmesebb a **HA Terminalban** a telepítő (előbb átnézhető GitHubon):
+| Beállítás | Mit adj meg? |
+| --- | --- |
+| `openai_api_key` | OpenAI Platform API-kulcs |
+| `openai_model` | Alapérték: `gpt-4.1-mini`; módosítása nem szükséges |
+| `bridge_token` | Legalább 32 karakteres véletlen belső token; generálás **terminálban:** `openssl rand -hex 32` |
+| `dashboard_password` | Jelszó a **Web UI diagnosztika megnyitásához** |
+
+5. Mentsd a beállításokat, majd indítsd el az alkalmazást.
+6. Az **OPEN WEB UI** gombbal megnyithatod a felületet. Itt a Home Assistant-bejelentkezés után a `dashboard_password` mezőben megadott jelszót kell használni.
+
+**Fontos:** a `bridge_token` értékét őrizd meg, mert a következő lépésben, az integráció hozzáadásakor **ugyanezt** kell beírni. Szükség esetén a Nabu Recall alkalmazás **Konfiguráció** lapján találod; a jelszómező miatt az érték rejtve is lehet.
+
+A 8765/TCP és 8766/TCP hálózati portok host-hozzárendelését hagyd üresen; ne állíts be routeres porttovábbítást.
+
+### 3.2 A Nabu Recall-integráció telepítése
+
+Ez **nem ugyanaz**, mint az előző lépésben telepített alkalmazás: az integrációt a Home Assistant fájljai közé kell telepíteni.
+
+A Home Assistant **Terminal** felületén futtasd a következő két parancsot:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh
 sh /tmp/install_nabu_recall.sh
 ```
 
-A telepítő időbélyeges mentést készít az előző `/config/custom_components/nabu_recall/` könyvtárról, majd **csak az integrációs fájlokat** másolja. Manuálisan is bemásolható a teljes `custom_components/nabu_recall` mappa a HA `/config/custom_components/` alá. **Ezután indítsd újra a Home Assistant Core-t.** Az alkalmazás frissítése önmagában nem frissíti az integrációt.
+Ez a **Nabu Recall-integráció telepítője** (`install_integration.sh`). A telepítő a meglévő integrációs mappáról mentést készít, majd telepíti az új fájlokat.
 
-A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozzáadása** alatt add hozzá a **Nabu Recall** integrációt. Válaszd az eredeti `conversation.openai_conversation_hun` (vagy saját meglévő) HUN ügynököt. `url`: az alkalmazás tényleges belső DNS-neve `http://<telepítésfüggő_addon_host>:8765` alakban; `token`: azonos a `bridge_token` értékével. A HA Assist beállításaiban válaszd a **Nabu Recall – memória** ügynököt, de az eredeti ügynököt **ne töröld**.
+Ezután **indítsd újra a Home Assistantot**.
 
-### 3.3 Első ellenőrzés
+### 3.3 Az integráció beállítása
 
-- „Jegyezd meg, hogy a tesztállatom neve Maszat.” → csak a megerősített mentés számít.
-- Új beszélgetés: „Hogy hívják a tesztállatomat?” → releváns előhívás.
-- A Web UI **Tartós emlékek** és **45 napos napló** lapján ellenőrizd a két külön tárolási réteget.
-- Lámpák vezérlése az eredeti HUN ügynökön megy át: „Kapcsold fel a dolgozó lámpáit. Most kapcsold le őket.”
+1. Nyisd meg: **Beállítások → Eszközök és szolgáltatások → Integráció hozzáadása**.
+2. Keresd meg és válaszd ki a **Nabu Recall** integrációt.
+3. Töltsd ki a három mezőt:
 
-## 4. Frissítés és visszaállítás
+**Beszélgetési ügynök (`upstream`)**
 
-1. **Készíts teljes HAOS alkalmazásmentést a /data tartalmáról.** A `recall.sqlite3` **és a `recall.key` együtt nélkülözhetetlen;** az aktív SQLite WAL-fájlokat is a konzisztens alkalmazásmentésnek kell kezelnie.
-2. Frissítsd a HAOS alkalmazást az alkalmazásboltból. A verziót ellenőrizd a Web UI-n.
-3. Ha a custom integration is változott, futtasd újra a telepítőt; Core-restart után nézd a HA integráció adatlapján lévő külön verziót.
-4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
-5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
+Válaszd ki azt az **OpenAI Conversation** ügynököt, amellyel eddig is vezérelted a Home Assistantot. Például egy „HUN” nevű, már működő OpenAI Conversation ügynököt. Az ügynök a Home Assistantban **beszélgetési entitásként** (`conversation.…`) szerepel. A Nabu Recall ezt fogja használni a válaszadáshoz és az eszközvezérléshez, tehát **ne töröld vagy cseréld le ezt a meglévő ügynököt**.
 
-**Verziók:** az alkalmazás és az integráció külön jelenik meg; az aktuális HAOS alkalmazás v1.1.1, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Cím (`url`)**
 
-A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
+Nyisd meg egy másik lapon: **Beállítások → Alkalmazások → Nabu Recall → Információ**. Itt keresd a **Hostname** értékét: ez az alkalmazás *belső hálózati neve*, nem a Home Assistant általános hostneve vagy IP-címe.
 
-## 5. Adatok, memória, titkosítás
+Az integráció `url` mezőjébe ezt írd:
 
-- `/data/recall.sqlite3`: SQLCipherrel titkosított, **egy közös fájlban** található `turns` (párbeszédnapló) és `memories` (tartós tények) táblák.
-- `/data/recall.key`: külön, automatikusan készülő 256 bites fájlkulcs; **nem** a `bridge_token`.
-- `recall.sqlite3-wal` és `recall.sqlite3-shm`: előforduló SQLite kísérőfájlok. Élő adatbázist ne másolj egyetlen fájlból konzisztens mentési módszer nélkül.
-- **45 napos** a szó szerinti beszélgetésnapló; a háttérkarbantartó járatja a lejárati törlést. A tartós emlékeknek nincs automatikus időbeli lejárata és nincs 200 darabos tárhelylimitje.
-- Az AI-nak egy feldolgozáskor legfeljebb **200** emléket listáz a bridge. Ez kontextuslimit, nem az adatbázis kapacitása.
-- A személyes/háztartási tények közös ügynökhöz tartoznak. A hangasszisztens és a memória API **nem személyenként elkülönített titkos irattár**. Ne tárolj jelszót, hozzáférési kulcsot, bankkártya-adatot.
-- A SQLCipher védi az állományt nyugalmi állapotban; a kulcshoz és futó alkalmazáshoz hozzáférő rendszergazdával szemben nem védelem.
-- A HA-n belüli HTTP bridge **tokenes, de nem HTTPS/TLS**. Ne publikáld sem LAN-ra, sem WAN-ra.
+```text
+http://HOSTNAME:8765
+```
 
-## 6. Web UI — belépés, jogosultság, tárhely
+A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelzett Hostname értékre. Például ha a Hostname `abc123-nabu-recall`, akkor a cím `http://abc123-nabu-recall:8765`. **Ez csak szemléltető példa, nem a te rendszered valós címe.**
 
-Az OPEN WEB UI a Supervisor Ingressen működik. **Home Assistant bejelentkezés + külön `dashboard_password`** szükséges. A munkamenet belépéstől számított **10 percig** érvényes (fix időtartam, nem tétlenségi idő). Lejárat után a következő webes kérés bejelentkezőlapot kap; a nyitva maradt oldalt nem zárja le magától valós időben. Kijelentkezés és újraindítás érvényteleníti az elérést. A HA adminisztrátori szerepkörre külön alapozott finomszemcsés szerepkör-ellenőrzés **nincs**.
+**Token (`token`)**
 
-A diagnosztikai lapok **csak olvashatók**, míg a külön, kézi jóváhagyással működő karbantartási oldal archiválást és memória-összevonást végezhet: Tartós emlékek (első 100), 45 napos napló (legutóbbi 35), Állapot, Memória és tárhely. A lemezadat a **titkosított adatbázis + WAL/SHM** méretét, valamint a teljes adatpartíció szabad helyét mutatja; nem rendelkezik mesterséges „memória %” kvótával. A karbantartási oldalon külön jóváhagyással végzett naplóarchiválás és egyenként jóváhagyott memória-összevonás lehetséges; általános memóriatörlés nincs.
+Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét. Itt **nem** a Web UI-hoz használt `dashboard_password` jelszó szükséges.
 
-## 7. API-használat és költség
+4. Fejezd be az integráció hozzáadását.
+5. A **Beállítások → Hangasszisztensek** oldalon válaszd a **Nabu Recall** által létrehozott beszélgetési ügynököt az Assist számára.
 
-A Nabu Recall a külön megadott OpenAI Platform-kulccsal **`POST https://api.openai.com/v1/chat/completions`** végpontot hívja, alapmodellje `gpt-4.1-mini`. Az automatikus feldolgozás és visszakeresés a memóriát releváns részletekre válogatja; a modell tokenhasználat alapján számláz, árat a szolgáltató aktuális tarifáján ellenőrizz. A HUN OpenAI Conversation **saját API-hívásai ezeken felül** történnek.
+Ettől kezdve az Assist a Nabu Recall memóriával kiegészített ügynököt használja, miközben a korábbi OpenAI Conversation ügynök végzi az alapvető beszélgetést és a Home Assistant eszközvezérlését.
 
-A jelenlegi működés üzenetenként:
-- **Normál kérés elején:** `/bridge/recall` → OpenAI **2 API-kérés** (`search_terms` és `recall`), ha a memória-AI engedélyezve van.
-- **Normál beszélgetés után:** `/bridge/turn` naplózás; háttér `learn` feldolgozás általában **1 API-kérés** a függő beszélgetési adaghoz (max. 12 forduló/adag).
-- **Kifejezett „Jegyezd meg / Javítsd / Töröld”:** `/bridge/manage` → általában **1 API-kérés** + ellenőrzött SQLite-művelet, ha egyértelmű. A sikeresség csak tényleges módosítás után mondható ki.
-- **15 percenként** az alkalmazás ellenőrzi a feldolgozatlan beszélgetéseket; **üres sor esetén nem hívja az OpenAI API-t**. A háttértanulás nem csak időzített.
+### 3.4 Első próba
 
-A hálózati **bridge** belső API-ja `X-Recall-Token` fejlécet vár, és NEM közvetlen nyilvános felhasználói API. Végpontok:
-| POST útvonal | Bemenet | Válasz lényege |
-|---|---|---|
-| `/bridge/ping` | üres JSON | `ok`, `ai_ready`, `version` |
-| `/bridge/recall` | `{"query":"Mire emlékszel a tesztállatról?"}` | `context` történeti adatokkal |
-| `/bridge/turn` | `{"user":"…","assistant":"…","conversation_id":"…"}` | `ok`, `id` |
-| `/bridge/manage` | `{"utterance":"Jegyezd meg, hogy …","conversation_id":"…"}` | `status`: `confirmed`, `blocked`, `not_found` vagy `error` |
+- „Jegyezd meg, hogy a tesztállatom neve Maszat.”
+- Új beszélgetésben: „Hogy hívják a tesztállatomat?”
+- Ellenőrizd a Web UI **Tartós emlékek** és **45 napos napló** nézeteit.
+- Próbálj ki egy megszokott lámpavezérlési parancsot is.
 
-A bridge tokent soha ne tedd képernyőképre, dokumentációba vagy nyilvános naplóba. A `/bridge/turn` és `/bridge/manage` **adatot módosíthat**; éles rendszeren ne próbálgasd őket kézzel, csak a tesztkörnyezetben. Nincs automatikus, garantált naponta egyszeri memória-mentés.
+## 4. Frissítés
 
-## 8. Memóriakezelés és védelmi korlátok
+1. **Készíts teljes Home Assistant-alkalmazásmentést** a Nabu Recall alkalmazásról.
+2. Frissítsd a **Nabu Recall alkalmazást** az alkalmazásboltból.
+3. **Csak akkor, ha a Nabu Recall-integráció is új verziót kapott:** futtasd újra a **3.2. pontban megadott `install_integration.sh` telepítőt**, majd indítsd újra a Home Assistantot.
 
-- A „Jegyezd meg, hogy…” egyedi tartós tényt menthet; „Javítsd…” egy konkrét régi emléket módosíthat; „Töröld…” egyetlen egyértelmű emléket törölhet.
-- „Töröld az összes emléket” jellegű tömeges hangutasítás szerveroldalon blokkolt.
-- A rövid „Mentsd el!” az előző felhasználói mondatot csak **ugyanabban a beszélgetésben, legfeljebb öt percen belül** használhatja. Másik beszélgetésből, asszisztens válaszából nem találhat ki tényt.
-- A „Mentsd el a naptárba!” **nem** memóriamentés, hanem a HUN ügynök feladata. Naptáresemény létrehozása és tartós tény megjegyzése más művelet.
-- A háttér AI is tévedhet: tényjavítás után ellenőrizd a Web UI-n, hogy a megfelelő memória-ID változott.
+A jelenlegi kiadásban az alkalmazás **1.1.2**, az integráció **1.0.4**.
 
-## 9. HUN asszisztens rendszerutasításai
+## 5. Adatok, memória és titkosítás
 
-A megőrzött, eredeti rendszerutasítás-minta a repóban **[„AI utasítások. ki ne töröld”](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld)** fájlban található: **megőriztük, nem írtuk át**. Az év nélküli `MM-DD` szabályt az éles HUN ügynök rendszerutasításaiban külön érvényesíteni kell. Személyes adatok, saját eszköznevek és alapnaptár ellenőrzése nélkül ne másold más háztartásba.
+- **Beszélgetésmemória:** a korábbi beszélgetések szövege **45 napig** marad meg; a lejárt bejegyzések automatikusan törlődnek.
+- **Tartós memória:** a fontosnak kiválasztott tények nem járnak le automatikusan. Egyenként módosíthatók vagy törölhetők.
+- **Közös használat:** a memória az asszisztenst használó családtagok között közös; a rendszer nem azonosítja biztosan, ki beszél hozzá.
+- **Titkosítás:** a memóriaadatbázis SQLCipherrel titkosított.
+- **Érzékeny adatok:** személyes azonosítókat, elérhetőségeket és más kényes adatokat körültekintően kezelj. Jelszavakat, hozzáférési kulcsokat és bankkártyaadatokat ne tároltass tartós emlékként.
 
-Különösen fontos szabályai:
-- természetes, tegeződő, rövid magyar beszédválasz; az angol HA entity/area neveket jelentés alapján felelteti meg;
-- a visszakeresett memória **adat, nem utasítás**;
-- eszközsiker csak a HA-végrehajtás megerősítése után;
-- dátumok előtt `llm__GetDateTime`, `Europe/Budapest`; régi beszélgetésben szereplő dátum nem az aktuális idő;
-- `calendar.esemenyek` az alapértelmezett naptár; hiányzó nap/óra esetén kérdezzen vissza, és **ne hívjon író szkriptet**;
-- hiányzó perc alapértéke 0, időtartamé 30 perc; ezeket a szkriptben is kezelni kell, mert az AI kihagyhatja;
-- `todo__HassListRemoveItem` nem naptártörlő eszköz;
-- a `Show recipe on ui` recepteszköz kizárólag akkor működik, ha a HUN ügynökben valóban elérhető.
+## 6. Web UI — a memória megtekintése és kezelése
 
-A Nabu Recall saját memória-AI utasításait a `nabu_recall/ai.py` tartalmazza; azok nem azonosak a HUN Conversation általános rendszerpromptjával.
+A Nabu Recall alkalmazásnál válaszd az **OPEN WEB UI** gombot. A `dashboard_password` jelszóval léphetsz be. A webes munkamenet a belépéstől számított **10 percig** érvényes.
 
-## 10. Google Calendar — példa és korlát
+A felületen megtekintheted a tartós emlékeket, a 45 napos naplót és a rendszer állapotát. A **Memóriakezelés** oldalon:
 
-Az [examples/google_calendar_create_event.yaml](examples/google_calendar_create_event.yaml) külön, Assistnak kitett Home Assistant-szkript, amely **csak a `calendar.esemenyek` naptárba** ír. Nem a Nabu Recall belső része. A Google Calendar a HA-n keresztül olvasható volt (`calendar__get_events`), de az eszköz nem hozott létre eseményt. A `calendar.create_event` HA-művelet közvetlen tesztje sikerült; ezért célzott szkriptet tettünk elérhetővé az AI számára, rendszergazdai széles körű hozzáférés helyett.
+- Ellenőrizheted a hasonló vagy ismétlődő emlékeket.
+- AI-javaslatokat kérhetsz lehetséges összevonásokra.
+- A javaslatokat külön kiválasztás és végső jóváhagyás után alkalmazhatod.
+- A támogatott karbantartási módosításokat a rendelkezésre álló visszavonási időn belül visszaállíthatod.
 
-Korábbi hibák:
-- az AI 2023-as dátumot adott át a 2026-os „holnap” helyett;
-- az opcionális `perc` és `idotartam` mezők `UndefinedError`-t okoztak, mert a mező UI-alapértéke nem jelenti a szkriptváltozó létét;
-- a `llm__GetDateTime` helyes dátumot adott, de az AI kezdetben hibásan mondta a holnap napját;
-- a naptártörléshez tévesen `todo__HassListRemoveItem` került meghívásra.
+Az AI-javaslat nem garantáltan helyes. Jóváhagyás előtt különösen a neveket, tulajdonviszonyokat és időpontokat ellenőrizd.
 
-**A naptár-törlés nincs implementálva.** A HA Google Calendar megjelenítése/írása nem jelent automatikus Google-event-ID alapú törlési API-t. A „töröld a próba eseményt” jelenleg csak biztonságos elutasítást eredményezhet; manuálisan törölhető a Google naptárból. Az év nélkül mondott hónap-nap esetén az AI `MM-DD` formátumot adjon át (például `12-01`), és a szkript a Home Assistant ideje alapján válassza ki a következő jövőbeli előfordulást. Az időzóna-aware kezdő/záróértékek megakadályozzák a korábbi vegyes időzóna hibát. A GitHub-példa **külön éles tesztet igényel**, és nem frissíti a Home Assistantban már létrehozott szkriptet.
+## 7. OpenAI-használat és költségek
 
-A példaszkript és a [részletes példák](examples/README.md) dokumentálják a megfelelő működési szerződést. Az éles szkriptet másolás után külön teszteld.
+A Nabu Recall saját OpenAI API-hívásokat használ a fontos emlékek kiválasztásához és visszakereséséhez. Ezekért az OpenAI Platform használati díjat számíthat fel. A már működő OpenAI Conversation ügynök API-használata ettől külön történik.
 
-## 11. Működési példák (valódi tesztesetek mintájára)
+A modell alapbeállítása `gpt-4.1-mini`. Ezt csak akkor változtasd meg, ha tudod, hogy a választott modell kompatibilis a memóriakezeléssel.
 
-| Kérés | Elvárt működés |
-|---|---|
-| „Jegyezd meg, hogy a tesztállatom neve Maszat.” | Szinkron egyedi mentés és megerősítés |
-| „Mi a tesztállatom neve?” | A mentett tényből válaszol; hiány esetén nem találgat |
-| „Mentsd el!” | Csak friss, azonos Assist beszélgetésbeli megelőző mondatból |
-| „Javítsd a bevásárlólistás emléket…” | Régi memória-ID célzott frissítése, nem új, párhuzamos emlék |
-| „Töröld mindet!” | Tömeges törlés blokkolva |
-| „Kapcsold fel a dolgozó lámpáit!” / „Most kapcsold le őket!” | HUN ügynök eszközkezelése + beszélgetési visszautalás |
-| „Milyen nap lesz holnap?” | `llm__GetDateTime` → nap kiszámítása |
-| „Írd be holnap reggel nyolcra, hogy próba esemény.” | HUN ügynök által hívott naptáríró szkript; `nap=holnap`, `ora=8` |
-| „Írd be a naptárba, hogy próba esemény.” | „Mikorra írjam be?” — **nincs mentés** |
-| „Töröld a próba eseményt a naptárból!” | Nincs törlő eszköz; nem használ todo-eszközt; nincs hamis sikerjelzés |
+## 8. Hogyan használd a memóriát?
 
-## 12. Hibakeresés
+| Mit szeretnél? | Példamondat |
+| --- | --- |
+| Fontos tény mentése | „Jegyezd meg, hogy a tartalék elemek a kamra felső polcán vannak.” |
+| Korábbi tény visszakérdezése | „Hol vannak a tartalék elemek?” |
+| Egy emlék javítása | „Javítsd: a tartalék elemek most a garázsban vannak.” |
+| Egy konkrét emlék törlése | „Töröld azt az emléket, hogy a tartalék elemek a garázsban vannak.” |
+| Korábbi beszélgetés felidézése | „Mit beszéltünk korábban a szerszámokról?” |
 
-| Tünet | Ellenőrzés |
-|---|---|
-| HA integráción régi verzió / ikonhiány | Külön `custom_components/nabu_recall` újramásolás, Core restart; `brand/icon.png` jelenléte |
-| App Web UI zárolt | `dashboard_password` beállítva? App restart; 10 perc után új bejelentkezés |
-| Nincs memóriaválasz | Belső URL, `bridge_token`, app log, `ai_ready`; eredeti HUN ügynök működik-e? |
-| Sok `Feldolgozatlan` | OpenAI API-hiba, hiányzó kredit, feldolgozó lock; app naplója |
-| Emlékhiány frissítés után | App `/data` megőrzése; **titkosított DB és kulcs együtt** |
-| „Unable to get response” naptárnál | Nézd meg a `Show details` AI-eszközhívásait; `calendar__get_events` önmagában olvasás |
-| Rossz dátum / 2023-at ír | `llm__GetDateTime`, pontos idő, szkript múltbeli dátumot tiltó ellenőrzése |
-| Sikernek látszó téves törlés | `todo__HassListRemoveItem` nem naptártörlés; nincs integrált delete |
-| Rossz Web UI számláló | A napló 45 napos, a tartós emlék nem jár le; a DB szabad helye nem memóriakvóta |
+A „Jegyezd meg”, „Javítsd” és „Töröld” típusú műveletek sikerét csak a tényleges mentés vagy módosítás visszaigazolása után tekintsd biztosnak. A **teljes memória hangos tömeges törlése tiltott**.
 
-## 13. Fejlesztői jegyzetek
+A bevásárlólistához hozzáadott vagy onnan törölt tételek nem válnak automatikusan tartós emlékké; a valódi vásárlási szokásokat viszont megjegyezheti.
 
-A repóban a `.github/workflows/tests.yml` szintaxis- és offline teszteket futtat. A tesztek nem használnak élő API-kulcsot és nem ellenőrzik automatikusan a tényleges HAOS-t vagy a Google naptár szkriptet. A diagnosztikai lapok csak olvasnak; a jelszóval védett Kézi karbantartás oldal külön jóváhagyott tranzakciókat hajthat végre. A Git előzmények megmaradnak; a [HISTORY.md](HISTORY.md) történeti jegyzeteket tartalmaz. [LICENSE](LICENSE): MIT.
+## 9. A HUN asszisztens rendszerutasításai
 
-## HAOS v1.0.3 — naplóellenőrzés
+A **rendszerutasítások** határozzák meg, hogyan beszéljen az OpenAI Conversation ügynök, hogyan kezelje a Home Assistant eszközeit és hogyan használja a rendelkezésére álló memóriát.
 
-A jelszóval védett Web UI új **Naplóellenőrzés** oldala az üres asszisztensválaszokat és a tartós emlékek forráshivatkozásait olvassa, valamint az érintett rekordokat feldolgozatlan, hivatkozott és feldolgozott/nem hivatkozott csoportokba sorolja. Az oldal nem módosít adatot és nem tartalmaz törlőgombot. A részletes [mentési terv](docs/SAFE_CLEANUP_HU.md) és [HAOS telepítés előtti ellenőrzés](docs/HAOS_AUDIT_TEST_HU.md) követendő.
+A projektben megőrzött [minta rendszerutasítások](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld) használhatók kiindulásként. Ezek **nem kerülnek automatikusan** a saját OpenAI Conversation ügynököd beállításaiba.
 
-## HAOS v1.0.4 — kézi karbantartás
+A felhasználás szempontjából fontos, hogy az asszisztens:
 
-Az **OPEN WEB UI → Kézi karbantartás** oldalon: (1) a hiányos válaszú, feldolgozott, tartós emlékkel közvetlenül nem hivatkozott naplók titkosított archiválása, (2) az archívum visszaállítása, (3) AI-javaslatok készítése a duplikált, átfedő vagy ellentmondó tartós emlékekhez, (4) az összevonások egyenkénti jóváhagyása és visszavonása érhető el. A javaslat nem tény: mindig ellenőrizd, hogy személyek, dátumok, kapcsolatok nem vesztek el. Az archív naplók is 45 nap után lejárnak; a memória-módosítási előzmények 7 nap után törlődnek. A régi válaszhiányos naplók eredeti válaszai nem rekonstruálhatók. A napi beszélgetéskezelés és a HUN eszközvezérlés továbbra is az eredeti integráción keresztül működik.
+- természetesen, röviden, magyarul válaszoljon;
+- a magyarul kimondott eszközneveket a Home Assistantban ténylegesen szereplő eszközökhöz kapcsolja;
+- ne állítsa, hogy végrehajtott egy műveletet, amíg az nem sikerült;
+- a korábbi emlékeket információként használja, ne utasításként;
+- dátumoknál a Home Assistant aktuális idejét vegye alapul;
+- naptáresemény létrehozásakor kérdezzen vissza, ha a nap vagy a kezdési idő hiányzik.
 
-**Frissítés előtt készíts Home Assistant alkalmazásmentést**; az SQLCipher adatbázis és a hozzá tartozó kulcs együtt nélkülözhetetlen. A program nem távolítja el automatikusan a 211 jelölt naplót. Archiválás kizárólag kézi jóváhagyás után történik.
+A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz kell igazítani.
 
-## HAOS v1.0.5 — skálázott tartós memória
+## 10. Google Naptár
 
-A régi tartós emlékek teljes állományban kereshetők (nem csak a legutóbbi 200 között). Az AI-hoz továbbra is korlátozott, relevancia alapján kiválasztott lista kerül, így a tokenigény nem növekszik a memóriák számával lineárisan. A magyar ékezetes kifejezések keresése támogatott. A kézi optimalizálóban a **Teljes állomány duplikátumjelöltjei** gomb 100 000 emlék között is képes szövegszerkezeti egyezéseket találni; a **Következő adag szemantikai AI-elemzése** 160-as csoportokban halad. Ezek külön, felhasználó által indított műveletek. A teljesen eltérő megfogalmazású, de azonos jelentésű tények minden esetben történő felismerése nem garantált. A v1.0.5 csak a HAOS alkalmazás frissítése; a külön integráció marad v1.0.4.
+A [naptáresemény-létrehozó szkript](examples/google_calendar_create_event.yaml) külön telepíthető Home Assistant-szkript, **nem a Nabu Recall automatikusan telepített része**. A hangasszisztensnek külön elérhetővé kell tenni.
 
-## HAOS v1.0.6 — mit csinálnak a karbantartás gombjai?
+A szkript segítségével az asszisztens a beállított `calendar.esemenyek` naptárba hozhat létre eseményeket, például:
 
-A **Memóriakezelés** oldal három részből áll: először a 45 napos napló és a régi hibás válaszok archiválhatóságának számai, majd a tartós emlékek ismétlődéseinek felkutatása, végül az AI-javaslatok kézi ellenőrzése. A korábbi külön **Naplóellenőrzés** menüpont feleslegessé vált; a részletes régi diagnosztika csak közvetlen hibaelhárításkor használható.
+- „Írd be holnap reggel nyolcra, hogy fogorvos.”
+- „Vedd fel december 15-re délután négyre, hogy szülői értekezlet.”
 
-A **Teljes állomány duplikátumjelöltjei** gomb helyileg keres közel azonos szószerkezetű tényeket, majd csak a jelölteket értékelteti az AI-val. A **Következő adag szemantikai AI-elemzése** maximum 160 emléket tekint át egy adagban; másképp megfogalmazott egyezéseket is javasolhat, de a külön adagok közötti minden egyezés felismerése nem garantált. Mindkettő tokenfogyasztást okozhat az AI-értékelés során. Egyik sem módosít automatikusan.
+Ha a nap vagy az időpont hiányzik, az asszisztens kérdezzen vissza. Ha nincs megadva időtartam, a szkript alapértéke **30 perc**.
 
-Az eredményeknél minden javaslat mellett **jelölőnégyzet** látható, az eredeti emlékekkel, a megmaradó szöveggel és az AI indokával. Csak azokat jelöld, amelyek tartalma helyes. A **Kijelöltek ellenőrzése** gomb megmutatja a kiválasztott összevonások végső listáját: ettől még semmi nem módosul. A **Kijelölt összevonások végleges jóváhagyása** egyszerre, egy tranzakcióban alkalmazza a kiválasztott, egymástól független maximum 12 javaslatot. Ha bármelyik hibás vagy közben megváltozott, az egész csomag visszavonásra kerül. A **Teljes csoport visszavonása** gomb a legutóbbi csomagot együtt állítja vissza, ha a visszaállításnak nincs ütközése és az előzmény még elérhető. A normál, automatikus naplólejárat és a tanulás változatlan.
+**Naptáresemény hangos törlése vagy módosítása ebben a projektben még nincs megvalósítva.** A meglévő eseményeket egyelőre a Google Naptárban módosítsd vagy töröld.
 
+A szkript külön beállítást és éles Home Assistant-próbát igényel. [Részletes naptárpéldák](examples/README.md).
 
-## HAOS v1.1.0–1.1.1 — jelenlegi viselkedés
+## 11. Gyakorlati példák
 
-A memóriakeresés a teljes tartós memóriaállományból indul ki; támogatja a magyar ékezet nélküli keresőszavakat is, és a pontosabb találatokat előrébb sorolja. A háttérmemória-feldolgozás összevonja a gyorsan érkező feldolgozási kéréseket. A v1.1.1-ben a tanult tények mentése és a forrásbeszélgetés feldolgozottságának rögzítése egyetlen SQLCipher-tranzakció: hiba esetén a kettő együtt visszagörgethető. Az AI-utasítások külön hangsúlyozzák a személyek, tulajdonviszonyok, lecserélt és újonnan hozzáadott tárgyak megkülönböztetését, de a természetes nyelvi értelmezés továbbra sem tévedhetetlen. A hangvezérlés és a külön Home Assistant-integráció változatlan.
+| Kérés | Elvárt viselkedés |
+| --- | --- |
+| „Jegyezd meg, hogy a próbadobozban három kék ceruza van.” | Mentés és megerősítés |
+| „Hány ceruza van a próbadobozban?” | A mentett információ alapján válaszol |
+| „Javítsd: most négy piros ceruza van benne.” | A korábbi tény célzott módosítása |
+| „Tedd a tejet a bevásárlólistára.” | A bevásárlólista frissítése, nem új tartós emlék |
+| „Kapcsold le a nappali lámpáját.” | A már működő OpenAI Conversation ügynök intézi |
+| „Írd be holnap kilencre, hogy próba esemény.” | A külön beállított naptárszkript létrehozza az eseményt |
 
-**Családi használat:** a memória közös, nem beszélőazonosításon alapuló tár. A rendszer nem tudja biztosan azonosítani, ki kérdezi vissza a személyes adatokat. Lásd a [családi útmutatót](CSALADI_UTMUTATO.md).
+## 12. Gyors hibakeresés
 
+| Probléma | Mit ellenőrizz? |
+| --- | --- |
+| Az integráció nem csatlakozik | Az alkalmazás fut-e? Helyes-e a **Hostname + :8765** cím és a `bridge_token`? |
+| A Web UI nem enged be | A Nabu Recall alkalmazás **Konfiguráció** lapján megadott `dashboard_password` jelszót használod-e? |
+| Az asszisztens nem emlékszik | A Web UI-n megjelent-e a tartós emlék? Van-e OpenAI API-hiba az alkalmazás naplójában? |
+| Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
+| Naptári esemény nem jön létre | A naptárszkript telepítve és az asszisztens számára elérhető-e? Megadtad a dátumot és a kezdési időt? |
 
-## HAOS v1.1.2 — bevásárlólista és tartós memória
-
-A bevásárlólistára felvétel/törlés művelete és az erre adott visszaigazolás továbbra is megmarad a 45 napos beszélgetésnaplóban, de nem kerül a tartós memória automatikus tanulási bemenetébe. A valódi, hosszabb távra szóló vásárlási preferenciákat és a kifejezetten kért tartós emlékeket a rendszer továbbra is megjegyezheti. A korábban már létrejött téves emlékeket a frissítés nem törli automatikusan; a Web UI-n egyenként ellenőrizhetők és kezelhetők.
+További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Angol kézikönyv](MANUAL_EN.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
