@@ -9,6 +9,7 @@ from store import Store
 from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
+from shopping_filter import is_shopping_list_action
 from management import operation_kind, validate_change, previous_context, context_needed
 
 logging.basicConfig(level=logging.INFO)
@@ -114,18 +115,25 @@ async def process_pending():
             if not pending:
                 break
             try:
-                recent_memories = store.memory_list(40)
-                terms = await ai.search_terms(" ".join(
-                    row["user_text"][:160] for row in pending)[:1000])
-                relevant = store.memory_search(
-                    terms[:6] + store.memory_query_terms(
-                        " ".join(x["user_text"] for x in pending))[:6],
-                    limit=120)
-                by_id = {r["id"]: r for r in recent_memories + relevant}
-                operations = await ai.learn(pending, list(by_id.values())[:160])
-                safe = filter_memory_operations(
-                    operations, [x["user_text"] for x in pending]
-                )
+                # A shopping-list task is an action, not durable user knowledge.
+                # Keep the complete original transcript in the 45-day journal.
+                learnable = [row for row in pending if not is_shopping_list_action(
+                    row["user_text"], row["assistant_text"])]
+                if learnable:
+                    recent_memories = store.memory_list(40)
+                    terms = await ai.search_terms(" ".join(
+                        row["user_text"][:160] for row in learnable)[:1000])
+                    relevant = store.memory_search(
+                        terms[:6] + store.memory_query_terms(
+                            " ".join(x["user_text"] for x in learnable))[:6],
+                        limit=120)
+                    by_id = {r["id"]: r for r in recent_memories + relevant}
+                    operations = await ai.learn(learnable, list(by_id.values())[:160])
+                    safe = filter_memory_operations(
+                        operations, [x["user_text"] for x in learnable])
+                else:
+                    operations = []
+                    safe = []
                 blocked = sum(1 for x in operations if isinstance(x, dict)
                               and x.get("action") == "delete") - sum(
                               1 for x in safe if x.get("action") == "delete")
@@ -133,7 +141,10 @@ async def process_pending():
                     LOG.warning("Blocked %d unauthorized/bulk memory deletions", blocked)
                 store.apply_learning_batch(
                     safe, [x["id"] for x in pending], pending[-1]["id"])
-                state["last_learn"] = f"{len(pending)} párbeszéd feldolgozva, {len(safe)} memória-művelet." 
+                skipped = len(pending) - len(learnable)
+                state["last_learn"] = (
+                    f"{len(pending)} párbeszéd feldolgozva, {len(safe)} memória-művelet, "
+                    f"{skipped} bevásárlólista-művelet kihagyva.")
                 LOG.info("AI extraction OK: %d turns, %d operations", len(pending), len(safe))
             except OpenAIRequestError as exc:
                 state["last_learn"] = f"OpenAI hiba: HTTP {exc.status}, {exc.code}; újrapróbálás később."
