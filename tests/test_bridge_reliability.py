@@ -115,6 +115,33 @@ class BridgeReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(server.store.memory_list()), 1)
         self.assertEqual(fake.learn_calls, 2)
 
+    async def test_busy_memory_lock_does_not_drop_learning(self):
+        ident = server.store.add_turn(
+            "A műhelyben kék Makita csavarbehajtó van.", "Rendben.", "busy")
+        fake = FakeAI()
+        server.ai = fake
+        await server.lock.acquire()
+        try:
+            task = asyncio.create_task(server.process_pending())
+            await asyncio.sleep(0)
+            self.assertFalse(task.done())
+            self.assertEqual([r["id"] for r in server.store.pending()], [ident])
+        finally:
+            server.lock.release()
+        await asyncio.wait_for(task, timeout=3)
+        self.assertEqual(server.store.pending(), [])
+        self.assertEqual(fake.learn_calls, 1)
+        self.assertEqual(len(server.store.memory_list()), 1)
+
+    async def test_invalid_api_payload_does_not_create_journal(self):
+        for data in ({"user": "", "assistant": "ok"},
+                     {"user": "hello", "assistant": 12},
+                     {"user": "x" * 12001, "assistant": "ok"}):
+            response = await self.client.post(
+                "/bridge/turn", json=data, headers=self.headers)
+            self.assertEqual(response.status, 400)
+        self.assertEqual(server.store.statistics()["turns"], 0)
+
     async def test_recall_outage_is_nonfatal(self):
         server.store.apply([{"action": "add", "fact": "A műhelyben van egy szerszám."}])
         server.ai = FakeAI(fail=True)
