@@ -10,7 +10,7 @@ from store import Store
 from maintenance import (
     cleanup_preview, cleanup_commit, cleanup_restore, latest_cleanup,
     validate_proposal, memory_apply, memory_restore, recent_memory_undo,
-    MaintenanceConflict,
+    MaintenanceConflict, memory_apply_many, memory_restore_many,
 )
 
 
@@ -122,6 +122,61 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(self.store.db.execute(
             "SELECT COUNT(*) FROM journal_archive"
         ).fetchone()[0], 1)
+
+
+    def _proposal_for(self, first, second, merged):
+        return validate_proposal({
+            "type": "duplicate", "keeper_id": first,
+            "remove_ids": [second], "new_fact": merged,
+            "reason": "Az egyező tények összevonhatók."
+        }, self.store)
+
+    def test_batch_commit_and_restore_are_atomic(self):
+        for fact in ("Első tény egyik változata", "Első tény másik változata",
+                     "Második tény egyik változata", "Második tény másik változata"):
+            self.store.apply([{"action": "add", "fact": fact}])
+        rows = [dict(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")]
+        a = self._proposal_for(rows[0]["id"], rows[1]["id"],
+                               "Első tény összevont változata")
+        b = self._proposal_for(rows[2]["id"], rows[3]["id"],
+                               "Második tény összevont változata")
+        history_ids = memory_apply_many(self.store, [a, b])
+        self.assertEqual(len(history_ids), 2)
+        self.assertEqual(self.store.statistics()["memories"], 2)
+        self.assertEqual(memory_restore_many(self.store, history_ids), 4)
+        self.assertEqual(rows, [dict(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")])
+
+    def test_conflicting_second_merge_rolls_back_all(self):
+        for fact in ("Első tény egyik változata", "Első tény másik változata",
+                     "Második tény egyik változata", "Második tény másik változata"):
+            self.store.apply([{"action": "add", "fact": fact}])
+        ids = [r["id"] for r in self.store.db.execute(
+            "SELECT id FROM memories ORDER BY id")]
+        a = self._proposal_for(ids[0], ids[1], "Közös végeredmény")
+        b = self._proposal_for(ids[2], ids[3], "Közös végeredmény")
+        before = [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")]
+        with self.assertRaises(Exception):
+            memory_apply_many(self.store, [a, b])
+        self.assertEqual(before, [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")])
+        self.assertEqual(self.store.db.execute(
+            "SELECT COUNT(*) FROM maintenance_history WHERE kind='memory'"
+        ).fetchone()[0], 0)
+
+    def test_overlapping_proposals_are_rejected(self):
+        for fact in ("Tény egyik változata", "Tény másik változata",
+                     "Tény harmadik változata"):
+            self.store.apply([{"action": "add", "fact": fact}])
+        ids = [r["id"] for r in self.store.db.execute(
+            "SELECT id FROM memories ORDER BY id")]
+        a = self._proposal_for(ids[0], ids[1], "Első összevont tény")
+        b = self._proposal_for(ids[1], ids[2], "Második összevont tény")
+        with self.assertRaises(MaintenanceConflict):
+            memory_apply_many(self.store, [a, b])
+        self.assertEqual(self.store.statistics()["memories"], 3)
 
     def test_memory_proposal_apply_and_undo(self):
         self.store.apply([{"action": "add", "fact": "A kedvenc ital gyömbértea."}])
