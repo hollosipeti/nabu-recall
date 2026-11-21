@@ -147,7 +147,11 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                     '<b>Összevonás kijelölése — %s</b></label>%s'
                     '<p><b>Megmaradó emlék (#%d):</b> %s</p>'
                     '<p><b>Miért?</b> %s</p></article>'
-                    % (i, _html(item["type"]), details, item["keeper_id"],
+                    % (i, _html({"duplicate": "Ismétlés",
+                                   "overlap": "Átfedés",
+                                   "conflict": "Lehetséges ellentmondás"}.get(
+                                       item["type"], item["type"])),
+                       details, item["keeper_id"],
                        _html(item["new_fact"]), _html(item["reason"]))
                 )
             if plan["items"]:

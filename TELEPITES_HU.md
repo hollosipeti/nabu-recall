@@ -60,7 +60,7 @@ A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozz�
 4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
 5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
 
-**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.4, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.6, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
 
 A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
 
