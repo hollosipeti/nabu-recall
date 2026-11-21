@@ -126,6 +126,21 @@ class StoreTests(unittest.TestCase):
             "Miért nem működik az áramszünet után?")[:2],
             ["nem", "működik"])
 
+    def test_accent_tolerant_memory_search(self):
+        self.store.apply([{"action": "add", "fact": "A műhelyben kék csavarbehajtó van."}])
+        self.store.apply([{"action": "add", "fact": "A fűtés áramszünet után újraindul."}])
+        self.assertEqual(len(self.store.memory_search(["muhelyben"])), 1)
+        self.assertEqual(len(self.store.memory_search(["ARAmSZUNET"])), 1)
+        self.assertEqual(self.store.memory_search(["muhelyben"])[0]["fact"],
+                         "A műhelyben kék csavarbehajtó van.")
+
+    def test_accented_exact_match_preferred(self):
+        self.store.apply([{"action": "add", "fact": "A szoba világítása működik."}])
+        self.store.apply([{"action": "add", "fact": "A szoba vilagitasa javítandó."}])
+        rows = self.store.memory_search(["világítása"])
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]["fact"], "A szoba világítása működik.")
+
     def test_processed(self):
         ident = self.store.add_turn("u", "a")
         self.store.processed([ident])
