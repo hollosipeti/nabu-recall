@@ -83,8 +83,8 @@ def render(store, state, tab="memories"):
     stats = store.statistics()
     title = "Nabu Recall — állapot"
     nav = ('<nav><a href="./?tab=memories">Tartós emlékek</a> · '
-           '<a href="./?tab=turns">45 napos napló</a> · <a href="./?tab=audit">Naplóellenőrzés</a> · '
-           '<a href="./?tab=storage">Memória és tárhely</a> · <a href="./maintenance">Kézi karbantartás</a> · '
+           '<a href="./?tab=turns">45 napos napló</a> · '
+           '<a href="./?tab=storage">Memória és tárhely</a> · <a href="./maintenance">Memóriakezelés</a> · '
            '<a href="./">Állapot</a></nav>'
            '<form action="./logout" method="post">'
            '<button type="submit">Kijelentkezés</button></form>')
