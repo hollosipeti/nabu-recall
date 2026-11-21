@@ -18,6 +18,20 @@ key = os.getenv("OPENAI_API_KEY", "")
 ai = AI(key, os.getenv("OPENAI_MODEL", "gpt-4.1-mini")) if key else None
 token = os.getenv("BRIDGE_TOKEN", "")
 lock = asyncio.Lock()
+_learning_task = None
+
+
+def schedule_learning():
+    """Coalesce new-turn triggers into one draining worker.
+
+    Every turn is committed before this call. The worker drains all pending
+    rows, so parallel requests do not require a task per turn.
+    """
+    global _learning_task
+    if _learning_task is None or _learning_task.done():
+        _learning_task = asyncio.create_task(process_pending())
+
+
 state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '1.0.6'}
 
 @web.middleware
@@ -41,7 +55,7 @@ async def log_turn(request):
     if operation_kind(user) is not None:
         store.processed([turn_id])  # Explicit command handled synchronously; never run it twice.
     else:
-        asyncio.create_task(process_pending())
+        schedule_learning()
     return web.json_response({"ok": True, "id": turn_id})
 
 async def manage(request):
