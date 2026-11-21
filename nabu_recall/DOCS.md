@@ -41,3 +41,14 @@ A lekérdezés nem csak az utolsó 200 tartós emléket vizsgálja: a teljes tit
 ## HAOS v1.0.6 — használhatóbb Memóriakezelés
 
 A fő navigációból kikerült a külön „Naplóellenőrzés”; a fontos számai a Memóriakezelés oldalon láthatók. Az AI-duplikációjavaslatoknál pipa alapján választható ki több, egymástól független tétel. Az előnézet önmagában nem hajt végre adatbázis-módosítást. Második jóváhagyás után a kijelölt javaslatok közös tranzakcióban lépnek életbe, vagy az egész csomag visszagörgetődik. Az utolsó csoport visszavonása külön gombbal lehetséges, a hét napos időkereten és konfliktusellenőrzésen belül. Az automatikus emléktörlés vagy összevonás továbbra sem működik.
+
+
+## HAOS v1.1.0 – egyszerűbb, egységes kiadás
+
+- A szokásos `nabu_recall` alkalmazás frissül, az eredeti titkosított `/data/recall.sqlite3` és `recall.key` fájlokkal.
+- A magyar ékezet nélküli keresés a korábbi ékezetes emlékeket is megtalálhatja; az eredeti tárolt szöveg változatlan.
+- A gyors egymás utáni kérések feldolgozása összevonva, egy memóriafeldolgozó feladaton történik.
+- A béta külön tesztmemóriája **nem költözik át** a stabil rendszerbe.
+- A korábban telepített HA-integráció verziója továbbra is 1.0.4, az Assist-beállítást nem szükséges módosítani.
+- Azonosítókkal kapcsolatos hangos hozzáférés és adatvédelmi szabályok változatlanok.
+- Frissítés előtt ellenőrzött alkalmazásmentés szükséges. A külön béta csak a stabil kiadás ellenőrzése után állítható le és távolítható el.
