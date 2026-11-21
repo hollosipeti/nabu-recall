@@ -1,6 +1,6 @@
-# Nabu Recall — complete English manual (HAOS v1.1.1 / integration v1.0.4)
+# Nabu Recall — complete English manual (HAOS v1.1.2 / integration v1.0.4)
 
-*Updated November 21, 2026. Covers the HAOS v1.1.1 app and its separately installed v1.0.4 custom integration.*
+*Updated November 21, 2026. Covers the HAOS v1.1.2 app and its separately installed v1.0.4 custom integration.*
 
 **Quick Hungarian family guide:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md).
 
@@ -174,3 +174,8 @@ The separate journal audit menu item has been absorbed into the **Memóriakezel�
 ## HAOS 1.1.0–1.1.1 — memory reliability improvements
 
 Durable-memory retrieval searches the whole corpus and tolerates Hungarian queries entered without accent marks, while preferring exact matches. Background extraction coalesces incoming triggers. In v1.1.1, learned facts and processed-journal acknowledgements are committed in one SQLCipher transaction, so errors roll them back together. AI instructions emphasize retaining the correct person, ownership, distinction between replacement and addition, and selecting multiple relevant memories. Natural-language interpretation may still make mistakes; verify important facts. This is one shared household memory, not verified speaker identity. No changes were made to the HA custom integration v1.0.4, device controls, or the policy around spoken sensitive identifiers.
+
+
+## HAOS 1.1.2 — shopping-list task noise
+
+Shopping-list additions, removals, and their assistant confirmations are retained in the ordinary 45-day transcript, but excluded from automatic durable-memory learning. Genuine persistent purchase preferences and explicit requests to remember a fact remain eligible. Previously learned task confirmations are not automatically deleted; review them individually in the Web UI.

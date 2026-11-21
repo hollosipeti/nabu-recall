@@ -1,5 +1,13 @@
 # Nabu Recall — maintained releases
 
+## 1.1.2 — 2026-11-21 (HAOS app only)
+
+- Shopping-list add/remove operations and their assistant confirmations are excluded from durable learning, but retained in the 45-day journal.
+- Mixed dialogue batches still learn independent useful facts; explicit requests to remember enduring shopping preferences remain eligible.
+- No existing memory is removed automatically. Review prior shopping-list task facts individually under Memóriakezelés.
+- No changes to SQLCipher schema, private-data rules, Home Assistant integration v1.0.4, or device control.
+
+
 ## 1.1.1 — 2026-11-21 (HAOS app only)
 
 - Atomic transaction: AI learned facts and processed conversation acknowledgments are committed together; rollback is verified on simulated SQLCipher write failure.
