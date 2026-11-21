@@ -178,6 +178,44 @@ class MaintenanceTests(unittest.TestCase):
             memory_apply_many(self.store, [a, b])
         self.assertEqual(self.store.statistics()["memories"], 3)
 
+
+    def test_stale_second_item_prevents_entire_batch(self):
+        facts = ["A első tény", "A második tény",
+                 "B első tény", "B második tény"]
+        self.store.apply([{"action": "add", "fact": fact} for fact in facts])
+        ids = [r["id"] for r in self.store.db.execute(
+            "SELECT id FROM memories ORDER BY id")]
+        first = self._proposal_for(ids[0], ids[1], "A végleges tény")
+        second = self._proposal_for(ids[2], ids[3], "B végleges tény")
+        self.store.apply_confirmed({
+            "action": "update", "id": ids[3],
+            "fact": "B időközben megváltozott tény"})
+        before = [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")]
+        with self.assertRaises(MaintenanceConflict):
+            memory_apply_many(self.store, [first, second])
+        self.assertEqual(before, [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")])
+
+    def test_conflicted_batch_undo_restores_none(self):
+        facts = ["A első tény", "A második tény",
+                 "B első tény", "B második tény"]
+        self.store.apply([{"action": "add", "fact": fact} for fact in facts])
+        ids = [r["id"] for r in self.store.db.execute(
+            "SELECT id FROM memories ORDER BY id")]
+        first = self._proposal_for(ids[0], ids[1], "A végleges tény")
+        second = self._proposal_for(ids[2], ids[3], "B végleges tény")
+        histories = memory_apply_many(self.store, [first, second])
+        self.store.apply_confirmed({
+            "action": "update", "id": ids[0],
+            "fact": "A külön később módosított tény"})
+        before = [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")]
+        with self.assertRaises(MaintenanceConflict):
+            memory_restore_many(self.store, histories)
+        self.assertEqual(before, [tuple(r) for r in self.store.db.execute(
+            "SELECT * FROM memories ORDER BY id")])
+
     def test_memory_proposal_apply_and_undo(self):
         self.store.apply([{"action": "add", "fact": "A kedvenc ital gyömbértea."}])
         self.store.apply([{"action": "add", "fact": "Az illető szereti a gyömbérteát."}])
