@@ -13,8 +13,8 @@ SHOPPING_LIST = re.compile(
 LIST_ACTION = re.compile(
     r"\b(?:tegy[eé]l|tegy[eé]tek|rakj|rakd|[ií]rj|[ií]rd|"
     r"add|hozz[aá]ad\w*|t[oö]r[oö]l\w*|vegy[eé]l\s+le|"
-    r"vegy[eé]tek\s+le|pip[aá]l\w*|jel[oö]l\w*|"
-    r"ker[uü]lj[oö]n|felvesz\w*|felvettem|felvettem)",
+    r"vegy[eé]tek\s+le|v[eé]gy\s+le|vegy[eé]l\s+fel|vedd\s+fel|pip[aá]l\w*|jel[oö]l\w*|"
+    r"ker[uü]lj[oö]n|felvesz\w*|felvettem)",
     re.IGNORECASE,
 )
 CONFIRMED = re.compile(
