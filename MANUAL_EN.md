@@ -42,7 +42,24 @@ sh /tmp/install_nabu_recall.sh
 
 Alternatively copy the **entire** `custom_components/nabu_recall` directory into `/config/custom_components/nabu_recall`. The installer makes a timestamped backup of the former integration directory. **Restart Home Assistant Core.** An app update alone will not refresh the custom integration.
 
-Add the **Nabu Recall** integration in Settings → Devices & services. Select the existing `conversation.*` OpenAI Conversation agent. Configure its private bridge URL as `http://<installation-specific_addon_host>:8765` and pass exactly the same `bridge_token`. In Assist, select **Nabu Recall – memória** as the agent; do **not** remove the upstream agent.
+Add the **Nabu Recall** integration under **Settings → Devices & services → Add integration**. Select your **already working OpenAI Conversation agent** in the *Existing conversation agent* field. This upstream agent remains responsible for ordinary conversation and device control; do **not** delete it.
+
+To configure the connection:
+
+1. In **Settings → Apps → Nabu Recall → Information**, locate the **Hostname** shown for the app (not your Home Assistant server hostname). Enter `http://HOSTNAME:8765` as the internal application URL, replacing `HOSTNAME` with the exact displayed value.
+2. In **Settings → Apps → Nabu Recall → Configuration**, find the `bridge_token` value you configured during the app setup. Enter that **same** value in the integration's *Bridge token* field. This is **not** the `dashboard_password` used for the Web UI.
+3. Finish adding the integration.
+
+**Important — change the active Conversation agent in Assist:**
+
+1. Open **Settings → Voice assistants**.
+2. Open the voice assistant profile you use (for example, the default Assist profile).
+3. Under **Conversation agent**, select **Nabu Recall – memória**, **replacing the previously selected OpenAI Conversation agent**.
+4. Save. If you use several voice assistant profiles, repeat this selection in each profile that should have memory.
+
+**Without this last step, Assist continues calling OpenAI Conversation directly and bypasses Nabu Recall memory.** Keep the original OpenAI Conversation integration and its agent installed: Nabu Recall forwards ordinary requests to it.
+
+**Quick check:** say “Jegyezd meg, hogy a próbadoboz a polcon van”, then ask in a new conversation “Hol van a próbadoboz?”. You can also verify the saved fact in the Nabu Recall Web UI.
 
 ## 4. First verification
 
