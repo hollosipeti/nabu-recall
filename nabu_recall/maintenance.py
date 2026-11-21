@@ -251,47 +251,65 @@ def memory_apply_many(store, proposals):
     return history_ids
 
 
-def memory_restore(store, history_id):
+def _memory_restore_in_transaction(store, history_id):
+    """Return one previous memory snapshot without committing the transaction."""
     if type(history_id) is not int:
         raise MaintenanceConflict("Invalid history identifier")
+    history = store.db.execute(
+        "SELECT kind,payload,undone,created FROM maintenance_history WHERE id=?",
+        (history_id,)
+    ).fetchone()
+    if not history or history["kind"] != "memory" or history["undone"]:
+        raise MaintenanceConflict("Undo not available")
+    if history["created"] < int(time.time()) - 7 * 86400:
+        raise MaintenanceConflict("Undo window expired")
+    data = json.loads(history["payload"])
+    keeper = store.db.execute(
+        "SELECT fact FROM memories WHERE id=?", (data["keep"],)
+    ).fetchone()
+    if not keeper or keeper["fact"] != data["after"]:
+        raise MaintenanceConflict("Memory has changed since approval")
+    for r in data["old"]:
+        if r["id"] != data["keep"] and store.db.execute(
+            "SELECT 1 FROM memories WHERE id=?", (r["id"],)
+        ).fetchone():
+            raise MaintenanceConflict("Memory ID collision")
+        if store.db.execute(
+            "SELECT 1 FROM memories WHERE fact=? AND id<>?",
+            (r["fact"], data["keep"])
+        ).fetchone():
+            raise MaintenanceConflict("Memory fact conflict")
+    store.db.execute(
+        "DELETE FROM memories WHERE id=?", (data["keep"],)
+    )
+    store.db.executemany(
+        "INSERT INTO memories(id,created,updated,fact,source_turn) "
+        "VALUES(?,?,?,?,?)",
+        [(r["id"], r["created"], r["updated"], r["fact"], r["source_turn"])
+         for r in data["old"]]
+    )
+    store.db.execute(
+        "UPDATE maintenance_history SET undone=1 WHERE id=?", (history_id,)
+    )
+return len(data["old"])
+
+
+def memory_restore(store, history_id):
     with store.db:
-        history = store.db.execute(
-            "SELECT kind,payload,undone,created FROM maintenance_history WHERE id=?",
-            (history_id,)
-        ).fetchone()
-        if not history or history["kind"] != "memory" or history["undone"]:
-            raise MaintenanceConflict("Undo not available")
-        if history["created"] < int(time.time()) - 7 * 86400:
-            raise MaintenanceConflict("Undo window expired")
-        data = json.loads(history["payload"])
-        keeper = store.db.execute(
-            "SELECT fact FROM memories WHERE id=?", (data["keep"],)
-        ).fetchone()
-        if not keeper or keeper["fact"] != data["after"]:
-            raise MaintenanceConflict("Memory has changed since approval")
-        for r in data["old"]:
-            if r["id"] != data["keep"] and store.db.execute(
-                "SELECT 1 FROM memories WHERE id=?", (r["id"],)
-            ).fetchone():
-                raise MaintenanceConflict("Memory ID collision")
-            if store.db.execute(
-                "SELECT 1 FROM memories WHERE fact=? AND id<>?",
-                (r["fact"], data["keep"])
-            ).fetchone():
-                raise MaintenanceConflict("Memory fact conflict")
-        store.db.execute(
-            "DELETE FROM memories WHERE id=?", (data["keep"],)
-        )
-        store.db.executemany(
-            "INSERT INTO memories(id,created,updated,fact,source_turn) "
-            "VALUES(?,?,?,?,?)",
-            [(r["id"], r["created"], r["updated"], r["fact"], r["source_turn"])
-             for r in data["old"]]
-        )
-        store.db.execute(
-            "UPDATE maintenance_history SET undone=1 WHERE id=?", (history_id,)
-        )
-    return len(data["old"])
+        return _memory_restore_in_transaction(store, history_id)
+
+
+def memory_restore_many(store, history_ids):
+    """Undo an approved set atomically; fail closed on any later edit."""
+    if not isinstance(history_ids, (tuple, list)) or not 1 <= len(history_ids) <= 12:
+        raise MaintenanceConflict("Invalid batch")
+    if any(type(i) is not int or i <= 0 for i in history_ids):
+        raise MaintenanceConflict("Invalid history")
+    if len(set(history_ids)) != len(history_ids):
+        raise MaintenanceConflict("Duplicate history")
+    with store.db:
+        return sum(_memory_restore_in_transaction(store, i)
+                   for i in reversed(history_ids))
 
 
 def recent_memory_undo(store):
