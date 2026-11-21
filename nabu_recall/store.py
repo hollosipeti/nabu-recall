@@ -221,35 +221,33 @@ class Store:
                 "cursor": last_group_start,
                 "more": len(distinct) > consumed_groups}
 
-    def apply(self, operations, source_turn=None):
+    def _apply_operations(self, operations, source_turn=None):
         now = int(time.time())
+        for op in operations:
+            if not isinstance(op, dict):
+                continue
+            action = op.get("action")
+            fact = str(op.get("fact", "")).strip()[:1500]
+            if action == "add" and fact:
+                self.db.execute(
+                    "INSERT OR IGNORE INTO memories(created,updated,fact,source_turn) VALUES(?,?,?,?)",
+                    (now, now, fact, source_turn))
+            elif action == "update" and fact and type(op.get("id")) is int:
+                self.db.execute(
+                    "UPDATE memories SET fact=?,updated=?,source_turn=? WHERE id=?",
+                    (fact, now, source_turn, op["id"]))
+            elif action == "delete" and type(op.get("id")) is int:
+                self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
+
+    def apply(self, operations, source_turn=None):
         with self.db:
-            for op in operations:
-                if not isinstance(op, dict):
-                    continue
-                action = op.get("action")
-                fact = str(op.get("fact", "")).strip()[:1500]
-                if action == "add" and fact:
-                    self.db.execute(
-                        "INSERT OR IGNORE INTO memories(created,updated,fact,source_turn) VALUES(?,?,?,?)",
-                        (now, now, fact, source_turn))
-                elif action == "update" and fact and type(op.get("id")) is int:
-                    self.db.execute(
-                        "UPDATE memories SET fact=?,updated=?,source_turn=? WHERE id=?",
-                        (fact, now, source_turn, op["id"]))
-                elif action == "delete" and type(op.get("id")) is int:
-                    self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
+            self._apply_operations(operations, source_turn)
 
     def apply_learning_batch(self, operations, turn_ids, source_turn=None):
-        """Commit learned facts and processed journal rows as one transaction.
-
-        A crash cannot leave a learned fact committed while its source turn is
-        still pending. Reuse the established apply() behavior without changing
-        memory schema or the allowed operation types.
-        """
+        """Commit learned facts and journal acknowledgements together."""
         ids = [x for x in turn_ids if type(x) is int]
         with self.db:
-            self.apply(operations, source_turn)
+            self._apply_operations(operations, source_turn)
             if ids:
                 self.db.executemany(
                     "UPDATE turns SET processed=1 WHERE id=?",
