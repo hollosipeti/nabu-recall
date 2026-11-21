@@ -129,7 +129,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
             if not plan["items"]:
                 body += '<article><p>Nincs egyértelmű összevonási javaslat.</p></article>'
             else:
-                body += ('<form action="./maintenance/select" method="post">'
+                body += ('<form class="approvals" action="./maintenance/select" method="post">'
                          '<input type="hidden" name="csrf" value="%s">'
                          '<input type="hidden" name="nonce" value="%s">' %
                          (_html(csrf), _html(plan["nonce"])))

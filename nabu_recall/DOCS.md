@@ -37,3 +37,7 @@ Az **OPEN WEB UI → Kézi karbantartás** oldalon a hiányos, feldolgozott és 
 ## HAOS v1.0.5 — nagy tartós memóriatáblák
 
 A lekérdezés nem csak az utolsó 200 tartós emléket vizsgálja: a teljes titkosított állományban keres, és a megfelelő találatokat adja át az AI-nak. A külön karbantartási lapon a gyors **Teljes állomány duplikátumjelöltjei** és a lapozható **Következő adag szemantikai AI-elemzése** is elérhető. A találatok csak javaslatok, az összevonáshoz továbbra is kézi jóváhagyás szükséges. A szemantikailag eltérő megfogalmazások teljes körű feltárására nincs garancia; az AI-feldolgozás kötegekben történik.
+
+## HAOS v1.0.6 — használhatóbb Memóriakezelés
+
+A fő navigációból kikerült a külön „Naplóellenőrzés”; a fontos számai a Memóriakezelés oldalon láthatók. Az AI-duplikációjavaslatoknál pipa alapján választható ki több, egymástól független tétel. Az előnézet önmagában nem hajt végre adatbázis-módosítást. Második jóváhagyás után a kijelölt javaslatok közös tranzakcióban lépnek életbe, vagy az egész csomag visszagörgetődik. Az utolsó csoport visszavonása külön gombbal lehetséges, a hét napos időkereten és konfliktusellenőrzésen belül. Az automatikus emléktörlés vagy összevonás továbbra sem működik.

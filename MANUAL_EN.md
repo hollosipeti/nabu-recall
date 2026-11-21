@@ -1,6 +1,6 @@
-# Nabu Recall — complete English manual (HAOS v1.0.4 / integration v1.0.4)
+# Nabu Recall — complete English manual (HAOS v1.0.6 / integration v1.0.4)
 
-*Updated November 20, 2026. Covers the HAOS v1.0.4 app and its separately installed v1.0.4 custom integration.*
+*Updated November 21, 2026. Covers the HAOS v1.0.6 app and its separately installed v1.0.4 custom integration.*
 
 ## 1. Overview and architecture
 
@@ -163,3 +163,7 @@ The password-protected Ingress UI now has a dedicated **Kézi karbantartás** pa
 ## HAOS 1.0.5 — durable-memory scaling
 
 Memory lookup and learning now search across the entire encrypted durable-memory table before limiting the shortlist sent to AI. A fact does not become invisible solely because it is older than the newest 200. Hungarian Unicode case folding is supported. The manual optimizer offers full-corpus normalized-token duplicate candidate discovery plus a 160-memory keyset-paginated semantic AI review. These are advisory, individually approved operations; semantic recall and paraphrase deduplication are not guaranteed complete. Tests cover 100,000 synthetic SQLCipher facts and old-fact retrieval. Companion HA integration remains v1.0.4.
+
+## HAOS 1.0.6 — checkbox-based memory maintenance
+
+The separate journal audit menu item has been absorbed into the **Memóriakezelés** page; the old read-only audit URL remains for troubleshooting. Each AI-suggested merge now includes its original facts, retained fact and explanation, plus an **unchecked checkbox**. Select only correct merges, then click **Kijelöltek ellenőrzése** to preview the chosen actions without any database change. A second explicit approval commits up to 12 independent changes atomically. If any selected proposal has become stale or conflicts with another, the entire batch rolls back. The most recent approved batch can be undone as a unit, if still within the seven-day undo window and conflict-free. There is no automatic bulk memory merge.

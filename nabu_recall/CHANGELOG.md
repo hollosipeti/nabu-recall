@@ -4,6 +4,16 @@ Only the latest two software release notes are kept here. Documentation updates 
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.
 
+## 1.0.6 — 2026-11-21 (HAOS app only)
+
+- Reorganizes Ingress diagnostics: separate journal-audit link removed from primary navigation; summary incorporated into the now clearer Memóriakezelés page, while the original read-only audit URL remains available for troubleshooting.
+- Durable memory optimization shows the original facts, the proposed retained fact and the reason; every proposal has an unchecked checkbox.
+- An explicit selection review screen precedes final approval. One to twelve selected independent merges are applied together in a single SQLCipher transaction or all rolled back on conflict.
+- Entire most-recent approved checkbox batch can be undone transactionally, subject to the existing seven-day undo horizon and conflict checks.
+- Selection and approval require the authenticated session, CSRF, a current nonce and a separate confirmation token.
+- No automatic memory merging, no bulk-delete voice endpoint, no change to the HA custom integration v1.0.4 or the 45-day retention.
+- Offline regression covers multiple selected merges, undo, stale/missing authorization and all-or-nothing rollback.
+
 ## 1.0.5 — 2026-11-20 (HAOS app only)
 
 - 100,000-entry synthetic SQLCipher scale regression: storage, old fact retrieval, stable keyset paging, distant duplicate prefiltering.

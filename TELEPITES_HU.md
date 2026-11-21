@@ -1,6 +1,6 @@
-# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.4 / integráció v1.0.4)
+# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.6 / integráció v1.0.4)
 
-*Frissítve: 2026. november 20. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
+*Frissítve: 2026. november 21. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
 
 ## 1. Mi a Nabu Recall?
 
@@ -185,3 +185,11 @@ Az **OPEN WEB UI → Kézi karbantartás** oldalon: (1) a hiányos válaszú, fe
 ## HAOS v1.0.5 — skálázott tartós memória
 
 A régi tartós emlékek teljes állományban kereshetők (nem csak a legutóbbi 200 között). Az AI-hoz továbbra is korlátozott, relevancia alapján kiválasztott lista kerül, így a tokenigény nem növekszik a memóriák számával lineárisan. A magyar ékezetes kifejezések keresése támogatott. A kézi optimalizálóban a **Teljes állomány duplikátumjelöltjei** gomb 100 000 emlék között is képes szövegszerkezeti egyezéseket találni; a **Következő adag szemantikai AI-elemzése** 160-as csoportokban halad. Ezek külön, felhasználó által indított műveletek. A teljesen eltérő megfogalmazású, de azonos jelentésű tények minden esetben történő felismerése nem garantált. A v1.0.5 csak a HAOS alkalmazás frissítése; a külön integráció marad v1.0.4.
+
+## HAOS v1.0.6 — mit csinálnak a karbantartás gombjai?
+
+A **Memóriakezelés** oldal három részből áll: először a 45 napos napló és a régi hibás válaszok archiválhatóságának számai, majd a tartós emlékek ismétlődéseinek felkutatása, végül az AI-javaslatok kézi ellenőrzése. A korábbi külön **Naplóellenőrzés** menüpont feleslegessé vált; a részletes régi diagnosztika csak közvetlen hibaelhárításkor használható.
+
+A **Teljes állomány duplikátumjelöltjei** gomb helyileg keres közel azonos szószerkezetű tényeket, majd csak a jelölteket értékelteti az AI-val. A **Következő adag szemantikai AI-elemzése** maximum 160 emléket tekint át egy adagban; másképp megfogalmazott egyezéseket is javasolhat, de a külön adagok közötti minden egyezés felismerése nem garantált. Mindkettő tokenfogyasztást okozhat az AI-értékelés során. Egyik sem módosít automatikusan.
+
+Az eredményeknél minden javaslat mellett **jelölőnégyzet** látható, az eredeti emlékekkel, a megmaradó szöveggel és az AI indokával. Csak azokat jelöld, amelyek tartalma helyes. A **Kijelöltek ellenőrzése** gomb megmutatja a kiválasztott összevonások végső listáját: ettől még semmi nem módosul. A **Kijelölt összevonások végleges jóváhagyása** egyszerre, egy tranzakcióban alkalmazza a kiválasztott, egymástól független maximum 12 javaslatot. Ha bármelyik hibás vagy közben megváltozott, az egész csomag visszavonásra kerül. A **Teljes csoport visszavonása** gomb a legutóbbi csomagot együtt állítja vissza, ha a visszaállításnak nincs ütközése és az előzmény még elérhető. A normál, automatikus naplólejárat és a tanulás változatlan.

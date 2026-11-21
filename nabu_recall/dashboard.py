@@ -50,7 +50,7 @@ input{background:#101722;color:#fff;border:1px solid #536171;padding:12px;
  border-radius:8px;width:100%;box-sizing:border-box;font-size:16px}
 button{background:#59d9db;color:#10202b;padding:10px 18px;border:0;
  border-radius:8px;font-weight:bold;cursor:pointer}
-form{max-width:380px} .warn{color:#ffb2a8}
+form{max-width:380px} form.approvals{max-width:none} .warn{color:#ffb2a8}
 """
 
 def _page(body, version, header="Nabu Recall — állapot"):

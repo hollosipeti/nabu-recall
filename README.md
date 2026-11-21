@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall — v1.0.5 (HAOS app) / v1.0.4 (HA integration)
+# 🧠 Nabu Recall — v1.0.6 (HAOS app) / v1.0.4 (HA integration)
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -50,3 +50,7 @@ A jelszóval védett Ingress Web UI **Kézi karbantartás** oldalán a feldolgoz
 ## HAOS v1.0.5 — tartós memória 100 000 bejegyzésig tesztelve
 
 A tartós emlékek keresése a **teljes SQLCipher-adatbázisban** történik, és csak a találatok szűkülnek az AI-nak átadott rövid listára. A régi emlékek nem esnek ki pusztán azért, mert nem szerepelnek az utolsó 200-ban. A magyar ékezetes kis- és nagybetűk egyezése támogatott. A **Kézi karbantartás** oldalon a teljes állományból szövegszerkezet szerint hasonló duplikátumjelöltek kereshetők; a szélesebb szemantikai AI-ellenőrzés 160-as adagokban lapozható. **Ez nem garantálja minden átfogalmazott vagy ellentmondó emlék automatikus felismerését.** Az AI-javaslatok csak jóváhagyással módosíthatnak emléket.
+
+## HAOS v1.0.6 — egyszerűbb memóriakezelés
+
+A külön **Naplóellenőrzés** navigációs menüpont helyett az alapadatok a **Memóriakezelés** oldalon jelennek meg. A teljes, csak olvasható diagnosztikai útvonal technikai hibaelhárításhoz továbbra is elérhető. A duplikációkeresésből származó AI-javaslatok egyenként **jelölőnégyzetekkel választhatók ki**. A „Kijelöltek ellenőrzése” semmit nem módosít; megjeleníti a végső összefoglalót. A tényleges változáshoz újabb, kifejezett jóváhagyás szükséges. A kiválasztott javaslatok egyetlen adatbázis-tranzakcióban lépnek életbe vagy mind visszagörgetődnek. Az utolsó csoportos jóváhagyás egyben visszavonható a megőrzött, legfeljebb 7 napos visszavonási időn belül.
