@@ -1,4 +1,4 @@
-"""Release 1.1.0 keeps the existing HAOS app identity and stored data location."""
+"""Release 1.1.1 keeps the existing HAOS app identity and stored data location."""
 import unittest
 from pathlib import Path
 
@@ -8,7 +8,7 @@ class MainlineReleaseTests(unittest.TestCase):
     def test_same_stable_addon_slug(self):
         config=(ROOT/"nabu_recall"/"config.yaml").read_text(encoding="utf-8")
         self.assertIn("slug: nabu_recall\n",config)
-        self.assertIn('version: "1.1.0"',config)
+        self.assertIn('version: "1.1.1"',config)
         self.assertIn("stage: stable",config)
         self.assertNotIn("slug: nabu_recall_beta",config)
 
@@ -20,4 +20,4 @@ class MainlineReleaseTests(unittest.TestCase):
 
     def test_server_version(self):
         server=(ROOT/"nabu_recall"/"server.py").read_text(encoding="utf-8")
-        self.assertIn('1.1.0',server)
+        self.assertIn('1.1.1',server)
