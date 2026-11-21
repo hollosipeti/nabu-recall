@@ -90,8 +90,10 @@ async def manage(request):
             return web.json_response({"status": "error", "message": "A memóriaműveletet nem sikerült megerősíteni."})
 
 async def process_pending():
-    if not ai or lock.locked():
+    if not ai:
         return
+    # Queue behind an active memory operation instead of dropping this trigger.
+    # The lock serializes workers, and the first worker drains all pending turns.
     async with lock:
         while True:
             pending = store.pending(12)
