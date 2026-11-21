@@ -1,5 +1,4 @@
 """Beta packaging contract: never install over the stable Nabu Recall app."""
-import re
 import unittest
 from pathlib import Path
 
@@ -9,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class BetaPackagingTests(unittest.TestCase):
     def test_isolated_addon_identity_and_version(self):
         config = (ROOT / "nabu_recall" / "config.yaml").read_text(encoding="utf-8")
-        self.assertRegex(config, r'(?m)^name: Nabu Recall \\(Beta\\)$'.replace('\\\\','\\'))
+        self.assertIn("name: Nabu Recall (Beta)", config)
         self.assertIn('version: "1.1.0b1"', config)
         self.assertIn("slug: nabu_recall_beta", config)
         self.assertIn("stage: experimental", config)
