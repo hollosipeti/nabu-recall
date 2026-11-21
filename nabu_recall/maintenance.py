@@ -291,7 +291,7 @@ def _memory_restore_in_transaction(store, history_id):
     store.db.execute(
         "UPDATE maintenance_history SET undone=1 WHERE id=?", (history_id,)
     )
-return len(data["old"])
+    return len(data["old"])
 
 
 def memory_restore(store, history_id):
