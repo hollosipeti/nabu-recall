@@ -240,6 +240,21 @@ class Store:
                 elif action == "delete" and type(op.get("id")) is int:
                     self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
 
+    def apply_learning_batch(self, operations, turn_ids, source_turn=None):
+        """Commit learned facts and processed journal rows as one transaction.
+
+        A crash cannot leave a learned fact committed while its source turn is
+        still pending. Reuse the established apply() behavior without changing
+        memory schema or the allowed operation types.
+        """
+        ids = [x for x in turn_ids if type(x) is int]
+        with self.db:
+            self.apply(operations, source_turn)
+            if ids:
+                self.db.executemany(
+                    "UPDATE turns SET processed=1 WHERE id=?",
+                    [(x,) for x in ids])
+
     def apply_confirmed(self, op):
         """Apply one checked operation and confirm a real database change."""
         action = op["action"]
