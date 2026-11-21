@@ -185,39 +185,70 @@ def validate_proposal(raw, store):
             "digest": digest}
 
 
-def memory_apply(store, proposal):
-    """Approve ONE individually reviewed proposal, atomically preserving undo."""
+def _memory_apply_in_transaction(store, proposal):
+    """Caller owns the transaction; never commit a partly approved batch."""
     keep = proposal["keeper_id"]
     remove = proposal["remove_ids"]
     ids = [keep] + remove
+    if memory_digest(store, ids) != proposal["digest"]:
+        raise MaintenanceConflict("Memories changed; regenerate proposals")
+    rows = [dict(r) for r in store.db.execute(
+        "SELECT id,created,updated,fact,source_turn FROM memories "
+        "WHERE id IN (%s) ORDER BY id" % ",".join("?" * len(ids)), ids
+    )]
+    if store.db.execute(
+        "SELECT 1 FROM memories WHERE fact=? AND id NOT IN (%s)" %
+        ",".join("?" * len(ids)),
+        [proposal["new_fact"]] + ids
+    ).fetchone():
+        raise MaintenanceConflict("Resulting fact already exists")
+    stamp = int(time.time())
+    # Remove duplicates first, then update keeper; the new fact may
+    # equal one of the removed facts (UNIQUE(fact) constraint).
+    store.db.executemany("DELETE FROM memories WHERE id=?",
+                         [(id_,) for id_ in remove])
+    store.db.execute(
+        "UPDATE memories SET fact=?, updated=? WHERE id=?",
+        (proposal["new_fact"], stamp, keep)
+    )
+    payload = {"old": rows, "keep": keep,
+               "after": proposal["new_fact"], "removed": remove}
+    return store.db.execute(
+        "INSERT INTO maintenance_history(kind,created,payload) VALUES(?,?,?)",
+        ("memory", stamp, json.dumps(payload, ensure_ascii=False))
+    ).lastrowid
+
+
+def memory_apply(store, proposal):
+    """Apply one approved proposal and record its undo snapshot."""
     with store.db:
-        if memory_digest(store, ids) != proposal["digest"]:
-            raise MaintenanceConflict("Memories changed; regenerate proposals")
-        rows = [dict(r) for r in store.db.execute(
-            "SELECT id,created,updated,fact,source_turn FROM memories "
-            "WHERE id IN (%s) ORDER BY id" % ",".join("?" * len(ids)), ids
-        )]
-        if store.db.execute(
-            "SELECT 1 FROM memories WHERE fact=? AND id NOT IN (%s)" %
-            ",".join("?" * len(ids)),
-            [proposal["new_fact"]] + ids
-        ).fetchone():
-            raise MaintenanceConflict("Resulting fact already exists")
-        stamp = int(time.time())
-        # Remove duplicates first, then update keeper; the new fact may
-        # equal one of the removed facts (UNIQUE(fact) constraint).
-        store.db.executemany("DELETE FROM memories WHERE id=?",
-                             [(id_,) for id_ in remove])
-        store.db.execute(
-            "UPDATE memories SET fact=?, updated=? WHERE id=?",
-            (proposal["new_fact"], stamp, keep)
-        )
-        payload = {"old": rows, "keep": keep,
-                   "after": proposal["new_fact"], "removed": remove}
-        return store.db.execute(
-            "INSERT INTO maintenance_history(kind,created,payload) VALUES(?,?,?)",
-            ("memory", stamp, json.dumps(payload, ensure_ascii=False))
-        ).lastrowid
+        return _memory_apply_in_transaction(store, proposal)
+
+
+def memory_apply_many(store, proposals):
+    """All-or-nothing approval of a chosen subset. No automatic selections."""
+    if not isinstance(proposals, (list, tuple)) or not 1 <= len(proposals) <= 12:
+        raise MaintenanceConflict("Choose 1 to 12 proposals")
+    used = set()
+    for item in proposals:
+        if not isinstance(item, dict):
+            raise MaintenanceConflict("Invalid proposal")
+        ids = [item.get("keeper_id")] + item.get("remove_ids", [])
+        if any(type(i) is not int or i <= 0 for i in ids):
+            raise MaintenanceConflict("Invalid memory ID")
+        if used.intersection(ids) or len(set(ids)) != len(ids):
+            raise MaintenanceConflict("Overlapping proposals")
+        used.update(ids)
+    # The preflight validates every digest before making any change. A later
+    # error (including UNIQUE(fact) collision) aborts the entire transaction.
+    with store.db:
+        for item in proposals:
+            ids = [item["keeper_id"]] + item["remove_ids"]
+            if memory_digest(store, ids) != item["digest"]:
+                raise MaintenanceConflict("Memories changed; refresh proposals")
+        history_ids = [_memory_apply_in_transaction(store, item)
+                       for item in proposals]
+    return history_ids
 
 
 def memory_restore(store, history_id):
