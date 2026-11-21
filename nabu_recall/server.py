@@ -131,8 +131,8 @@ async def process_pending():
                               1 for x in safe if x.get("action") == "delete")
                 if blocked:
                     LOG.warning("Blocked %d unauthorized/bulk memory deletions", blocked)
-                store.apply(safe, pending[-1]["id"])
-                store.processed([x["id"] for x in pending])
+                store.apply_learning_batch(
+                    safe, [x["id"] for x in pending], pending[-1]["id"])
                 state["last_learn"] = f"{len(pending)} párbeszéd feldolgozva, {len(safe)} memória-művelet." 
                 LOG.info("AI extraction OK: %d turns, %d operations", len(pending), len(safe))
             except OpenAIRequestError as exc:
