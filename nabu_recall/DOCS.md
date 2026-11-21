@@ -54,3 +54,8 @@ A fő navigációból kikerült a külön „Naplóellenőrzés”; a fontos sz�
 - A korábban telepített HA-integráció verziója továbbra is 1.0.4, az Assist-beállítást nem szükséges módosítani.
 - Azonosítókkal kapcsolatos hangos hozzáférés és adatvédelmi szabályok változatlanok.
 - Frissítés előtt ellenőrzött alkalmazásmentés szükséges. A külön béta csak a stabil kiadás ellenőrzése után állítható le és távolítható el.
+
+
+## HAOS 1.1.2 – bevásárlólista-szűrés
+
+A bevásárlólista hozzáadási/törlési visszaigazolásait a rendszer nem tanulja meg tartós tényként. A 45 napos napló ettől függetlenül megmarad; a korábban bekerült téves emlékeket külön kell ellenőrizni és egyenként javítani vagy törölni.
