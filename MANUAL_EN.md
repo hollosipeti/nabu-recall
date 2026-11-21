@@ -1,6 +1,8 @@
-# Nabu Recall — complete English manual (HAOS v1.0.6 / integration v1.0.4)
+# Nabu Recall — complete English manual (HAOS v1.1.1 / integration v1.0.4)
 
-*Updated November 21, 2026. Covers the HAOS v1.0.6 app and its separately installed v1.0.4 custom integration.*
+*Updated November 21, 2026. Covers the HAOS v1.1.1 app and its separately installed v1.0.4 custom integration.*
+
+**Quick Hungarian family guide:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md).
 
 ## 1. Overview and architecture
 
@@ -167,3 +169,8 @@ Memory lookup and learning now search across the entire encrypted durable-memory
 ## HAOS 1.0.6 — checkbox-based memory maintenance
 
 The separate journal audit menu item has been absorbed into the **Memóriakezelés** page; the old read-only audit URL remains for troubleshooting. Each AI-suggested merge now includes its original facts, retained fact and explanation, plus an **unchecked checkbox**. Select only correct merges, then click **Kijelöltek ellenőrzése** to preview the chosen actions without any database change. A second explicit approval commits up to 12 independent changes atomically. If any selected proposal has become stale or conflicts with another, the entire batch rolls back. The most recent approved batch can be undone as a unit, if still within the seven-day undo window and conflict-free. There is no automatic bulk memory merge.
+
+
+## HAOS 1.1.0–1.1.1 — memory reliability improvements
+
+Durable-memory retrieval searches the whole corpus and tolerates Hungarian queries entered without accent marks, while preferring exact matches. Background extraction coalesces incoming triggers. In v1.1.1, learned facts and processed-journal acknowledgements are committed in one SQLCipher transaction, so errors roll them back together. AI instructions emphasize retaining the correct person, ownership, distinction between replacement and addition, and selecting multiple relevant memories. Natural-language interpretation may still make mistakes; verify important facts. This is one shared household memory, not verified speaker identity. No changes were made to the HA custom integration v1.0.4, device controls, or the policy around spoken sensitive identifiers.
