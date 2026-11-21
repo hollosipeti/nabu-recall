@@ -1,4 +1,4 @@
-# 🧠 Nabu Recall — v1.1.0 (HAOS app) / v1.0.4 (HA integration)
+# 🧠 Nabu Recall — v1.1.1 (HAOS app) / v1.0.4 (HA integration)
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -33,7 +33,7 @@ Then restart **Home Assistant Core**. Updating only the HAOS app does not replac
 
 ## Preserved reference versions and current maintenance
 
-No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app is v1.1.0; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
+No change to memory learning or recall, prompts used by the memory API, schema, SQLCipher migration, retention, background schedule, HA controls or the Google Calendar script. The HAOS app is v1.1.1; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
 
 MIT License.
 
