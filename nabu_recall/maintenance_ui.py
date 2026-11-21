@@ -7,7 +7,7 @@ from html import escape
 from aiohttp import web
 from maintenance import (
     cleanup_preview, cleanup_commit, cleanup_restore, latest_cleanup,
-    validate_proposal, memory_apply, memory_restore, recent_memory_undo,
+    validate_proposal, memory_apply, memory_apply_many, memory_restore, recent_memory_undo,
     MaintenanceConflict,
 )
 
@@ -29,6 +29,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
     progress = {}
     duplicate_progress = {}
     messages = {}
+    confirmations = {}
 
     def token(request):
         return _csrf(key, request.cookies.get("recall_ui", ""))
@@ -61,23 +62,36 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
         plan = plans.get(request.cookies.get("recall_ui", ""))
         if plan and time.monotonic() - plan["at"] > MAX_AGE:
             plan = None
+        audit = store.journal_integrity_summary()
         body = (
             '<nav><a href="./">Vissza a Nabu Recallhoz</a></nav>'
-            '<h2>Kézi memóriakarbantartás</h2>'
-            '<p>Csak a Web UI-ban, külön jóváhagyással. '
-            'Minden művelet az adatok aktuális állapotát újraellenőrzi.</p>'
+            '<h2>Memóriakezelés</h2>'
+            '<p><b>1.</b> A naplókarbantartás a hibás, üres válaszú '
+            'beszélgetések áthelyezése egy titkosított archívumba.</p>'
+            '<p><b>2.</b> Az emlékellenőrzés az ismétlődő vagy ütköző '
+            'tartós tényekből készít javaslatokat. Az AI csak javasol.</p>'
+            '<p><b>3.</b> Pipáld ki kizárólag a helyes összevonásokat, '
+            'ellenőrizd az összegzést, majd hagyd jóvá a kijelölteket.</p>'
+            '<p>A tartós memória soha nem tisztul automatikusan az itt '
+            'megjelenő javaslatok alapján.</p>'
         )
         if notice:
             body += '<article><p>%s</p></article>' % _html(notice)
         body += (
-            '<article><h3>Hiányos naplók archiválása</h3>'
+            '<article><h3>Beszélgetésnapló — 45 napos forgó tároló</h3>'
+            '<p>Összes: %d · teljes: %d · hiányos: %d · '
+            'tartós emlékhez kötött hiányos: %d · feldolgozatlan hiányos: %d.</p>'
+            '<p>Ez a korábbi „Naplóellenőrzés” összefoglalója.</p>'
+            '<h3>Hiányos naplók archiválása</h3>'
             '<p><b>Feldolgozott, közvetlenül nem hivatkozott rekord:</b> %d</p>'
             '<p>Az archiválás az eredeti szövegeket ugyanabban a SQLCipher '
             'adatbázisban őrzi meg. A napló visszakeresése nem látja őket, '
             'de a művelet külön visszavonható. '
             'A teljes és a tartós emlékekből hivatkozott naplók védettek.</p>'
             '%s</article>'
-            % (snap["count"], form_button(
+            % (audit["total"], audit["complete"], audit["missing"],
+               audit["referenced_turns"], audit["missing_pending"],
+               snap["count"], form_button(
                 "cleanup", "Archiválás jóváhagyása", csrf,
                 {"digest": snap["digest"], "count": snap["count"]})
                if snap["count"] else "<p>Nincs jelölt.</p>")
@@ -87,7 +101,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                      % (rec["count"], form_button(
                          "undo-cleanup", "Naplók visszaállítása", csrf,
                          {"history_id": rec["history_id"]})))
-        body += '<article><h3>Tartós emlékek optimalizálása</h3>'
+        body += '<article><h3>Tartós emlékek — ismétlések keresése</h3>'
         body += '<p>Az elemzés legfeljebb 160 emléket vizsgál egy adagban. '
         body += 'Az adagok sorban, növekvő memória-ID szerint haladnak; '
         body += 'a korábbi emlékek sem maradnak ki.</p>'
@@ -107,9 +121,17 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                                 csrf, {"after_id": cursor})
         body += '</article>'
         if plan:
-            body += '<h3>Jóváhagyásra váró javaslatok</h3>'
+            body += '<h3>Talált összevonási javaslatok</h3>'
+            body += '<p>Mindegyiknél az AI által javasolt végleges tény látható. '
+            body += 'A pipa nélkül egyetlen emlék sem változik. '
+            body += 'Az eredeti tények és az indok megmaradnak az előnézetben.</p>'
             if not plan["items"]:
                 body += '<article><p>Nincs egyértelmű összevonási javaslat.</p></article>'
+            else:
+                body += ('<form action="./maintenance/select" method="post">'
+                         '<input type="hidden" name="csrf" value="%s">'
+                         '<input type="hidden" name="nonce" value="%s">' %
+                         (_html(csrf), _html(plan["nonce"])))
             for i, item in enumerate(plan["items"]):
                 original = store.db.execute(
                     "SELECT id,fact FROM memories WHERE id IN (%s) ORDER BY id" %
@@ -119,15 +141,34 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                 details = "".join("<p><b>#%d:</b> %s</p>" %
                                   (x["id"], _html(x["fact"])) for x in original)
                 body += (
-                    '<article><h3>%s</h3>%s'
-                    '<p><b>Javasolt új tény (#%d):</b> %s</p>'
-                    '<p><b>Indok:</b> %s</p>%s</article>'
-                    % (_html(item["type"]), details, item["keeper_id"],
-                       _html(item["new_fact"]), _html(item["reason"]),
-                       form_button("apply", "Egyetlen javaslat jóváhagyása",
-                                   csrf, {"index": i,
-                                          "nonce": plan["nonce"]}))
+                    '<article><label><input type="checkbox" name="selected" '
+                    'value="%d" style="width:auto; margin-right:10px">'
+                    '<b>Összevonás kijelölése — %s</b></label>%s'
+                    '<p><b>Megmaradó emlék (#%d):</b> %s</p>'
+                    '<p><b>Miért?</b> %s</p></article>'
+                    % (i, _html(item["type"]), details, item["keeper_id"],
+                       _html(item["new_fact"]), _html(item["reason"]))
                 )
+            if plan["items"]:
+                body += ('<button type="submit">Kijelöltek ellenőrzése</button>'
+                         '</form>')
+        confirm = confirmations.get(session_id)
+        if confirm and plan and confirm["nonce"] == plan["nonce"]:
+            body += ('<article><h3>Végső ellenőrzés — még nem történt módosítás</h3>'
+                     '<p><b>%d kijelölt összevonás</b>. '
+                     'A felsorolt módosítások egyetlen tranzakcióban történnek: '
+                     'ha bármelyik sikertelen, egyik sem lép életbe.</p>' %
+                     len(confirm["indices"]))
+            for idx in confirm["indices"]:
+                item = plan["items"][idx]
+                body += ('<p><b>#%d marad:</b> %s '
+                         '(megszűnő ID-k: %s)</p>' %
+                         (item["keeper_id"], _html(item["new_fact"]),
+                          ", ".join("#%d" % x for x in item["remove_ids"])))
+            body += form_button(
+                "apply-selected", "Kijelölt összevonások végleges jóváhagyása",
+                csrf, {"nonce": plan["nonce"], "confirm": confirm["token"]})
+            body += '</article>'
         if undo:
             body += ('<article><h3>Utolsó memóriaösszevonás visszavonása</h3>'
                      '%s</article>' % form_button(
@@ -201,6 +242,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                         continue
                     used.update(ids)
                     candidates.append(proposal)
+                confirmations.pop(session, None)
                 plans[session] = {"nonce": secrets.token_hex(16),
                                   "at": time.monotonic(), "items": candidates,
                                   "next_cursor": memories[-1]["id"]}
@@ -209,20 +251,47 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                 progress[session] = 0
                 duplicate_progress[session] = 0
                 plans.pop(session, None)
+                confirmations.pop(session, None)
                 notice = "Az optimalizálási áttekintés az elejéről indul."
-            elif name == "apply":
+            elif name in ("apply", "select", "apply-selected"):
                 plan = plans.get(session)
                 if not plan or time.monotonic() - plan["at"] > MAX_AGE:
                     raise MaintenanceConflict("Preview expired")
                 if not hmac.compare_digest(form.get("nonce", ""),
                                            plan["nonce"]):
                     raise MaintenanceConflict("Preview mismatch")
-                index = int(form.get("index", -1))
-                if index < 0 or index >= len(plan["items"]):
-                    raise MaintenanceConflict("Invalid proposal")
-                history_id = memory_apply(store, plan["items"][index])
-                plans.pop(session, None)
-                notice = "Memóriaösszevonás mentve; visszavonási azonosító: #%d." % history_id
+                if name == "select":
+                    raw_indices = form.getall("selected", [])
+                    if not 1 <= len(raw_indices) <= 12:
+                        raise MaintenanceConflict("Select 1–12 items")
+                    indices = [int(x) for x in raw_indices]
+                    if (len(set(indices)) != len(indices) or
+                            any(i < 0 or i >= len(plan["items"]) for i in indices)):
+                        raise MaintenanceConflict("Invalid selection")
+                    confirmations[session] = {
+                        "indices": indices, "nonce": plan["nonce"],
+                        "token": secrets.token_hex(16)}
+                    notice = "%d javaslat kijelölve. A végső jóváhagyás még szükséges." % len(indices)
+                elif name == "apply-selected":
+                    confirm = confirmations.get(session)
+                    if not confirm or confirm["nonce"] != plan["nonce"]:
+                        raise MaintenanceConflict("Selection missing")
+                    if not hmac.compare_digest(
+                            str(form.get("confirm", "")), confirm["token"]):
+                        raise MaintenanceConflict("Confirmation mismatch")
+                    approved = [plan["items"][i] for i in confirm["indices"]]
+                    history_ids = memory_apply_many(store, approved)
+                    plans.pop(session, None)
+                    confirmations.pop(session, None)
+                    notice = "%d kijelölt összevonás sikeresen végrehajtva." % len(history_ids)
+                else:
+                    index = int(form.get("index", -1))
+                    if index < 0 or index >= len(plan["items"]):
+                        raise MaintenanceConflict("Invalid proposal")
+                    history_id = memory_apply(store, plan["items"][index])
+                    plans.pop(session, None)
+                    confirmations.pop(session, None)
+                    notice = "Memóriaösszevonás mentve; visszavonási azonosító: #%d." % history_id
             elif name == "undo-memory":
                 count = memory_restore(store, int(form.get("history_id", 0)))
                 plans.pop(session, None)
