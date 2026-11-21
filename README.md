@@ -1,3 +1,9 @@
+> **NABU RECALL BÉTA – 1.1.0b1 (külön HAOS-alkalmazás)**
+> Ez a `beta-1.1.0b1` fejlesztői ág, nem a stabil `main`.
+> **Telepítési URL:** `https://github.com/hollosipeti/nabu-recall#beta-1.1.0b1`
+> **Magyar telepítés és visszaállítás:** [BETA_TELEPITES_HU.md](BETA_TELEPITES_HU.md)
+> A stabil Nabu Recall adatait a béta nem importálja, nem módosítja.
+
 # 🧠 Nabu Recall — v1.0.6 (HAOS app) / v1.0.4 (HA integration)
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.

@@ -1,5 +1,16 @@
 # Nabu Recall — maintained releases
 
+## 1.1.0b1 — 2026-11-21 (külön HAOS béta)
+
+- A béta a stabil kiadástól elkülönített `nabu_recall_beta` HAOS-alkalmazás, saját `/data` állománnyal; nem írja felül a stabil memóriát.
+- Magyar tartós emlékek ékezet-toleráns keresése és pontos egyezés priorizálása.
+- Memóriafeldolgozási események összevonása, aktív zárolás melletti kérésmegőrzés.
+- Kibővített SQLCipher- és HTTP-hídszimulációs egységtesztek, API-kiesés/visszatérés ellenőrzése.
+- Külön magyar telepítési és visszaállítási útmutató.
+- A Home Assistant egyéni Conversation-integráció verziója továbbra is 1.0.4. Az adatvédelmi és hozzáférési szabályok változatlanok.
+- Az élő HAOS-telepítés még nem ellenőrzött; ez tesztkiadás.
+
+
 Only the latest two software release notes are kept here. Documentation updates do not bump application or integration versions. Previous commits and development notes remain available in the Git history and [../HISTORY.md](../HISTORY.md).
 
 Documentation maintenance (2026-11-20): calendar YAML example updated for yearless `MM-DD` dates, consistent timezone-aware values, user manuals synchronized with integration v1.0.4. No runtime code change.

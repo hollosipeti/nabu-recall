@@ -1,6 +1,6 @@
-name: Nabu Recall
-version: "1.0.6"
-slug: nabu_recall
+name: Nabu Recall (Beta)
+version: "1.1.0b1"
+slug: nabu_recall_beta
 description: 45-day verbatim conversation journal with AI-curated long-term memory
 arch:
   - amd64
@@ -8,11 +8,11 @@ arch:
 startup: services
 boot: auto
 init: false
-stage: stable
+stage: experimental
 ingress: true
 ingress_port: 8766
 panel_icon: mdi:brain
-panel_title: Nabu Recall
+panel_title: Nabu Recall Beta
 ports:
   8765/tcp: null
   8766/tcp: null
