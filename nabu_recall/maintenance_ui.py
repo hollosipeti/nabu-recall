@@ -7,7 +7,7 @@ from html import escape
 from aiohttp import web
 from maintenance import (
     cleanup_preview, cleanup_commit, cleanup_restore, latest_cleanup,
-    validate_proposal, memory_apply, memory_apply_many, memory_restore, recent_memory_undo,
+    validate_proposal, memory_apply, memory_apply_many, memory_restore, memory_restore_many, recent_memory_undo,
     MaintenanceConflict,
 )
 
@@ -30,6 +30,7 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
     duplicate_progress = {}
     messages = {}
     confirmations = {}
+    batch_undo = {}
 
     def token(request):
         return _csrf(key, request.cookies.get("recall_ui", ""))
@@ -169,6 +170,14 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                 "apply-selected", "Kijelölt összevonások végleges jóváhagyása",
                 csrf, {"nonce": plan["nonce"], "confirm": confirm["token"]})
             body += '</article>'
+        last_batch = batch_undo.get(session_id)
+        if last_batch:
+            body += ('<article><h3>Legutóbbi csoportos összevonás visszavonása</h3>'
+                     '<p>%d korábban jóváhagyott összevonás, egyben visszavonható '
+                     'a 7 napos határidőn belül.</p>%s</article>' %
+                     (len(last_batch["ids"]), form_button(
+                         "undo-selected", "Teljes csoport visszavonása",
+                         csrf, {"token": last_batch["token"]})))
         if undo:
             body += ('<article><h3>Utolsó memóriaösszevonás visszavonása</h3>'
                      '%s</article>' % form_button(
@@ -283,6 +292,8 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                     history_ids = memory_apply_many(store, approved)
                     plans.pop(session, None)
                     confirmations.pop(session, None)
+                    batch_undo[session] = {
+                        "ids": history_ids, "token": secrets.token_hex(16)}
                     notice = "%d kijelölt összevonás sikeresen végrehajtva." % len(history_ids)
                 else:
                     index = int(form.get("index", -1))
@@ -292,6 +303,15 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
                     plans.pop(session, None)
                     confirmations.pop(session, None)
                     notice = "Memóriaösszevonás mentve; visszavonási azonosító: #%d." % history_id
+            elif name == "undo-selected":
+                last = batch_undo.get(session)
+                if not last or not hmac.compare_digest(
+                        str(form.get("token", "")), last["token"]):
+                    raise MaintenanceConflict("Undo selection missing")
+                count = memory_restore_many(store, last["ids"])
+                batch_undo.pop(session, None)
+                plans.pop(session, None)
+                notice = "%d eredeti emlék visszaállítva az egész csoportból." % count
             elif name == "undo-memory":
                 count = memory_restore(store, int(form.get("history_id", 0)))
                 plans.pop(session, None)
