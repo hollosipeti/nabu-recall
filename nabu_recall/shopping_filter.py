@@ -11,7 +11,7 @@ SHOPPING_LIST = re.compile(
     re.IGNORECASE,
 )
 LIST_ACTION = re.compile(
-    r"\b(?:tegy[eé]l|tegy[eé]tek|rakj|rakd|[ií]rj|[ií]rd|"
+    r"\b(?:tegy[eé]l|tegy[eé]tek|tedd|rakj|rakd|[ií]rj|[ií]rd|"
     r"add|hozz[aá]ad\w*|t[oö]r[oö]l\w*|vegy[eé]l\s+le|"
     r"vegy[eé]tek\s+le|v[eé]gy\s+le|vegy[eé]l\s+fel|vedd\s+fel|pip[aá]l\w*|jel[oö]l\w*|"
     r"ker[uü]lj[oö]n|felvesz\w*|felvettem)",
