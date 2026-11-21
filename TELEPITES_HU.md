@@ -1,6 +1,8 @@
-# Nabu Recall — teljes magyar kézikönyv (HAOS v1.0.6 / integráció v1.0.4)
+# Nabu Recall — teljes magyar kézikönyv (HAOS v1.1.1 / integráció v1.0.4)
 
-*Frissítve: 2026. november 21. A kézikönyv az aktuális HAOS alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
+*Frissítve: 2026. november 21. A kézikönyv a HAOS v1.1.1 alkalmazásra és a külön v1.0.4 integrációra vonatkozik.*
+
+**A családnak szóló rövid, magyar bemutató:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md). Az ottani mondatok kipróbálható példák, nem garantált szó szerinti parancsok.
 
 ## 1. Mi a Nabu Recall?
 
@@ -60,7 +62,7 @@ A HA **Beállítások → Eszközök és szolgáltatások → Integráció hozz�
 4. A memóriák és beszélgetések számát ellenőrizd; **ne távolítsd el vagy ne telepítsd újra az alkalmazást mentés nélkül**.
 5. Korábbi, titkosítatlan verzióra visszaállni a SQLCipher adatbázissal nem támogatott. Sérülés vagy hiányzó `recall.key` esetén ne inicializálj üres tárat: állítsd vissza az eredeti mentést.
 
-**Verziók:** az alkalmazás és integráció külön jelenik meg; 2026.11.20-án a HAOS alkalmazás v1.0.6, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
+**Verziók:** az alkalmazás és az integráció külön jelenik meg; az aktuális HAOS alkalmazás v1.1.1, a külön integráció v1.0.4. A GitHub `CHANGELOG.md` az utolsó két karbantartott kiadást, a `HISTORY.md` a fejlesztési történetet tartalmazza.
 
 A v1.0.4 integráció a Home Assistant szótáras `IntentResponse.speech` válaszából helyesen menti az asszisztens szövegét. A korábbi, üres válaszmezővel eltárolt fordulók **nem javulnak meg visszamenőleg**. A napló és a tartós emlék két külön SQLCipher-tábla; ne töröld újra az egész alkalmazást csak emiatt. A régi hiányos fordulók egyszeri, ellenőrzött eltávolítása előtt mentés szükséges. A Web UI nem kínál erre gombot.
 
@@ -193,3 +195,10 @@ A **Memóriakezelés** oldal három részből áll: először a 45 napos napló 
 A **Teljes állomány duplikátumjelöltjei** gomb helyileg keres közel azonos szószerkezetű tényeket, majd csak a jelölteket értékelteti az AI-val. A **Következő adag szemantikai AI-elemzése** maximum 160 emléket tekint át egy adagban; másképp megfogalmazott egyezéseket is javasolhat, de a külön adagok közötti minden egyezés felismerése nem garantált. Mindkettő tokenfogyasztást okozhat az AI-értékelés során. Egyik sem módosít automatikusan.
 
 Az eredményeknél minden javaslat mellett **jelölőnégyzet** látható, az eredeti emlékekkel, a megmaradó szöveggel és az AI indokával. Csak azokat jelöld, amelyek tartalma helyes. A **Kijelöltek ellenőrzése** gomb megmutatja a kiválasztott összevonások végső listáját: ettől még semmi nem módosul. A **Kijelölt összevonások végleges jóváhagyása** egyszerre, egy tranzakcióban alkalmazza a kiválasztott, egymástól független maximum 12 javaslatot. Ha bármelyik hibás vagy közben megváltozott, az egész csomag visszavonásra kerül. A **Teljes csoport visszavonása** gomb a legutóbbi csomagot együtt állítja vissza, ha a visszaállításnak nincs ütközése és az előzmény még elérhető. A normál, automatikus naplólejárat és a tanulás változatlan.
+
+
+## HAOS v1.1.0–1.1.1 — jelenlegi viselkedés
+
+A memóriakeresés a teljes tartós memóriaállományból indul ki; támogatja a magyar ékezet nélküli keresőszavakat is, és a pontosabb találatokat előrébb sorolja. A háttérmemória-feldolgozás összevonja a gyorsan érkező feldolgozási kéréseket. A v1.1.1-ben a tanult tények mentése és a forrásbeszélgetés feldolgozottságának rögzítése egyetlen SQLCipher-tranzakció: hiba esetén a kettő együtt visszagörgethető. Az AI-utasítások külön hangsúlyozzák a személyek, tulajdonviszonyok, lecserélt és újonnan hozzáadott tárgyak megkülönböztetését, de a természetes nyelvi értelmezés továbbra sem tévedhetetlen. A hangvezérlés és a külön Home Assistant-integráció változatlan.
+
+**Családi használat:** a memória közös, nem beszélőazonosításon alapuló tár. A rendszer nem tudja biztosan azonosítani, ki kérdezi vissza a személyes adatokat. Lásd a [családi útmutatót](CSALADI_UTMUTATO.md).
