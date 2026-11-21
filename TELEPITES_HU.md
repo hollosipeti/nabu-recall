@@ -90,9 +90,13 @@ A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelz
 Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét. Itt **nem** a Web UI-hoz használt `dashboard_password` jelszó szükséges.
 
 4. Fejezd be az integráció hozzáadását.
-5. A **Beállítások → Hangasszisztensek** oldalon válaszd a **Nabu Recall** által létrehozott beszélgetési ügynököt az Assist számára.
+5. Nyisd meg a **Beállítások → Hangasszisztensek** (Settings → Voice assistants) oldalt. Kattints arra a hangasszisztensre, amelyet ténylegesen használsz (például az alapértelmezett Assist asszisztensre).
+6. A **Conversation agent** (Beszélgetési ügynök) legördülő mezőben a **Nabu Recall – memória** lehetőséget válaszd ki **az eddig használt OpenAI Conversation helyett**.
+7. Mentsd a beállítást. Ha több hangasszisztens-profilod van, minden érintett profilban külön állítsd át a **Conversation agent** mezőt.
 
-Ettől kezdve az Assist a Nabu Recall memóriával kiegészített ügynököt használja, miközben a korábbi OpenAI Conversation ügynök végzi az alapvető beszélgetést és a Home Assistant eszközvezérlését.
+**Ez elengedhetetlen:** amíg a Conversation agent mezőben a régi OpenAI Conversation ügynök szerepel, az Assist megkerüli a Nabu Recall memóriáját. A régi OpenAI Conversation ügynököt **nem szabad törölni**: az integráció azt használja a háttérben a válaszadáshoz és az eszközvezérléshez.
+
+**Ellenőrzés:** mondd az Assistnak, hogy „Jegyezd meg, hogy a próbadoboz a polcon van”, majd új beszélgetésben kérdezd meg: „Hol van a próbadoboz?” A mentést a Nabu Recall Web UI-n is ellenőrizheted.
 
 ### 3.4 Első próba
 
