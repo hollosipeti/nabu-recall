@@ -1,5 +1,6 @@
 """Regressions: shopping list actions never become durable memories."""
 import asyncio
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -10,6 +11,10 @@ sys.path.insert(0, str(ROOT / "nabu_recall"))
 
 from shopping_filter import is_shopping_list_action
 from store import Store
+
+_BOOT = tempfile.TemporaryDirectory()
+if "server" not in sys.modules:
+    os.environ["DB_PATH"] = str(Path(_BOOT.name) / "boot.sqlite3")
 import server
 
 
