@@ -32,7 +32,11 @@ for OLD in /config/custom_components/nabu_recall.backup.*; do
   echo "Korábbi hibás helyű mentés áthelyezve: $OLD_DEST"
 done
 if [ -d "$DEST" ]; then
-  BACKUP="$BACKUP_ROOT/nabu_recall.$(date +%Y%m%d%H%M%S).$"
+  BACKUP="$BACKUP_ROOT/nabu_recall.$(date +%Y%m%d%H%M%S)"
+  if [ -e "$BACKUP" ]; then
+    echo "HIBA: Mentési névütközés: $BACKUP" >&2
+    exit 1
+  fi
   mv "$DEST" "$BACKUP"
   echo "Korábbi integráció mentése: $BACKUP"
 fi
