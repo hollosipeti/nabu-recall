@@ -4,13 +4,14 @@
 
 ## Dokumentáció / Documentation
 
-- **[Családi használati útmutató](CSALADI_UTMUTATO.md)** — rövid, közérthető bemutató és kipróbálható magyar hangutasítások.
+- **[Magyar telepítési és használati útmutató](TELEPITES_HU.md)** — lépések, használat és hibaelhárítás.
+- **[English installation and user guide](MANUAL_EN.md)** — setup, use and troubleshooting.
+- **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
+- **[Nabu Recall system-prompt addendum](NABU_RECALL_PROMPT.md)** — opcionális, kizárólag memóriával kapcsolatos, személyes adatokat nem tartalmazó utasításminta.
+- **[Google Calendar example](examples/README.md)** — külön telepítendő naptárszkript.
+- **[Release notes](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
-- **[Teljes magyar kézikönyv](TELEPITES_HU.md)** — telepítés, frissítés, API, adatvédelem, rendszerutasítások, hibakeresés, valós működési példák.
-- **[Complete English manual](MANUAL_EN.md)** — setup, upgrades, API calls, security, prompts, troubleshooting, examples.
-- **[Google Calendar scripts / naptárszkriptek](examples/README.md)** and [example YAML](examples/google_calendar_create_event.yaml).
-- **[Original, preserved assistant instructions](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld)** — an environment-specific working sample; adjust personal details before reuse.
-- **[Current releases and history](nabu_recall/CHANGELOG.md)** — last two maintained versions; detailed old development history in [HISTORY.md](HISTORY.md).
+**Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
 
 ## Architecture
 
@@ -27,32 +28,15 @@
 Read the [Hungarian](TELEPITES_HU.md) or [English](MANUAL_EN.md) guide before installation. **Back up the HAOS app data first, especially the SQLite file and its key.** The integration installer keeps an on-disk backup of the previous integration folder:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh
-sh /tmp/install_nabu_recall.sh
+curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
 ```
 
 Then restart **Home Assistant Core**. Updating only the HAOS app does not replace `/config/custom_components/nabu_recall`.
 
-## Preserved reference versions and current maintenance
+## Karbantartás
 
-The HAOS 1.1.0 and 1.1.1 releases improved Hungarian memory retrieval, background processing, transaction safety and AI guidance for person-specific facts. The SQLCipher schema, 45-day retention, HA controls, custom integration and Google Calendar script remain unchanged. The HAOS app is v1.1.2; the integration is v1.0.4 with corrected assistant-response journal logging. The ALFA (`alpha-baseline-2026-11-20`) and v1.0.4 (`baseline-v1.0.4-2026-11-20`) Git branches are frozen code references. The documentation-only calendar YAML example handles `MM-DD` dates and needs testing in a live HA setup.
+A Nabu Recall jelenlegi HAOS alkalmazása **1.1.2**, a Home Assistant-integráció **1.0.4**. Az alkalmazás és az integráció külön frissül. A memóriák a HAOS alkalmazás adatkönyvtárában vannak; frissítés előtt készíts alkalmazásmentést.
+
+A részletes korábbi fejlesztési eredmények és karbantartási mechanizmusok a [változásnaplóban](nabu_recall/CHANGELOG.md), a [HISTORY.md](HISTORY.md) és a [biztonságos karbantartási leírásban](docs/SAFE_CLEANUP_HU.md) találhatók.
 
 MIT License.
-
-## Fejlesztés: biztonságos naplókarbantartás
-
-A [biztonsági mentés és naplótisztítás útmutatója](docs/SAFE_CLEANUP_HU.md) bemutatja a kézi archiválást és visszavonást. A diagnosztikai nézetek változatlanul csak olvasnak; a külön karbantartási oldalon van mód jóváhagyott változtatásra.
-
-**HAOS v1.0.4 manual maintenance:** authenticated Ingress page with archive, individual memory merge and undo. Run a verified Home Assistant app backup before installing. See [HAOS verification](docs/HAOS_AUDIT_TEST_HU.md).
-
-## Kézi karbantartás — HAOS v1.0.4
-
-A jelszóval védett Ingress Web UI **Kézi karbantartás** oldalán a feldolgozott, hiányos és a tartós emlékek által közvetlenül nem hivatkozott naplóbejegyzések **visszavonható archiválása** külön kattintásra fut. Az archív rekordok a SQLCipher adatbázisban maradnak, és ugyanúgy lejárnak 45 nap után. A **Memóriaoptimalizálás** gomb AI-javaslatokat készít; minden összevonáshoz külön felhasználói jóváhagyás kell, és az utolsó összevonás legfeljebb hét napig visszavonható. Éles telepítés előtt ellenőrzött Home Assistant alkalmazásmentés szükséges. A rendszer nem tartalmaz automatikus tömeges optimalizálást.
-
-## HAOS v1.0.5 — tartós memória 100 000 bejegyzésig tesztelve
-
-A tartós emlékek keresése a **teljes SQLCipher-adatbázisban** történik, és csak a találatok szűkülnek az AI-nak átadott rövid listára. A régi emlékek nem esnek ki pusztán azért, mert nem szerepelnek az utolsó 200-ban. A magyar ékezetes kis- és nagybetűk egyezése támogatott. A **Kézi karbantartás** oldalon a teljes állományból szövegszerkezet szerint hasonló duplikátumjelöltek kereshetők; a szélesebb szemantikai AI-ellenőrzés 160-as adagokban lapozható. **Ez nem garantálja minden átfogalmazott vagy ellentmondó emlék automatikus felismerését.** Az AI-javaslatok csak jóváhagyással módosíthatnak emléket.
-
-## HAOS v1.0.6 — egyszerűbb memóriakezelés
-
-A külön **Naplóellenőrzés** navigációs menüpont helyett az alapadatok a **Memóriakezelés** oldalon jelennek meg. A teljes, csak olvasható diagnosztikai útvonal technikai hibaelhárításhoz továbbra is elérhető. A duplikációkeresésből származó AI-javaslatok egyenként **jelölőnégyzetekkel választhatók ki**. A „Kijelöltek ellenőrzése” semmit nem módosít; megjeleníti a végső összefoglalót. A tényleges változáshoz újabb, kifejezett jóváhagyás szükséges. A kiválasztott javaslatok egyetlen adatbázis-tranzakcióban lépnek életbe vagy mind visszagörgetődnek. Az utolsó csoportos jóváhagyás egyben visszavonható a megőrzött, legfeljebb 7 napos visszavonási időn belül.
