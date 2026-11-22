@@ -1,4 +1,7 @@
-# Nabu Recall — 1.1.3 (HAOS alkalmazás) / 1.0.4 (HA-integráció)
+<h1>
+  <img src="Pics/icon.png" width="80" align="center" alt="Ikon">
+  Nabu Recall — 1.1.3 (HAOS alkalmazás) / 1.0.4 (HA-integráció)
+</h1>
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -13,9 +16,6 @@
 > **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
 
 # Nabu Recall — magyar telepítési és használati útmutató
-
-**Aktuális verziók:** Nabu Recall Home Assistant-alkalmazás **1.1.2** · Nabu Recall-integráció **1.0.4**  
-*Frissítve: 2026. november 22.*
 
 ## 1. Mi a Nabu Recall?
 
@@ -39,6 +39,8 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 ## 3. Telepítés
 
 ### 3.1 A Nabu Recall alkalmazás telepítése
+
+![default](Pics/setupapps.png)
 
 1. Nyisd meg: **Beállítások → Alkalmazások → Alkalmazásbolt → Adattárak**.
 2. Add hozzá ezt az adattárat: `https://github.com/hollosipeti/nabu-recall`.
