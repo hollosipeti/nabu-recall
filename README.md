@@ -126,8 +126,6 @@ Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontba
 2. Frissítsd a **Nabu Recall alkalmazást** az alkalmazásboltból.
 3. **Csak akkor, ha a Nabu Recall-integráció is új verziót kapott:** futtasd újra a **3.2. pontban megadott `install_integration.sh` telepítőt**, majd indítsd újra a Home Assistantot.
 
-A jelenlegi kiadásban az alkalmazás **1.1.2**, az integráció **1.0.4**.
-
 ## 5. Adatok, memória és titkosítás
 
 - **Beszélgetésmemória:** a korábbi beszélgetések szövege **45 napig** marad meg; a lejárt bejegyzések automatikusan törlődnek.
@@ -233,6 +231,6 @@ A szkript külön beállítást és éles Home Assistant-próbát igényel. [Ré
 | Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
 | Naptári esemény nem jön létre | A naptárszkript telepítve és az asszisztens számára elérhető-e? Megadtad a dátumot és a kezdési időt? |
 
-További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [English manual](MANUAL_EN.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
+További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
 
 Licenc: MIT.
