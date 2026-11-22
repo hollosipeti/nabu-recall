@@ -218,7 +218,7 @@ def create_dashboard(store, state, password=None, ai=None, lock=None):
             "Referrer-Policy": "no-referrer",
             "X-Frame-Options": "SAMEORIGIN",
             "Content-Security-Policy": (
-                "default-src 'none'; style-src 'unsafe-inline'; "
+                "default-src 'none'; img-src data:; style-src 'unsafe-inline'; "
                 "form-action 'self'; base-uri 'none'; frame-ancestors 'self'")})
         return response
 
