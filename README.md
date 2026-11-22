@@ -8,7 +8,7 @@
 ## Dokumentáció
 
 - **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
-- **[Nabu Recall rendszerutasítás-minta](NABU_RECALL_PROMPT.md)** — opcionális, kizárólag memóriával kapcsolatos, személyes adatokat nem tartalmazó utasításminta.
+- **[Nabu Recall rendszerutasítás-minta](NABU_RECALL_PROMPT.md)** — OpenAI utasításminta.
 - **[Google Naptár-példa](examples/README.md)** — külön telepítendő naptárszkript.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
