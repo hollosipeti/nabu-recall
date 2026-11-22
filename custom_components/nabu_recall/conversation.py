@@ -105,7 +105,7 @@ class RecallAgent(ConversationEntity):
         # instructions, including Nabu Recall memory interpretation.
         # Preserve request context and dynamically retrieved memory; do not
         # append a second, hidden system instruction block here.
-        extra = "\\n\\n".join(x for x in (
+        extra = "\n\n".join(x for x in (
             user_input.extra_system_prompt or "", memory) if x)
         result = await conversation.async_converse(
             self.hass, text=user_input.text,
