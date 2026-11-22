@@ -79,7 +79,7 @@ Ezután **indítsd újra a Home Assistantot**.
 
 ### 3.3 Az integráció beállítása
 
-1. Nyisd meg: ** Settings > Devices & services > Add integration**.
+1. Nyisd meg: **Settings > Devices & services > Add integration**.
 2. Keresd meg és válaszd ki a **Nabu Recall** integrációt.
 3. Töltsd ki a három mezőt:
 
