@@ -16,7 +16,7 @@ class MainlineReleaseTests(unittest.TestCase):
         script=(ROOT/"nabu_recall"/"run.sh").read_text(encoding="utf-8")
         self.assertIn("DB_PATH=/data/recall.sqlite3",script)
         manifest=(ROOT/"custom_components"/"nabu_recall"/"manifest.json").read_text(encoding="utf-8")
-        self.assertIn('"version":"1.0.4"',manifest)
+        self.assertIn('"version":"1.0.5"',manifest)
 
     def test_server_version(self):
         server=(ROOT/"nabu_recall"/"server.py").read_text(encoding="utf-8")
