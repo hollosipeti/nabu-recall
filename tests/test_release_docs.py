@@ -7,7 +7,8 @@ ROOT=Path(__file__).resolve().parents[1]
 
 class ReleaseDocsTests(unittest.TestCase):
     def test_current_manuals_and_history(self):
-        docs=["README.md","TELEPITES_HU.md","MANUAL_EN.md",
+        # README.md is the single Hungarian installation and user guide.
+        docs=["README.md","MANUAL_EN.md",
               "nabu_recall/DOCS.md","HISTORY.md","examples/README.md",
               "examples/google_calendar_create_event.yaml",
               "NABU_RECALL_PROMPT.md","docs/SAFE_CLEANUP_HU.md"]
@@ -15,7 +16,7 @@ class ReleaseDocsTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 self.assertTrue((ROOT/filename).exists())
                 self.assertGreater((ROOT/filename).stat().st_size, 100)
-        self.assertIn("SQLCipher",(ROOT/"TELEPITES_HU.md").read_text())
+        self.assertIn("SQLCipher",(ROOT/"README.md").read_text())
         self.assertIn("SQLCipher",(ROOT/"MANUAL_EN.md").read_text())
         self.assertIn("45",(ROOT/"nabu_recall/DOCS.md").read_text())
         self.assertIn("10 perc",(ROOT/"nabu_recall/DOCS.md").read_text())
@@ -35,11 +36,11 @@ class ReleaseDocsTests(unittest.TestCase):
         manifest=json.loads((ROOT/"custom_components/nabu_recall/manifest.json").read_text())
         config=(ROOT/"nabu_recall/config.yaml").read_text()
         self.assertEqual(manifest["version"],"1.0.4")
-        self.assertIn('version: "1.1.2"',config)
+        self.assertIn('version: "1.1.3"',config)
         changelog=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
         # Only maintained releases in this file; the archive has older records.
         versions=re.findall(r"^##\s+(\d+\.\d+\.\d+)",changelog,re.M)
-        self.assertEqual(versions,["1.1.2","1.1.1","1.1.0","1.0.6","1.0.5","1.0.4","1.0.3","1.0.4","1.0.3"])
+        self.assertEqual(versions,["1.1.3","1.1.2","1.1.1","1.1.0","1.0.6","1.0.5","1.0.4","1.0.3","1.0.4","1.0.3"])
 
     def test_cleanup_requires_backup_and_no_delete_endpoint(self):
         guide=(ROOT/"docs/SAFE_CLEANUP_HU.md").read_text()
