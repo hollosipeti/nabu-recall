@@ -3,6 +3,8 @@
 Ez egy általános, kizárólag memóriakezelésre szolgáló utasításblokk a Nabu Recallt használó Home Assistant OpenAI Conversation ügynökhöz.  
 Illeszd az alábbi szöveget a meglévő beszélgetési ügynök utasításai végére, szükség esetén a nyelvezetét módosítva. Ne cseréld le ezzel a blokkal a működő eszközvezérlési, eszközhasználati vagy egyéb, nem ide tartozó utasításokat.
 
+![default](Pics/openai.png)
+
 ## Javasolt utasítások (angolul):
 
 
@@ -32,17 +34,5 @@ Recall conversational memory.
 - Do not present remembered information as more certain than its source.
   Avoid volunteering personal details that are not relevant to the question.
 
-## Important distinction
 
-This is **not** Nabu Recall's internal AI memory-extraction prompt and does
-not alter the application's security or storage rules. The actual learning
-and retrieval prompts are part of the application's code. The existing
-OpenAI Conversation agent remains responsible for normal conversation,
-Home Assistant control and its configured tools.
-
-## Privacy note
-
-Avoid teaching the assistant highly sensitive personal information, such as
-passwords, secret keys, banking credentials and sensitive identity records.
-Nabu Recall uses encrypted local storage, but the configured OpenAI API is
-used to process memory and the household memory is shared.
+> **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
