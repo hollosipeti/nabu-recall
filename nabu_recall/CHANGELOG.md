@@ -1,5 +1,11 @@
 # Nabu Recall — maintained releases
 
+## 1.1.3 — 2026-11-22 (HAOS app only)
+
+- Replace the default brain emoji in the Ingress Web UI header with the existing Nabu Recall brand icon.
+- No change to memory learning, database, privacy behavior, or Home Assistant integration 1.0.4.
+
+
 ## 1.1.2 — 2026-11-21 (HAOS app only)
 
 - Shopping-list add/remove operations and their assistant confirmations are excluded from durable learning, but retained in the 45-day journal.
