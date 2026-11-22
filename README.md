@@ -15,10 +15,7 @@
 # Nabu Recall — magyar telepítési és használati útmutató
 
 **Aktuális verziók:** Nabu Recall Home Assistant-alkalmazás **1.1.2** · Nabu Recall-integráció **1.0.4**  
-*Frissítve: 2026. november 21.*
-
-**A családnak szóló rövid útmutató:** [CSALADI_UTMUTATO.md](CSALADI_UTMUTATO.md).  
-**Részletes változások:** [CHANGELOG](nabu_recall/CHANGELOG.md). Régebbi fejlesztések: [HISTORY.md](HISTORY.md).
+*Frissítve: 2026. november 22.*
 
 ## 1. Mi a Nabu Recall?
 
