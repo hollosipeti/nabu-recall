@@ -12,6 +12,10 @@ from pathlib import Path
 
 SESSION_AGE = 10 * 60  # Absolute lifetime since successful login, not idle timeout.
 
+# Reuse the existing HA integration brand icon directly in the Ingress header.
+# Data URL avoids extra network routes and works behind HA Supervisor Ingress.
+BRAND_ICON_DATA_URI = "data:image/png;base64,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"
+
 def _time(value):
     return datetime.fromtimestamp(value, timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if value else "—"
 
@@ -40,7 +44,7 @@ CSS = """
 body{background:#101722;color:#e9eef8;font:15px system-ui,sans-serif;
  max-width:900px;margin:20px auto;padding:0 16px}
 a{color:#59d9db}h1{color:#64dbd4}header{display:flex;align-items:center;gap:16px}
-.brain{font-size:42px}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.brain{width:42px;height:42px;object-fit:contain;flex-shrink:0}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .metric,article{background:#1c2837;border:1px solid #304052;border-radius:12px;padding:14px}
 .metric strong{display:block;font-size:27px;color:#7fe7df}
 .metric span,small{color:#b3bdc9}
@@ -57,10 +61,10 @@ def _page(body, version, header="Nabu Recall — állapot"):
     return ("<!doctype html><html lang='hu'><head><meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width, initial-scale=1'>"
             "<title>Nabu Recall</title><style>%s</style></head><body>"
-            "<header><span class='brain'>🧠</span><div><h1>%s</h1>"
+            "<header><img class='brain' src='%s' alt='Nabu Recall ikon'><div><h1>%s</h1>"
             "<small>v%s · HAOS ingress · jelszóval védett diagnosztika</small>"
             "</div></header>%s</body></html>" %
-            (CSS, escape(header), escape(str(version)), body))
+            (CSS, BRAND_ICON_DATA_URI, escape(header), escape(str(version)), body))
 
 def login_page(version, configured=True, failed=False):
     if not configured:
