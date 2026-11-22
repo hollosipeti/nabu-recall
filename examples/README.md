@@ -18,6 +18,15 @@ Ha a felhasználó csak hónapot és napot mond, az AI **`MM-DD`-t adjon át, so
 
 A szkript **dokumentációs példa**, nem a telepített éles szkript automatikus frissítése. Az itt közzétett `MM-DD` változatot még külön ellenőrizni kell a tényleges HA-sablonmotorban és Google Naptárban; a korábbi beszélgetésben szereplő helyi teszteredmény nem bizonyít HAOS-integrációs futást. A szkript **nem teljes Google Calendar-integrációs csomag**. Éles használat előtt ellenőrizd a mentett eseményt a Google naptárban, különösen DST/óraátállás, hiányos dátum és több azonos nevű esemény esetén.
 
+## Fontos, hogy a naptár entitást mindenkinek a sajátjára át kell állítania!!!
+
+```yaml
+  - action: calendar.create_event
+    target:
+    # FIGYELEM!!! az entity_id mindenkinél más lehet!!! Ellenőrizd a saját naptáradat!
+      entity_id: calendar.esemenyek
+```
+
 ## Példák a korábbi tesztekből
 
 | Magyar kérés | Elvárt viselkedés |
