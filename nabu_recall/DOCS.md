@@ -4,7 +4,7 @@
 
 **Családi használati útmutató:** [CSALADI_UTMUTATO.md](https://github.com/hollosipeti/nabu-recall/blob/main/CSALADI_UTMUTATO.md)
 
-**Magyar részletes útmutató:** [TELEPITES_HU.md](https://github.com/hollosipeti/nabu-recall/blob/main/TELEPITES_HU.md)
+**Magyar telepítési és használati útmutató:** [README.md](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
 
 **Complete English documentation:** [MANUAL_EN.md](https://github.com/hollosipeti/nabu-recall/blob/main/MANUAL_EN.md)
 
