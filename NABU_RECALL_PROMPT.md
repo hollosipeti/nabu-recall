@@ -1,16 +1,10 @@
-# Nabu Recall — optional system-prompt addendum
+# Nabu Recall — OpenAI Instructions
 
-This is a **generic, memory-only** instruction block for a Home Assistant
-OpenAI Conversation agent using Nabu Recall. It contains no household-specific
-names, locations, device IDs, calendar settings, or credentials.
+Ez egy általános, kizárólag memóriakezelésre szolgáló utasításblokk a Nabu Recallt használó Home Assistant OpenAI Conversation ügynökhöz.  
+Illeszd az alábbi szöveget a meglévő beszélgetési ügynök utasításai végére, szükség esetén a nyelvezetét módosítva. Ne cseréld le ezzel a blokkal a működő eszközvezérlési, eszközhasználati vagy egyéb, nem ide tartozó utasításokat.
 
-**How to use:** Append the text below to the *existing* conversation agent's
-instructions, adapting its language if needed. **Do not replace** working
-device-control, tool-use, or other unrelated instructions with this block.
-The Nabu Recall integration also supplies memory context automatically;
-this addendum is optional.
+## Javasolt utasítások (angolul):
 
-## Suggested instructions (English)
 
 You are an existing Home Assistant conversation assistant extended with Nabu
 Recall conversational memory.
