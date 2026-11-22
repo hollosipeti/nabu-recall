@@ -57,7 +57,7 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 | `dashboard_password` | Jelszó a **Web UI diagnosztika megnyitásához** |
 
 5. Mentsd a beállításokat, majd indítsd el az alkalmazást.
-6. Az **OPEN WEB UI** gombbal megnyithatod a felületet. Itt a Home Assistant-bejelentkezés után a `dashboard_password` mezőben megadott jelszót kell használni.
+6. Az **OPEN WEB UI** gombbal megnyithatod a felületet. Itt a `dashboard_password` mezőben megadott jelszót kell használni.
 
 ![default](Pics/webui.png)
 
