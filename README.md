@@ -20,6 +20,8 @@
 
 A Nabu Recall memóriával egészíti ki a Home Assistant meglévő, OpenAI-alapú beszédasszisztensét. A lámpák és más eszközök vezérlése a korábban beállított asszisztensen keresztül működik tovább. A Nabu Recall segít korábbi beszélgetésekre visszaemlékezni és fontos tényeket hosszabb időre megjegyezni.
 
+![default](Pics/folyamatabra.png)
+
 Két külön telepítendő része van:
 
 1. **Nabu Recall alkalmazás:** tárolja a beszélgetéseket és a tartós emlékeket, valamint megnyitja a Web UI kezelőfelületet.
@@ -184,7 +186,7 @@ A felhasználás szempontjából fontos, hogy az asszisztens:
 
 A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz kell igazítani.
 
-# 10. Google Naptár
+## 10. Google Naptár
 
 A [naptáresemény-létrehozó szkript](examples/google_calendar_create_event.yaml) külön telepíthető Home Assistant-szkript, **nem a Nabu Recall automatikusan telepített része**. A hangasszisztensnek külön elérhetővé kell tenni.
 
