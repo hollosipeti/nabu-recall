@@ -7,7 +7,6 @@
 
 ## Dokumentáció
 
-- **[English manual](MANUAL_EN.md)**
 - **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
 - **[Nabu Recall rendszerutasítás-minta](NABU_RECALL_PROMPT.md)** — opcionális, kizárólag memóriával kapcsolatos, személyes adatokat nem tartalmazó utasításminta.
 - **[Google Naptár-példa](examples/README.md)** — külön telepítendő naptárszkript.
