@@ -41,7 +41,7 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 
 ![default](Pics/setupapps.png) ![default](Pics/installapp.png)
 
-1. Nyisd meg: **Beállítások → Alkalmazások → Alkalmazásbolt → Adattárak**.
+1. Nyisd meg: **Settings > Apps > Install app > ⋮ > Repositories.**
 2. Add hozzá ezt az adattárat: `https://github.com/hollosipeti/nabu-recall`.
 3. Telepítsd a **Nabu Recall** alkalmazást.
 
