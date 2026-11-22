@@ -14,7 +14,7 @@
 
 > **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
 
-# Nabu Recall — magyar telepítési és használati útmutató
+# Telepítési és használati útmutató
 
 ## 1. Mi a Nabu Recall?
 
