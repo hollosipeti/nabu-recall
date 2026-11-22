@@ -1,7 +1,5 @@
 # Nabu Recall — családi használati útmutató
 
-**Home Assistant Assist + Nabu Recall 1.1.1**
-
 ## Mi ez?
 
 A Nabu Recall a Home Assistant hangasszisztensének **emlékezete**. Az asszisztens továbbra is képes a Home Assistantban elérhető eszközök vezérlésére, de korábbi beszélgetésekből is visszakereshet információkat, és fontos tényeket tartósan megjegyezhet. A meglévő OpenAI Conversation ügynököt egészíti ki, nem helyettesíti.
