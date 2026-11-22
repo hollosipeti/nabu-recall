@@ -60,7 +60,7 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 5. Mentsd a beállításokat, majd indítsd el az alkalmazást.
 6. Az **OPEN WEB UI** gombbal megnyithatod a felületet. Itt a Home Assistant-bejelentkezés után a `dashboard_password` mezőben megadott jelszót kell használni.
 
-ć
+![default](Pics/webui.png)
 
 **Fontos:** a `bridge_token` értékét őrizd meg, mert a következő lépésben, az integráció hozzáadásakor **ugyanezt** kell beírni. Szükség esetén a Nabu Recall alkalmazás **Konfiguráció** lapján találod; a jelszómező miatt az érték rejtve is lehet.
 
