@@ -32,10 +32,8 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 ## 2. Amire szükség lesz
 
 - Home Assistant OS vagy olyan Home Assistant-telepítés, amely támogatja az alkalmazásokat.
-- Már beállított, működő **OpenAI Conversation** beszélgetési ügynök a Home Assistantban.
-- OpenAI Platform API-kulcs. A ChatGPT-előfizetés nem helyettesíti az API-használat külön díjazását.
+- Már beállított, működő **OpenAI Conversation** beszélgetési ügynök a Home Assistantban. OpenAI Platform API-kulcs. (A ChatGPT-előfizetés nem helyettesíti az API-használat külön díjazását.)
 - A Home Assistant helyes időzónája (Magyarországon: **Europe/Budapest**).
-- **A Web UI külön jelszóval védett. A beszélgetésmemória azonban közös az ezt az asszisztenst használó felhasználók számára.**
 
 ## 3. Telepítés
 
