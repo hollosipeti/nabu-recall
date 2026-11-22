@@ -33,11 +33,10 @@ Home Assistant OS or Supervised; a functioning OpenAI Conversation agent; a sepa
 
 ### Companion integration
 
-From the Home Assistant Terminal (inspect the script before running):
+Run this **single command line** in the Home Assistant Terminal (you can inspect the installer on GitHub before running it):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh
-sh /tmp/install_nabu_recall.sh
+curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
 ```
 
 Alternatively copy the **entire** `custom_components/nabu_recall` directory into `/config/custom_components/nabu_recall`. The installer makes a timestamped backup of the former integration directory. **Restart Home Assistant Core.** An app update alone will not refresh the custom integration.
@@ -88,7 +87,7 @@ Release notes show the latest two maintained releases in [CHANGELOG](nabu_recall
 - The Ingress login has an **absolute 10-minute lifetime from successful authentication**, not an idle sliding timeout. After expiration, the next request shows the login form; an already displayed browser page is not forcibly blanked. Restart invalidates sessions; a logout option is available.
 - Login requires HA authentication as well as a separate password. There is no additional per-user memory isolation or explicit administrator-only dashboard authorization.
 - The bridge uses `X-Recall-Token` over private internal **HTTP, not TLS**. Do not expose ports 8765 or 8766 to LAN or WAN.
-- SQLCipher protects stored bytes, **not** against someone with both host access and the local encryption key. Store no authentication secrets, payment data, or API keys in spoken memory.
+- SQLCipher protects stored bytes, **not** against someone with both host access and the local encryption key. **Do not teach the assistant important sensitive personal information**, such as passwords, access tokens, financial records or identity-document details. The household memory is shared and AI processing uses OpenAI API calls.
 
 ## 7. API usage, billing, and endpoints
 
@@ -119,7 +118,7 @@ A calendar request (“save an event in my calendar”) is **not** an instructio
 
 ## 9. Assistant instructions and the system prompt
 
-The preserved original English HUN voice prompt is in **[AI utasítások. ki ne töröld](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld)**. It includes natural informal Hungarian TTS, semantic matching of Hungarian speech to English HA entities, no false confirmation of control actions, safe memory use, privacy, web result formatting, and the optional “Show recipe on ui” feature (only if that tool exists in the configured agent).
+The [Nabu Recall memory-only prompt addendum](NABU_RECALL_PROMPT.md) is optional and contains no household-specific data. Append it to your existing agent instructions if desired; do not replace your working device-control instructions. The integration already supplies memory context automatically.
 
 The original also contains a **DATE, TIME AND CALENDAR MANAGEMENT** section:
 - Call `llm__GetDateTime` before date/time/weekday or relative-date questions; treat it as current time, never dates from remembered history.
@@ -127,7 +126,7 @@ The original also contains a **DATE, TIME AND CALENDAR MANAGEMENT** section:
 - Ask for an absent or ambiguous date/start hour **before** calling the calendar-writing script; do not invent them. Default minute: 0; default duration: 30 minutes.
 - Confirm creation only when the tool reports success; a to-do-list removal tool is never a calendar-deletion tool.
 
-The memory extraction prompt in `nabu_recall/ai.py` is **separate** from the upstream HUN agent's general system prompt. Review household-specific names, location, and calendar entity IDs before reusing the preserved prompt elsewhere.
+The memory extraction prompt in `nabu_recall/ai.py` is **separate** from the upstream HUN agent's general system prompt. The optional prompt addendum contains no household-specific settings.
 
 **Integration v1.0.4 reply logging:** The earlier integration wrote empty assistant messages to the 45-day journal because Home Assistant exposes `IntentResponse.speech` as a dictionary. v1.0.4 fixes future captures, not past missing response text. Journal turns and durable memories reside in distinct tables of the encrypted database. Do not reset the entire application for missing old replies; back up the database and encryption key before any targeted cleanup.
 
