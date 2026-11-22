@@ -29,8 +29,9 @@ A példák nem garantált, szó szerint felismerendő parancsok. A válasz függ
 - **Számít, kié az információ:** „Anna autója” nem ugyanaz, mint „András autója”. A személyt érdemes kimondani.
 - **Számít a változás:** „Vettem még egy biciklit” két biciklit jelenthet; „Lecseréltem a biciklimet” a korábbi adat módosulását jelenti.
 - **A háttérfeldolgozás nem mindig azonnali:** hétköznapi beszélgetésekből később is keletkezhet tartós emlék. A kifejezett mentés külön visszaigazolást ad.
-- **Közös háztartási memória:** a rendszer nem tudja biztosan felismerni, hogy ki beszél. Az ugyanazt az asszisztenst használók közös emlékeket kérdezhetnek le. Az érzékeny azonosítók hangos kezelését ez a verzió nem védi beszélőazonosítással.
-- **A memória nem naptár:** a naptárkezelés külön Home Assistant-eszközökkel történik; hangos naptáresemény-törlés ebben a projektben nincs megvalósítva.
+- **Közös háztartási memória:** a rendszer nem tudja biztosan felismerni, hogy ki beszél. Az ugyanazt az asszisztenst használók közös emlékeket kérdezhetnek le.
+- Az érzékeny azonosítók hangos kezelését ez a verzió nem védi beszélőazonosítással.
+- **A memória nem naptár:** a naptárkezelés külön Home Assistant-eszközökkel történik; hangos naptáresemény-törlés ebben a verzióban nincs megvalósítva.
 
 ## Háromperces családi próba
 
@@ -45,7 +46,3 @@ Az elvárt válasz előbb három kék, majd négy piros ceruza. A régi állapot
 ## A családi rendszergazdának
 
 A Nabu Recall Web UI-ján ellenőrizhetők a tartós emlékek, a 45 napos napló és a karbantartási javaslatok. Az archiválás és memóriaösszevonás jóváhagyást igényel; a Web UI jelszóval védett. Módosítás előtt a titkosított adatbázist és a külön kulcsot **együtt** kell biztonságosan menteni.
-
-**Verziók:** HAOS alkalmazás 1.1.1; külön Home Assistant-integráció 1.0.4.
-
-[Részletes magyar kézikönyv](TELEPITES_HU.md) · [Projekt README](README.md)
