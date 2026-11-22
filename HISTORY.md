@@ -1,6 +1,6 @@
 # Nabu Recall — korábbi fejlesztési történet / Previous development history
 
-Ez **történeti archívum**, nem a jelenlegi telepítési útmutató. A korabeli állítások (például titkosítatlan SQLite) a régi kiadásokra vonatkoznak; a v1.0.2 aktuális működését a [magyar kézikönyv](TELEPITES_HU.md) és az [English manual](MANUAL_EN.md) írja le. A Git commit history változatlanul megmarad.
+Ez **történeti archívum**, nem a jelenlegi telepítési útmutató. A korabeli állítások (például titkosítatlan SQLite) a régi kiadásokra vonatkoznak; 
 
 # Nabu Recall – változások
 
