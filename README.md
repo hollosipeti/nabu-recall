@@ -3,7 +3,7 @@
   Nabu Recall — 1.1.3 (HAOS alkalmazás) / 1.0.4 (HA-integráció)
 </h1>
 
-**Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist mellé.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja; a Nabu Recall kiegészíti történeti visszakereséssel és tartós emlékekkel.
+**Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
 ## Dokumentáció
 
@@ -141,6 +141,8 @@ A jelenlegi kiadásban az alkalmazás **1.1.2**, az integráció **1.0.4**.
 
 A Nabu Recall alkalmazásnál válaszd az **OPEN WEB UI** gombot. A `dashboard_password` jelszóval léphetsz be. A webes munkamenet a belépéstől számított **10 percig** érvényes.
 
+![default](Pics/webui2.png)
+
 A felületen megtekintheted a tartós emlékeket, a 45 napos naplót és a rendszer állapotát. A **Memóriakezelés** oldalon:
 
 - Ellenőrizheted a hasonló vagy ismétlődő emlékeket.
@@ -187,7 +189,7 @@ A felhasználás szempontjából fontos, hogy az asszisztens:
 
 A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz kell igazítani.
 
-## 10. Google Naptár
+# 10. Google Naptár
 
 A [naptáresemény-létrehozó szkript](examples/google_calendar_create_event.yaml) külön telepíthető Home Assistant-szkript, **nem a Nabu Recall automatikusan telepített része**. A hangasszisztensnek külön elérhetővé kell tenni.
 
@@ -198,7 +200,16 @@ A szkript segítségével az asszisztens a beállított `calendar.esemenyek` nap
 
 Ha a nap vagy az időpont hiányzik, az asszisztens kérdezzen vissza. Ha nincs megadva időtartam, a szkript alapértéke **30 perc**.
 
-**Naptáresemény hangos törlése vagy módosítása ebben a projektben még nincs megvalósítva.** A meglévő eseményeket egyelőre a Google Naptárban módosítsd vagy töröld.
+## Fontos, hogy a naptár entitást mindenkinek a sajátjára át kell állítania!!!
+
+```yaml
+  - action: calendar.create_event
+    target:
+    # FIGYELEM!!! az entity_id mindenkinél más lehet!!! Ellenőrizd a saját naptáradat!
+      entity_id: calendar.esemenyek
+```
+
+**Naptáresemény hangos törlése vagy módosítása ebben a kiadásban még nincs megvalósítva.** A meglévő eseményeket egyelőre a Google Naptárban módosítsd vagy töröld.
 
 A szkript külön beállítást és éles Home Assistant-próbát igényel. [Részletes naptárpéldák](examples/README.md).
 
