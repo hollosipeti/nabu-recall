@@ -44,4 +44,4 @@ A szkript **dokumentációs példa**, nem a telepített éles szkript automatiku
 
 A Google Calendar integráció HA-n keresztüli eseményolvasása és -létrehozása nem azonos egy tetszőleges esemény törlését támogató AI-eszközzel. A próbán az AI tévesen a `todo__HassListRemoveItem` teendőlista-eszközt választotta, ami nem naptár. A példaprojekt **nem valósít meg Google Calendar API-s eseménykeresést és -törlést**; a Google naptárból a törlés egyelőre manuális. Biztonságos későbbi megoldás pontos Google-event-ID-val, célzott jogosultsággal és egyértelmű találattal működhetne; puszta cím alapján vak törlés nem biztonságos.
 
-A Home Assistant-szkript `calendar.create_event` hívása a naptárba ír, **nem** módosítja a Nabu Recall tartós memóriáját. A teljes naptárpéldához olvasd el a [HU kézikönyvet](../TELEPITES_HU.md) és [EN manualt](../MANUAL_EN.md).
+A Home Assistant-szkript `calendar.create_event` hívása a naptárba ír, **nem** módosítja a Nabu Recall tartós memóriáját.
