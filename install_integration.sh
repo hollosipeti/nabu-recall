@@ -5,7 +5,7 @@ if [ ! -d /config ]; then
   echo "HIBA: /config nem található. Home Assistant Terminalból futtasd." >&2
   exit 1
 fi
-for command in curl unzip mktemp cp; do
+for command in curl unzip mktemp cp mv basename date; do
   command -v "$command" >/dev/null 2>&1 || { echo "Hiányzó parancs: $command" >&2; exit 1; }
 done
 TMP="$(mktemp -d)"
@@ -16,8 +16,23 @@ SRC="$TMP/nabu-recall-main/custom_components/nabu_recall"
 DEST="/config/custom_components/nabu_recall"
 [ -f "$SRC/manifest.json" ] || { echo "Hiányzó integráció, leállás." >&2; exit 1; }
 mkdir -p "/config/custom_components"
+# HA scans every folder inside custom_components as an integration.
+# Dotted backup directories (nabu_recall.backup.TIMESTAMP) cause an import
+# failure: "No module named 'custom_components.nabu_recall.backup'".
+BACKUP_ROOT="/config/nabu_recall_backups"
+mkdir -p "$BACKUP_ROOT"
+for OLD in /config/custom_components/nabu_recall.backup.*; do
+  [ -d "$OLD" ] || continue
+  OLD_DEST="$BACKUP_ROOT/$(basename "$OLD")"
+  if [ -e "$OLD_DEST" ]; then
+    echo "HIBA: Mentési névütközés, a korábbi mentés érintetlen: $OLD" >&2
+    exit 1
+  fi
+  mv "$OLD" "$OLD_DEST"
+  echo "Korábbi hibás helyű mentés áthelyezve: $OLD_DEST"
+done
 if [ -d "$DEST" ]; then
-  BACKUP="$DEST.backup.$(date +%Y%m%d%H%M%S)"
+  BACKUP="$BACKUP_ROOT/nabu_recall.$(date +%Y%m%d%H%M%S).$"
   mv "$DEST" "$BACKUP"
   echo "Korábbi integráció mentése: $BACKUP"
 fi
