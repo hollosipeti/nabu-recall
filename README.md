@@ -197,7 +197,7 @@ A szkript segítségével az asszisztens a beállított `calendar.esemenyek` nap
 
 Ha a nap vagy az időpont hiányzik, az asszisztens kérdezzen vissza. Ha nincs megadva időtartam, a szkript alapértéke **30 perc**.
 
-## Fontos, hogy a naptár entitást mindenkinek a sajátjára át kell állítania!!!
+## Fontos, hogy a naptár entitást mindenkinek a sajátjára át kell állítania!
 
 ```yaml
   - action: calendar.create_event
