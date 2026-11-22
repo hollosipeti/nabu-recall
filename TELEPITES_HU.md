@@ -58,8 +58,6 @@ A Home Assistant **Terminal** felületén futtasd ezt az **egyetlen parancssort*
 curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
 ```
 
-Ez a **Nabu Recall-integráció telepítője** (`install_integration.sh`). A telepítő a meglévő integrációs mappáról mentést készít, majd telepíti az új fájlokat.
-
 Ezután **indítsd újra a Home Assistantot**.
 
 ### 3.3 Az integráció beállítása
@@ -68,11 +66,11 @@ Ezután **indítsd újra a Home Assistantot**.
 2. Keresd meg és válaszd ki a **Nabu Recall** integrációt.
 3. Töltsd ki a három mezőt:
 
-**Beszélgetési ügynök (`upstream`)**
+**Beszélgetési ügynök **
 
 Válaszd ki azt az **OpenAI Conversation** ügynököt, amellyel eddig is vezérelted a Home Assistantot. Például egy „HUN” nevű, már működő OpenAI Conversation ügynököt. Az ügynök a Home Assistantban **beszélgetési entitásként** (`conversation.…`) szerepel. A Nabu Recall ezt fogja használni a válaszadáshoz és az eszközvezérléshez, tehát **ne töröld vagy cseréld le ezt a meglévő ügynököt**.
 
-**Cím (`url`)**
+**Cím **
 
 Nyisd meg egy másik lapon: **Beállítások → Alkalmazások → Nabu Recall → Információ**. Itt keresd a **Hostname** értékét: ez az alkalmazás *belső hálózati neve*, nem a Home Assistant általános hostneve vagy IP-címe.
 
@@ -86,12 +84,11 @@ A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelz
 
 **Token (`token`)**
 
-Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét. Itt **nem** a Web UI-hoz használt `dashboard_password` jelszó szükséges.
+Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét.
 
 4. Fejezd be az integráció hozzáadását.
 5. Nyisd meg a **Beállítások → Hangasszisztensek** (Settings → Voice assistants) oldalt. Kattints arra a hangasszisztensre, amelyet ténylegesen használsz (például az alapértelmezett Assist asszisztensre).
 6. A **Conversation agent** (Beszélgetési ügynök) legördülő mezőben a **Nabu Recall – memória** lehetőséget válaszd ki **az eddig használt OpenAI Conversation helyett**.
-7. Mentsd a beállítást. Ha több hangasszisztens-profilod van, minden érintett profilban külön állítsd át a **Conversation agent** mezőt.
 
 **Ez elengedhetetlen:** amíg a Conversation agent mezőben a régi OpenAI Conversation ügynök szerepel, az Assist megkerüli a Nabu Recall memóriáját. A régi OpenAI Conversation ügynököt **nem szabad törölni**: az integráció azt használja a háttérben a válaszadáshoz és az eszközvezérléshez.
 
