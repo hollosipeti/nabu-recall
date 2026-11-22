@@ -6,8 +6,6 @@
 
 **Magyar telepítési és használati útmutató:** [README.md](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
 
-**Complete English documentation:** [MANUAL_EN.md](https://github.com/hollosipeti/nabu-recall/blob/main/MANUAL_EN.md)
-
 ## Telepítés röviden
 
 1. A Home Assistant alkalmazásbolthoz add hozzá a `https://github.com/hollosipeti/nabu-recall` adattárat, majd telepítsd a Nabu Recall alkalmazást.
@@ -27,10 +25,6 @@
 - Az OpenAI API-hívások használatalapúan számlázottak, a ChatGPT-előfizetés ezt nem váltja ki.
 - Az Ingress Web UI alapvető diagnosztikai oldalai olvasásra szolgálnak; a külön **Kézi karbantartás** oldalon jelszóval védett, egyenként jóváhagyott archiválás és memória-összevonás, valamint visszavonás érhető el.
 - Naptárhoz a [frissített, külön éles tesztelendő Google Calendar script példát](https://github.com/hollosipeti/nabu-recall/tree/main/examples) külön kell konfigurálni. **Év nélküli dátumot `MM-DD` formátumban adj át; az évet a HA számolja. Hangos naptáresemény-törlés még nincs.**
-
-## English quick start
-
-Install the HAOS app **and** the separate custom integration. Configure the OpenAI API key, bridge token, and distinct dashboard password. Update the integration files separately and restart Home Assistant Core. The web session lasts 10 minutes. The SQLCipher database and its key must be backed up together. See the [complete English manual](https://github.com/hollosipeti/nabu-recall/blob/main/MANUAL_EN.md).
 
 ## Biztonságos naplókarbantartás (fejlesztői ág)
 
