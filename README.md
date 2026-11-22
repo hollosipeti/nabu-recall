@@ -20,7 +20,7 @@
 
 A Nabu Recall memóriával egészíti ki a Home Assistant meglévő, OpenAI-alapú beszédasszisztensét. A lámpák és más eszközök vezérlése a korábban beállított asszisztensen keresztül működik tovább. A Nabu Recall segít korábbi beszélgetésekre visszaemlékezni és fontos tényeket hosszabb időre megjegyezni.
 
-![default](Pics/folyamatabra.png)
+![default](Pics/folyamatabra2.png)
 
 Két külön telepítendő része van:
 
