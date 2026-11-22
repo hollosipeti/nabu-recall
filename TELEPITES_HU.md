@@ -52,11 +52,10 @@ A 8765/TCP és 8766/TCP hálózati portok host-hozzárendelését hagyd üresen;
 
 Ez **nem ugyanaz**, mint az előző lépésben telepített alkalmazás: az integrációt a Home Assistant fájljai közé kell telepíteni.
 
-A Home Assistant **Terminal** felületén futtasd a következő két parancsot:
+A Home Assistant **Terminal** felületén futtasd ezt az **egyetlen parancssort** (előtte a telepítő tartalmát a GitHubon ellenőrizheted):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh
-sh /tmp/install_nabu_recall.sh
+curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
 ```
 
 Ez a **Nabu Recall-integráció telepítője** (`install_integration.sh`). A telepítő a meglévő integrációs mappáról mentést készít, majd telepíti az új fájlokat.
@@ -119,7 +118,7 @@ A jelenlegi kiadásban az alkalmazás **1.1.2**, az integráció **1.0.4**.
 - **Tartós memória:** a fontosnak kiválasztott tények nem járnak le automatikusan. Egyenként módosíthatók vagy törölhetők.
 - **Közös használat:** a memória az asszisztenst használó családtagok között közös; a rendszer nem azonosítja biztosan, ki beszél hozzá.
 - **Titkosítás:** a memóriaadatbázis SQLCipherrel titkosított.
-- **Érzékeny adatok:** személyes azonosítókat, elérhetőségeket és más kényes adatokat körültekintően kezelj. Jelszavakat, hozzáférési kulcsokat és bankkártyaadatokat ne tároltass tartós emlékként.
+- **Figyelmeztetés:** ne taníts be az asszisztensnek fontos, érzékeny személyes információkat (például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat). A memória közös, a feldolgozás pedig OpenAI API-hívásokat is használ.
 
 ## 6. Web UI — a memória megtekintése és kezelése
 
@@ -158,7 +157,7 @@ A bevásárlólistához hozzáadott vagy onnan törölt tételek nem válnak aut
 
 A **rendszerutasítások** határozzák meg, hogyan beszéljen az OpenAI Conversation ügynök, hogyan kezelje a Home Assistant eszközeit és hogyan használja a rendelkezésére álló memóriát.
 
-A projektben megőrzött [minta rendszerutasítások](AI%20utas%C3%ADt%C3%A1sok.%20ki%20ne%20t%C3%B6r%C3%B6ld) használhatók kiindulásként. Ezek **nem kerülnek automatikusan** a saját OpenAI Conversation ügynököd beállításaiba.
+A kizárólag Nabu Recall memóriájához kapcsolódó, személyes adatok nélküli [rendszerutasítás-minta](NABU_RECALL_PROMPT.md) opcionálisan hozzáfűzhető a már működő OpenAI Conversation ügynök utasításaihoz. **Nem helyettesíti** a meglévő eszközvezérlési vagy más utasításokat. A Nabu Recall önmagában is továbbítja a memóriakörnyezetet.
 
 A felhasználás szempontjából fontos, hogy az asszisztens:
 

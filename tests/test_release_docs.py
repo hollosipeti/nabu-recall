@@ -10,7 +10,7 @@ class ReleaseDocsTests(unittest.TestCase):
         docs=["README.md","TELEPITES_HU.md","MANUAL_EN.md",
               "nabu_recall/DOCS.md","HISTORY.md","examples/README.md",
               "examples/google_calendar_create_event.yaml",
-              "AI utasítások. ki ne töröld","docs/SAFE_CLEANUP_HU.md"]
+              "NABU_RECALL_PROMPT.md","docs/SAFE_CLEANUP_HU.md"]
         for filename in docs:
             with self.subTest(filename=filename):
                 self.assertTrue((ROOT/filename).exists())
