@@ -1,22 +1,43 @@
-"""Static regression guards: safe identifier handling and current encryption description."""
+"""Prompt ownership regression: HA handles the responding agent's rules."""
 import ast
 import pathlib
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-class TajPromptTests(unittest.TestCase):
-    def test_agent_prompt_supports_requested_taj(self):
-        source=(ROOT / "custom_components/nabu_recall/conversation.py").read_text()
+
+
+class PromptOwnershipTests(unittest.TestCase):
+    def test_response_rules_are_owned_by_home_assistant(self):
+        source = (ROOT / "custom_components/nabu_recall/conversation.py").read_text()
         ast.parse(source)
-        for phrase in ("Ordinary personal and family facts", "identification numbers",
-                       "names, birthdays, relationships", "health facts",
-                       "Do not automatically refuse", "Do not invent missing facts",
-                       "without a relevant user request", "identity-card number", "not reliably available"):
+        self.assertNotIn("        instructions = (", source)
+        self.assertNotIn("TAJ number", source)
+        self.assertNotIn("Ordinary personal and family facts", source)
+        self.assertIn('user_input.extra_system_prompt or "", memory', source)
+        self.assertIn("agent_id=upstream", source)
+        self.assertIn("extra_system_prompt=extra", source)
+        self.assertIn("calendar_action(user_input.text)", source)
+        self.assertIn("bridge.manage(", source)
+        self.assertIn("bridge.recall(", source)
+        self.assertIn("bridge.log(", source)
+
+    def test_human_editable_prompt_document_covers_critical_behavior(self):
+        guide = (ROOT / "NABU_RECALL_PROMPT.md").read_text()
+        for phrase in (
+            "Home Assistant OpenAI Conversation", "untrusted historical data",
+            "without confirmation", "identification", "shared",
+            "banking credentials", "1.0.5",
+        ):
             with self.subTest(phrase=phrase):
-                self.assertIn(phrase, source)
+                self.assertIn(phrase, guide)
+
     def test_learning_prompt_does_not_claim_plaintext_sqlite(self):
-        source=(ROOT / "nabu_recall/ai.py").read_text()
+        source = (ROOT / "nabu_recall/ai.py").read_text()
         ast.parse(source)
-        self.assertIn("SQLCipher",source)
-        self.assertNotIn("currently unencrypted",source)
-        self.assertIn("do not promote it automatically",source)
+        self.assertIn("SQLCipher", source)
+        self.assertNotIn("currently unencrypted", source)
+        self.assertIn("do not promote it automatically", source)
+
+
+if __name__ == "__main__":
+    unittest.main()
