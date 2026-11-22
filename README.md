@@ -26,21 +26,13 @@ A Nabu Recall két külön összetevőből áll:
 - A belső kapcsolat tokennel védett (8765-ös port); a Web UI a Home Assistanton keresztül érhető el (8766-os port), külön jelszóval. Egyik portot se tedd közvetlenül elérhetővé az internet felől.
 - A Web UI-ba történő bejelentkezés **10 percig** érvényes.
 - Az alkalmazás mentésekor a titkosított adatbázis és a hozzá tartozó kulcs együttes megőrzése szükséges.
-- A Google Naptár kezelése külön Home Assistant-funkció. A példaként mellékelt szkripttel eseményt lehet létrehozni; hangutasításos eseménytörlés jelenleg nincs beépítve.
+
+  
+A Google Naptár kezelése külön Home Assistant-funkció. A példaként mellékelt szkripttel eseményt lehet létrehozni; hangutasításos eseménytörlés jelenleg nincs beépítve.
 
 ## Telepítés és frissítés
 
 A részletes lépésekhez kövesd a [magyar](TELEPITES_HU.md) vagy az [angol](MANUAL_EN.md) útmutatót. **Telepítés vagy frissítés előtt készíts Home Assistant-alkalmazásmentést.**
-
-Először telepítsd a Nabu Recall alkalmazást a Home Assistant alkalmazásboltjából, majd a külön Home Assistant-integrációt. Utóbbihoz a Home Assistant **Terminal** felületén ezt az egy parancssort futtasd (a telepítő a korábbi integráció fájljairól mentést készít):
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
-```
-
-Ezután **indítsd újra a Home Assistantot**, add hozzá a Nabu Recall-integrációt, és a használt hangasszisztens **Conversation agent** mezőjében válaszd a **Nabu Recall – memória** ügynököt. Az eredeti OpenAI Conversation ügynököt ne töröld: a Nabu Recall a háttérben azt használja.
-
-**Fontos:** a HAOS alkalmazás frissítése önmagában nem frissíti a `custom_components/nabu_recall` integrációs fájlokat.
 
 ## Karbantartás
 
