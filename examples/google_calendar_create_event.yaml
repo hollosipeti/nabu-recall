@@ -116,6 +116,7 @@ sequence:
         error: true
   - action: calendar.create_event
     target:
+    # FIGYELEM!!! az entity_id mindenkinél más lehet!!! Ellenőrizd a saját naptáradat!
       entity_id: calendar.esemenyek
     data:
       summary: "{{ cim }}"
