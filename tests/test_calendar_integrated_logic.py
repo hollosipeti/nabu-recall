@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
                        "custom_components" / "nabu_recall"))
-from calendar_logic import event_bounds, query_window, resolve_day, event_overlaps
+from calendar_logic import event_bounds, query_window, resolve_day, event_overlaps, present_event
 
 TZ = ZoneInfo("Europe/Budapest")
 NOW = datetime(2026, 11, 23, 14, 0, tzinfo=TZ)
@@ -104,6 +104,31 @@ class CalendarLogicTests(unittest.TestCase):
                                   datetime(2027, 3, 1, tzinfo=TZ))
         self.assertEqual(start.utcoffset(), timedelta(hours=2))
         self.assertGreater(end, start)
+
+    def test_all_day_dates_are_inclusive_for_assistant_display(self):
+        single = present_event({
+            "summary": "Synthetic Saturday",
+            "start": "2026-11-28",
+            "end": "2026-11-29",
+            "status": "confirmed",
+        })
+        self.assertEqual(single["date"], "2026-11-28")
+        self.assertNotIn("last_day_inclusive", single)
+        self.assertNotIn("end", single)
+        self.assertTrue(single["all_day"])
+        spanning = present_event({
+            "summary": "Synthetic weekend",
+            "start": "2026-11-28",
+            "end": "2026-11-30",
+        })
+        self.assertEqual(spanning["last_day_inclusive"], "2026-11-29")
+        timed = present_event({
+            "summary": "Synthetic appointment",
+            "start": "2026-11-27T17:00:00+01:00",
+            "end": "2026-11-27T17:30:00+01:00",
+        })
+        self.assertFalse(timed["all_day"])
+        self.assertEqual(timed["end"], "2026-11-27T17:30:00+01:00")
 
     def test_next_event_range_not_just_today(self):
         a, b = query_window("next", NOW)
