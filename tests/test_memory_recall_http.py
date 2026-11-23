@@ -70,6 +70,28 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("111222AB", data)
         self.assertNotIn("222333CD", data)
 
+    async def test_unrelated_multiword_identity_is_filtered_out(self):
+        """An LLM shortlist selecting a shared surname must not leak another ID."""
+        class WrongPickAI:
+            async def search_terms(self, query):
+                return ["Teszt", "TAJ"]
+            async def recall(self, query, turns, memories):
+                return {"turn_ids": [], "memory_ids": [m["id"] for m in memories]}
+
+        server.ai = WrongPickAI()
+        server.store.apply([
+            {"action": "add", "fact": "Teszt Béla TAJ száma 123456789."},
+            {"action": "add", "fact": "Teszt Gábor TAJ száma 987654321."},
+        ])
+        response = await self.client.post(
+            "/bridge/recall", json={"query": "Mi Teszt Géza TAJ-száma?"},
+            headers={"X-Recall-Token": "test-bridge-token"}
+        )
+        self.assertEqual(response.status, 200)
+        context = (await response.json())["context"]
+        self.assertNotIn("123456789", context)
+        self.assertNotIn("987654321", context)
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",
