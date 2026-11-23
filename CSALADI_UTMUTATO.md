@@ -29,7 +29,7 @@ A példák nem garantált, szó szerint felismerendő parancsok. A válasz függ
 - **A háttérfeldolgozás nem mindig azonnali:** hétköznapi beszélgetésekből később is keletkezhet tartós emlék. A kifejezett mentés külön visszaigazolást ad.
 - **Közös háztartási memória:** a rendszer nem tudja biztosan felismerni, hogy ki beszél. Az ugyanazt az asszisztenst használók közös emlékeket kérdezhetnek le.
 - Az érzékeny azonosítók hangos kezelését ez a verzió nem védi beszélőazonosítással.
-- **A memória nem naptár:** a naptárkezelés külön Home Assistant-eszközökkel történik; hangos naptáresemény-törlés ebben a verzióban nincs megvalósítva.
+- **A memória nem naptár:** a naptárkezelés külön, opcionális, beépített HA-eszközökkel működik, ha kiválasztottad a naptárt a Nabu Recall integráció beállításainál. Nem kell külön szkriptet telepíteni; eseménytörlés és módosítás továbbra sincs megvalósítva.
 
 ## Háromperces családi próba
 
