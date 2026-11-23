@@ -1,4 +1,8 @@
-# Google Calendar + Nabu Recall — működési példa
+# Korábbi kézi naptárszkriptek – archivált példák
+
+**Az új, beépített naptármodellben ezeket a szkripteket NEM kell telepíteni.** Az integráció beállításainál egy opcionális naptár-entitást kell kiválasztani, és a Home Assistant Assist LLM API automatikusan megkapja a két naptáreszközt. Az alábbiak kizárólag régi telepítésekhez és fejlesztői összehasonlításhoz maradnak meg.
+
+# Google Calendar + Nabu Recall — régi működési példa
 
 Az [eseménylétrehozó szkript](google_calendar_create_event.yaml) **külön Home Assistant-szkript**. Nem a Nabu Recall kódja, és telepítéskor **nem kerül automatikusan** az otthoni HA-ba. A Home Assistant szkript YAML-szerkesztőjében másold be, mentsd, majd tedd elérhetővé a hangasszisztens számára (**Voice assistants / Expose**).
 
