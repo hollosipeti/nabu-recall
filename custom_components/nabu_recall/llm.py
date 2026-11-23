@@ -13,7 +13,7 @@ from homeassistant.helpers.llm import (
 )
 from homeassistant.util import dt as dt_util
 
-from .calendar_logic import event_bounds, event_overlaps, query_window
+from .calendar_logic import event_bounds, event_overlaps, present_event, query_window
 
 _LOGGER = logging.getLogger(__name__)
 _DOMAIN = "nabu_recall"
@@ -30,8 +30,13 @@ class QueryCalendarTool(Tool):
         "Read the configured calendar. For 'hétvégén' use period=weekend: "
         "Saturday 00:00 through Monday 00:00 in Europe/Budapest. "
         "For 'next event' use period=next; never search only today. "
-        "Do not mix results with prior conversation memories. "
-        "The query interval's end is exclusive."
+        "IMPORTANT: Call this tool for EVERY new agenda question, even if "
+        "the previous user turn asked about calendar events; never reuse a "
+        "previous tool result. For 'mi a következő eseményem' use period=next "
+        "and consult the freshly returned event, not the earlier weekend. "
+        "Only report returned events, not remembered calendar events. "
+        "All-day dates in the response are DISPLAY dates, not exclusive "
+        "RFC5545 end dates."
     )
     annotations = _READ
     integration = _DOMAIN
@@ -67,7 +72,9 @@ class QueryCalendarTool(Tool):
                 events = events[:1]
             return ToolResult(data={
                 "calendar": self.entity_id, "range_start": start.isoformat(),
-                "range_end": end.isoformat(), "events": events,
+                "range_end": end.isoformat(), "period": period,
+                "events": [present_event(event) for event in events],
+                "event_count": len(events),
             })
         except Exception:
             _LOGGER.exception("Nabu Recall calendar read failed")
@@ -82,7 +89,9 @@ class CreateCalendarTool(Tool):
         "Create an event in the calendar configured for Nabu Recall. "
         "date may be YYYY-MM-DD, MM-DD, 'ma', 'holnap', 'holnapután', "
         "'pénteken', 'jövő hét kedden', etc. Preserve the user's "
-        "relative date expression as written. Required: title, date, "
+        "relative date expression EXACTLY as written: 'pénteken' MUST be "
+        "date='pénteken', NEVER 'jövő hét pénteken'. Only use 'jövő hét' "
+        "when the user explicitly said 'jövő hét'. Required: title, date, "
         "start_hour. For a range such as 10–11, supply end_hour=11; "
         "never fall back to 30 minutes if a finishing time was given. "
         "Default duration is 30 minutes if no end/duration is specified. "
@@ -167,6 +176,14 @@ def async_get_tools(hass: HomeAssistant, llm_context: LLMContext,
             "For calendar creation, use nabu_recall__calendar_create. "
             "These tools enforce the calendar entity selected in the "
             "Nabu Recall integration and correct relative date boundaries. "
+            "You MUST call nabu_recall__calendar_query anew for each "
+            "new calendar question, even consecutive follow-ups. "
+            "For 'next event' ALWAYS use period=next, NEVER infer the next "
+            "event from an earlier weekend or today query. "
+            "For all-day events, use the date or date + last_day_inclusive "
+            "provided in the tool result; do not add one day to the date. "
+            "For creation preserve the user's weekday exactly: "
+            "'pénteken' never becomes 'jövő hét pénteken'. "
             "Use returned actual times; do not invent event results."
         ),
     )
