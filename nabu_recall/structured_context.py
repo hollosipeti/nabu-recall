@@ -39,8 +39,16 @@ def _named(query, aliases):
     q = norm(query)
     for alias in aliases:
         a = re.escape(norm(alias))
-        if re.search(r'(?<!\w)' + a +
-                     r'(?:nak|nek|rol|tol|hoz|hez|t)?(?!\w)', q):
+        for found in re.finditer(
+                r'(?<!\w)' + a +
+                r'(?:nak|nek|rol|tol|hoz|hez|t)?(?!\w)', q):
+            if len(alias.split()) == 1:
+                next_word = re.match(
+                    r'\s+([A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)',
+                    query[found.end():])
+                if next_word and norm(next_word.group(1)) not in (
+                        'taj', 'szemelyi', 'igazolvany'):
+                    continue
             return True
     return False
 
