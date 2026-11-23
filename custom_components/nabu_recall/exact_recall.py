@@ -17,6 +17,9 @@ def exact_taj_answer(query, context):
         return None
     if not _TAJ_QUESTION.search(query):
         return None
+    # Multi-part questions must not be terminated after the first field.
+    if re.search(r"\b(?:személyi|szemelyi|igazolvány|igazolvany|mit\s+tudsz|mesélj|meselj)\b", query, re.I):
+        return None
     if re.search(r"\b(?:ne\s+(?:mondd|add)|nem\s+kérem)\b", query, re.I):
         return None
     query_words = set(re.findall(r"[^\W_]+", query.casefold()))
@@ -44,3 +47,38 @@ def exact_taj_answer(query, context):
     prefix = f"{subject} születési dátuma: {birth} " if (
         birth and re.search(r"\bszület\w*\b", query, re.I)) else ""
     return f"{prefix}{subject} TAJ-száma: {', '.join(digits)}."
+
+# The following helper returns only an exact, selected durable-memory value.
+# It is used when composing multi-part requests through the original assistant.
+def selected_taj_answer(query, context):
+    if not isinstance(query, str) or not isinstance(context, str):
+        return None
+    simplified = re.sub(r"\\b(?:személyi|igazolvány|mit\\s+tudsz)\\b", "", query, flags=re.I)
+    # Read the TAJ value from the exact same durable source, not from journal text.
+    person_words = set(re.findall(r"[^\\W_]+", query.casefold()))
+    if "apa" in person_words and "anya" in person_words:
+        return None
+    matches = set()
+    for line in context.splitlines():
+        if not line.startswith("Fact: "):
+            continue
+        person = _PERSON.match(line)
+        number = _TAJ_VALUE.search(line)
+        if person and number and any(alias and alias.casefold() in person_words
+                                     for alias in (person.group(1), person.group(2))):
+            matches.add((person.group(1), number.group(1)))
+    if len(matches) != 1:
+        return None
+    subject, digits = matches.pop()
+    return subject, f"{subject} TAJ-száma: {', '.join(digits)}."
+
+
+def complementary_question(query, subject):
+    """Recognize a second request; otherwise retain the original question."""
+    if not isinstance(query, str) or not isinstance(subject, str):
+        return None
+    if re.search(r"\\b(?:személyi|szemelyi|igazolvány|igazolvany)\\b", query, re.I):
+        return f"Mi {subject} személyi igazolvány száma?"
+    if re.search(r"\\bmit\\s+tudsz\\b", query, re.I):
+        return f"Mit tudsz {subject} személyéről?"
+    return None
