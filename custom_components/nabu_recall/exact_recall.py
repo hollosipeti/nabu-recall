@@ -31,9 +31,18 @@ def _matches_name(query, aliases):
     for alias in aliases:
         escaped = re.escape(norm(alias))
         # Optional Hungarian case suffix on the complete name, not its first word.
-        if re.search(r'(?<!\w)' + escaped +
-                     r'(?:nak|nek|rol|tol|hoz|hez|hon|ban|ben|t)?(?!\w)',
-                     normalized):
+        for found in re.finditer(
+                r'(?<!\w)' + escaped +
+                r'(?:nak|nek|rol|tol|hoz|hez|hon|ban|ben|t)?(?!\w)',
+                normalized):
+            # Do not mistake the first word of a capitalized full name
+            # for a distinct person: "Teszt Géza" != "Teszt".
+            if len(alias.split()) == 1:
+                after = query[found.end():]
+                next_word = re.match(r'\s+([A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+)', after)
+                if next_word and norm(next_word.group(1)) not in (
+                    'taj', 'szemelyi', 'igazolvany'):
+                    continue
             return True
     return False
 
