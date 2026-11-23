@@ -21,6 +21,16 @@ class PromptOwnershipTests(unittest.TestCase):
         self.assertIn("bridge.recall(", source)
         self.assertIn("bridge.log(", source)
 
+    def test_compound_queries_do_not_rewrite_question_or_duplicate_stream(self):
+        source = (ROOT / "custom_components/nabu_recall/conversation.py").read_text()
+        ast.parse(source)
+        self.assertIn("exact_answer = extract_precise(user_input.text, memory)", source)
+        self.assertIn("self.hass, text=user_input.text", source)
+        self.assertEqual(source.count("result = await conversation.async_converse("), 1)
+        self.assertNotIn("upstream_text", source)
+        self.assertNotIn("complementary_question", source)
+        self.assertNotIn("result.response.async_set_speech(answer)", source)
+
     def test_human_editable_prompt_document_covers_critical_behavior(self):
         guide = (ROOT / "NABU_RECALL_PROMPT.md").read_text()
         for phrase in (
