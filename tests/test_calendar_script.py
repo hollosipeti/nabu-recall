@@ -126,7 +126,7 @@ class CalendarScriptTests(unittest.TestCase):
 
     def test_invalid_and_inconsistent_times_rejected(self):
         cases = [
-            dict(esemeny="Próba", nap="hétfő", ora=9),
+            dict(esemeny="Próba", nap="ma", ora=9),
             dict(esemeny="Próba", nap="jövő hét szombat", ora=25),
             dict(esemeny="Próba", nap="holnap", ora=10, vege_ora=9),
             dict(esemeny="Próba", nap="holnap", ora=10, vege_ora=11,
