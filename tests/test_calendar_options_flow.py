@@ -10,6 +10,10 @@ SOURCE = Path(__file__).resolve().parents[1] / "custom_components/nabu_recall"
 
 
 class FakeFlowBase:
+    _config_entry = None
+    @property
+    def config_entry(self):
+        return self._config_entry
     async def async_set_unique_id(self, unique_id):
         self._unique_id = unique_id
     def _abort_if_unique_id_configured(self):
@@ -98,7 +102,8 @@ class CalendarOptionsTests(unittest.IsolatedAsyncioTestCase):
     async def test_choose_calendar_and_replace_it_without_reinstall(self):
         entry = SimpleNamespace(data={"calendar_entity": "calendar.first"},
                                 options={})
-        flow = self.module.CalendarOptionsFlow(entry)
+        flow = self.module.CalendarOptionsFlow()
+        flow._config_entry = entry
         form = await flow.async_step_init()
         self.assertEqual(form["type"], "form")
         self.assertIn("calendar_entity", form["data_schema"])
