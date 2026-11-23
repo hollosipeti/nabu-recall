@@ -195,6 +195,7 @@ A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz k
 - **Létrehozás:** pontos dátum vagy magyar relatív dátum alapján, a megadott kezdő- és befejezőidővel. Hiányzó dátum vagy kezdőóra esetén visszakérdez, nem találgat. Alapértelmezés: 30 perc.
 - **Biztonságos hatókör:** kizárólag a beállított naptár entitását kezeli; nem támogat eseménytörlést vagy módosítást.
 - **OpenAI Conversation:** a meglévő upstream ügynökben a Home Assistant **Assist (eszközvezérlés)** LLM API legyen engedélyezve. A kiválasztott naptárhoz tartozó eszközleírásokat az integráció adja, a régi kézi `CALENDAR EVENT CREATION` és `CALENDAR EVENT QUERY` utasításblokkokra nincs szükség.
+- **Eszközütközés elkerülése:** a kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, a kettős, eltérő lekérdezési lehetőség elkerülésére vedd ki a natív Assist-kitettségből; ez a Google Naptárat és a Nabu Recallban kiválasztott hozzáférést nem törli.
 - **Frissítés:** nincs külön másolandó YAML, sem két HA-szkript. A naptár kiválasztása később a Nabu Recall integráció beállításaiban módosítható.
 
 A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A korábban használt [kézi naptárszkriptek](examples/README.md) történeti példák; ha azokat már létrehoztad és exposed állapotban vannak, az új megoldás élesítésekor kapcsold ki az AI számára való elérhetőségüket, hogy ne legyenek párhuzamos, versengő eszközök.
