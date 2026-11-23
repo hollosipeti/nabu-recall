@@ -1,5 +1,12 @@
 # Nabu Recall — maintained releases
 
+## 1.1.7 — 2026-11-23 (HAOS app + companion integration 1.0.9)
+- Prevent ambiguous full-name collisions in exact identifier readback and selected-context enrichment.
+- Add synthetic adversarial name-collision HTTP tests and calendar YAML/Jinja date/duration tests.
+- Update the separately installed calendar-script example with deterministic next-week weekdays, explicit end times and actual start/end response data.
+- Clarify the human-editable HA OpenAI prompt; these document/script changes require manual application in HA.
+- Stable 1.1.6 / 1.0.8 snapshot: stable-2026-11-23-before-qa-fixes. Existing database and device-control routing unchanged.
+
 ## 1.1.6 — 2026-11-23 (HAOS app only)
 - Fix critical startup failure: package structured_context.py into the add-on Docker image.
 - Add release regression ensuring every local server import is copied to /app.
