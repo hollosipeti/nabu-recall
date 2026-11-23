@@ -101,6 +101,26 @@ class ExactReadbackTests(unittest.TestCase):
         self.assertNotIn("999999ZZ", extract_precise(
             "Mi apa személyi igazolvány száma?", FACTS))
 
+    def test_full_multiword_name_is_not_shared_first_token(self):
+        data = (
+            "Fact: Teszt Béla születési dátuma 1983. április 5., "
+            "TAJ száma 123456789.\n"
+            "Fact: Teszt Géza születési dátuma 1985. április 6., "
+            "TAJ száma 987654321.\n"
+        )
+        answer = extract_precise("Mi Teszt Géza TAJ-száma?", data)
+        self.assertIn("9, 8, 7", answer)
+        self.assertNotIn("1, 2, 3", answer)
+        self.assertIsNone(extract_precise("Mi Teszt Márk TAJ-száma?", data))
+        self.assertIsNone(extract_precise(
+            "Mi Teszt Géza TAJ-száma?",
+            data.splitlines(keepends=True)[0]
+        ))
+
+    def test_single_word_alias_does_not_match_unknown_full_name(self):
+        data = "Fact: Teszt TAJ száma 123456789.\n"
+        self.assertIsNone(extract_precise("Mi Teszt Géza TAJ száma?", data))
+
     def test_leading_zero_kept_in_speech(self):
         context = FACTS.replace("123456789", "000123456")
         self.assertIn("0, 0, 0, 1", extract_precise(
