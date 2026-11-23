@@ -2,6 +2,14 @@
 
 Az [eseménylétrehozó szkript](google_calendar_create_event.yaml) **külön Home Assistant-szkript**. Nem a Nabu Recall kódja, és telepítéskor **nem kerül automatikusan** az otthoni HA-ba. A Home Assistant szkript YAML-szerkesztőjében másold be, mentsd, majd tedd elérhetővé a hangasszisztens számára (**Voice assistants / Expose**).
 
+## Hétvégi naptárlekérdezés (csak olvasás)
+
+A [külön hétvégi lekérdező szkript](google_calendar_weekend_events.yaml) a Home Assistant saját órájával számolja a szombat 00:00–hétfő 00:00 időablakot. Hétfőtől péntekig a közelgő hétvégét, szombaton és vasárnap az aktuális hétvégét választja. A `calendar.get_events` akció visszakapott eredményét adja tovább; nem ír a naptárba.
+
+A HA felületen **külön szkriptként** telepítsd, ne az eseménylétrehozó helyére; a hangasszisztens számára tedd elérhetővé (Expose). Az eredeti OpenAI Conversation Instructions mezőbe másold át a `CALENDAR EVENT QUERY` frissített utasításait is. Csak a GitHub-fájl frissítése önmagában nem befolyásolja az éles asszisztenst.
+
+A szkript nem módosítja és nem törli a naptáreseményeket. Éles ellenőrzéshez nézd meg, hogy egy pénteki egynapos esemény kimarad, a szombati/vasárnapi szerepel, egy pénteken kezdődő, szombatra átnyúló esemény pedig helyesen bent marad. Az időszak végét a Home Assistant naptár API-ja kizárólagosnak tekinti.
+
 ## Miért kell külön szkript?
 
 A tapasztalat szerint a HUN OpenAI Conversation a `calendar__get_events` eszközzel el tudja olvasni a Google naptárat, de az olvasás **nem** jogosít eseménylétrehozásra. A közvetlen `calendar.create_event` HA-művelet működött, ezért célzott, csak a `calendar.esemenyek` entitásra író szkriptet készítettünk. A szélesebb rendszergazdai AI-hozzáférés nem szükséges.
