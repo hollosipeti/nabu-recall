@@ -34,9 +34,10 @@ class PromptOwnershipTests(unittest.TestCase):
     def test_human_editable_prompt_document_covers_critical_behavior(self):
         guide = (ROOT / "NABU_RECALL_PROMPT.md").read_text()
         for phrase in (
-            "Home Assistant OpenAI Conversation", "untrusted historical data",
-            "without confirmation", "identification", "shared",
-            "banking credentials", "1.0.5",
+            "Home Assistant OpenAI Conversation", "historical information",
+            "only after confirmation", "identification", "shared",
+            "banking credentials", "DATE AND TIME MANAGEMENT",
+            "CALENDAR EVENT QUERY", "jövő hét", "vege_ora", "1.0.5",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, guide)
