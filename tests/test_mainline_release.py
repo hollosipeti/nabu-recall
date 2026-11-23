@@ -21,3 +21,21 @@ class MainlineReleaseTests(unittest.TestCase):
     def test_server_version(self):
         server=(ROOT/"nabu_recall"/"server.py").read_text(encoding="utf-8")
         self.assertIn('1.1.5',server)
+
+    def test_container_includes_every_local_server_import(self):
+        """Catch imports that pass host tests but crash the packaged add-on."""
+        import ast
+        addon = ROOT / "nabu_recall"
+        source = (addon / "server.py").read_text(encoding="utf-8")
+        dockerfile = (addon / "Dockerfile").read_text(encoding="utf-8")
+        copied = set()
+        for line in dockerfile.splitlines():
+            if line.startswith("COPY ") and line.rstrip().endswith(" /app/"):
+                copied.update(line.split()[1:-1])
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.ImportFrom) and node.level == 0:
+                local_file = addon / (node.module + ".py")
+                if local_file.is_file():
+                    with self.subTest(module=node.module):
+                        self.assertIn(local_file.name, copied)
+        self.assertIn("structured_context.py", copied)
