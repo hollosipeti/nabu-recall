@@ -118,3 +118,35 @@ def event_overlaps(event: dict, start: datetime, end: datetime) -> bool:
         return first < end and last > start
     except (ValueError, TypeError, KeyError):
         return False
+
+
+
+def present_event(event: dict) -> dict:
+    """Make exclusive all-day end dates impossible to misread as event days.
+
+    Calendar integrations use RFC5545 dates: end=2026-11-29 for a single
+    all-day event on 2026-11-28. Only pass the inclusive displayed dates to
+    the language model; keep timed events unchanged.
+    """
+    result = {k: event[k] for k in
+              ("summary", "location", "description", "status") if k in event}
+    start = event.get("start")
+    end = event.get("end")
+    if isinstance(start, str) and isinstance(end, str):
+        try:
+            if (len(start) == 10 and len(end) == 10 and
+                    date.fromisoformat(start) < date.fromisoformat(end)):
+                last_day = date.fromisoformat(end) - timedelta(days=1)
+                result["all_day"] = True
+                result["date"] = start
+                if last_day.isoformat() != start:
+                    result["last_day_inclusive"] = last_day.isoformat()
+                return result
+        except ValueError:
+            pass
+    result["all_day"] = False
+    if start is not None:
+        result["start"] = start
+    if end is not None:
+        result["end"] = end
+    return result
