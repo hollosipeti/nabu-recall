@@ -1,6 +1,12 @@
 #!/bin/sh
 # Review script before executing; copies ONLY the custom integration to /config.
 set -eu
+# Optional controlled branch selection for one-at-a-time staging.
+BRANCH="${1:-main}"
+case "$BRANCH" in
+  main|dev-integrated-calendar) ;;
+  *) echo "HIBA: csak main vagy dev-integrated-calendar engedélyezett." >&2; exit 1 ;;
+esac
 if [ ! -d /config ]; then
   echo "HIBA: /config nem található. Home Assistant Terminalból futtasd." >&2
   exit 1
@@ -10,9 +16,9 @@ for command in curl unzip mktemp cp mv basename date; do
 done
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-curl -fsSL --retry 2 https://github.com/hollosipeti/nabu-recall/archive/refs/heads/main.zip -o "$TMP/repo.zip"
+curl -fsSL --retry 2 https://github.com/hollosipeti/nabu-recall/archive/refs/heads/${BRANCH}.zip -o "$TMP/repo.zip"
 unzip -q "$TMP/repo.zip" -d "$TMP"
-SRC="$TMP/nabu-recall-main/custom_components/nabu_recall"
+SRC="$TMP/nabu-recall-${BRANCH}/custom_components/nabu_recall"
 DEST="/config/custom_components/nabu_recall"
 [ -f "$SRC/manifest.json" ] || { echo "Hiányzó integráció, leállás." >&2; exit 1; }
 mkdir -p "/config/custom_components"
@@ -41,7 +47,7 @@ if [ -d "$DEST" ]; then
   echo "Korábbi integráció mentése: $BACKUP"
 fi
 cp -R "$SRC" "$DEST"
-echo "Nabu Recall integráció telepítve: $DEST"
+echo "Nabu Recall integráció telepítve: $DEST (ág: $BRANCH)"
 echo "Telepített manifest: $(cat "$DEST/manifest.json")"
 [ -f "$DEST/brand/icon.png" ] && echo "Integráció ikon: telepítve" || echo "FIGYELEM: integráció ikon hiányzik!"
 echo "Indítsd újra a Home Assistant Core-t, az alkalmazást önmagában nem elég frissíteni."
