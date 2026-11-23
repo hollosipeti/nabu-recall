@@ -168,9 +168,14 @@ async def recall(request):
         # Do not accidentally treat the newest 200 as the whole memory.
         memories = store.memory_search(terms[:6] + store.memory_query_terms(query)[:6], limit=160)
         turns = store.candidates(terms)
+        # Diagnostic IDs only: never log memory facts or personal identifiers.
+        LOG.info("Recall candidates: durable_ids=%s, journal_ids=%s",
+                 [m["id"] for m in memories], [t["id"] for t in turns])
         selection = await ai.recall(query, turns, memories)
         tids = set(x for x in selection.get("turn_ids", []) if type(x) is int)
         mids = set(x for x in selection.get("memory_ids", []) if type(x) is int)
+        LOG.info("Recall selection: durable_ids=%s, journal_ids=%s",
+                 sorted(mids), sorted(tids))
         selected_turns = [x for x in turns if x["id"] in tids][:6]
         selected_memories = [x for x in memories if x["id"] in mids][:8]
         state["last_recall"] = f"{len(selected_turns)} naplóbejegyzés, {len(selected_memories)} tartós emlék; AI-szűrés sikeres."
