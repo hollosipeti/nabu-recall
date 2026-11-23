@@ -3,7 +3,7 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 1.1.3 / 1.0.4
+Aktuális verziók: 1.1.4 / 1.0.4
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
