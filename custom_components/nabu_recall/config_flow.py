@@ -57,7 +57,7 @@ class CalendarOptionsFlow(config_entries.OptionsFlow):
     """Change the optional calendar without reinstalling the integration."""
 
     def __init__(self, config_entry):
-        self.config_entry = config_entry
+        self._entry = config_entry
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
@@ -73,8 +73,8 @@ class CalendarOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(step_id="init", data_schema=self._schema())
 
     def _schema(self):
-        current = self.config_entry.options.get(
-            "calendar_entity", self.config_entry.data.get("calendar_entity", "")
+        current = self._entry.options.get(
+            "calendar_entity", self._entry.data.get("calendar_entity", "")
         )
         return vol.Schema({
             vol.Optional("calendar_entity", default=current or vol.UNDEFINED):
