@@ -1,1 +1,37 @@
-{"config":{"step":{"user":{"title":"Nabu Recall","description":"Válaszd ki a meglévő HUN OpenAI beszélgetőügynököt, majd add meg a belső alkalmazáscímet és a kapcsolati tokent.","data":{"upstream":"Meglévő beszélgetőügynök","url":"Belső alkalmazáscím","token":"Kapcsolati token"}}},"error":{"invalid_url":"Belső http://host:port címet adj meg","invalid_token":"A token legalább 32 karakteres legyen","invalid_agent":"Beszélgetőügynököt válassz","cannot_connect":"A Nabu Recall alkalmazás nem érhető el"}}}
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nabu Recall",
+        "description": "Válaszd ki a meglévő HUN OpenAI beszélgetőügynököt, majd add meg a belső alkalmazáscímet és a kapcsolati tokent.",
+        "data": {
+          "upstream": "Meglévő beszélgetőügynök",
+          "url": "Belső alkalmazáscím",
+          "token": "Kapcsolati token",
+          "calendar_entity": "Naptár (opcionális)"
+        }
+      }
+    },
+    "error": {
+      "invalid_url": "Belső http://host:port címet adj meg",
+      "invalid_token": "A token legalább 32 karakteres legyen",
+      "invalid_agent": "Beszélgetőügynököt válassz",
+      "cannot_connect": "A Nabu Recall alkalmazás nem érhető el",
+      "invalid_calendar": "Válassz naptár entitást"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nabu Recall – beállítások",
+        "description": "Válassz egy naptárt. Ha üresen hagyod, a naptárfunkció kikapcsol.",
+        "data": {
+          "calendar_entity": "Naptár (opcionális)"
+        }
+      }
+    },
+    "error": {
+      "invalid_calendar": "Válassz naptár entitást"
+    }
+  }
+}
