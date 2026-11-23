@@ -192,8 +192,8 @@ A [naptáresemény-létrehozó szkript](examples/google_calendar_create_event.ya
 
 A szkript segítségével az asszisztens a beállított `calendar.esemenyek` naptárba hozhat létre eseményeket, például:
 
-- „Írd be holnap reggel nyolcra, hogy fogorvos.”
-- „Vedd fel december 15-re délután négyre, hogy szülői értekezlet.”
+- „Írd be a naptárba holnap reggel nyolcra, hogy fogorvos.”
+- „Írd be december 15-re délután négyre, hogy szülői értekezlet.”
 
 Ha a nap vagy az időpont hiányzik, az asszisztens kérdezzen vissza. Ha nincs megadva időtartam, a szkript alapértéke **30 perc**.
 
