@@ -2,7 +2,7 @@
 
 No HA imports, no persistence, no guessing missing event times.
 """
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 import re
 
 WEEKDAYS = {
@@ -49,6 +49,15 @@ def resolve_day(value: str, now: datetime, hour: int = 0, minute: int = 0) -> da
     raise ValueError("Ismeretlen dátum; kérj pontosítást")
 
 
+
+def _valid_local_time(value: datetime) -> bool:
+    """Reject ambiguous or nonexistent local times around DST transitions."""
+    if value.utcoffset() != value.replace(fold=1).utcoffset():
+        return False
+    roundtrip = value.astimezone(timezone.utc).astimezone(value.tzinfo)
+    return roundtrip.replace(tzinfo=None) == value.replace(tzinfo=None)
+
+
 def event_bounds(day: str, hour: int, minute: int, now: datetime,
                  duration: int | None = None, end_hour: int | None = None,
                  end_minute: int = 0) -> tuple[datetime, datetime]:
@@ -61,10 +70,14 @@ def event_bounds(day: str, hour: int, minute: int, now: datetime,
         raise ValueError("Érvénytelen befejezési óra")
     resolved = resolve_day(day, now, hour, minute)
     start = datetime.combine(resolved, time(hour, minute), now.tzinfo)
+    if not _valid_local_time(start):
+        raise ValueError("Nem egyértelmű vagy nem létező helyi időpont")
     if start <= now:
         raise ValueError("A múltba nem hozható létre esemény")
     if end_hour is not None:
         end = datetime.combine(resolved, time(end_hour, end_minute), now.tzinfo)
+        if not _valid_local_time(end):
+            raise ValueError("Nem egyértelmű vagy nem létező befejezési időpont")
         if end <= start:
             raise ValueError("A befejezésnek a kezdés után kell lennie")
         if duration is not None and (end - start) != timedelta(minutes=duration):
