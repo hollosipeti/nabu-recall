@@ -6,6 +6,7 @@ from homeassistant.components.conversation.const import ConversationEntityFeatur
 from homeassistant.const import MATCH_ALL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .gateway import Bridge
+from .exact_recall import exact_taj_answer
 import re
 
 _LOGGER = logging.getLogger(__name__)
@@ -101,6 +102,20 @@ class RecallAgent(ConversationEntity):
         except Exception:
             memory = ""
             _LOGGER.warning("Nabu Recall lookup unavailable; original agent continues")
+        # Read back only uniquely identified, selected durable identifiers.
+        # All other requests retain the upstream HA/OpenAI control and chat path.
+        exact_answer = exact_taj_answer(user_input.text, memory)
+        if exact_answer is not None:
+            from homeassistant.helpers import intent
+            response = intent.IntentResponse(language=user_input.language)
+            response.async_set_speech(exact_answer)
+            result = conversation.ConversationResult(
+                response=response, conversation_id=user_input.conversation_id or "")
+            self.hass.async_create_background_task(
+                self._log(bridge, user_input.text, exact_answer,
+                          result.conversation_id),
+                "Nabu Recall: store exact memory readback")
+            return result
         # The upstream OpenAI Conversation agent owns all response-behavior
         # instructions, including Nabu Recall memory interpretation.
         # Preserve request context and dynamically retrieved memory; do not
