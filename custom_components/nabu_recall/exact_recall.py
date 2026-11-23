@@ -54,9 +54,9 @@ def selected_taj_answer(query, context):
         return None
     if not _TAJ_QUESTION.search(query):
         return None
-    if re.search(r"\\b(?:ne\\s+(?:mondd|add)|nem\\s+kérem)\\b", query, re.I):
+    if re.search(r"\b(?:ne\s+(?:mondd|add)|nem\s+kérem)\b", query, re.I):
         return None
-    words = set(re.findall(r"[^\\W_]+", query.casefold()))
+    words = set(re.findall(r"[^\W_]+", query.casefold()))
     if "apa" in words and "anya" in words:
         return None
     matches = set()
@@ -78,8 +78,8 @@ def complementary_question(query, subject):
     """Recognize a distinct question accompanying a TAJ request."""
     if not isinstance(query, str) or not isinstance(subject, str):
         return None
-    if re.search(r"\\b(?:személyi|szemelyi|igazolvány|igazolvany)\\b", query, re.I):
+    if re.search(r"\b(?:személyi|szemelyi|igazolvány|igazolvany)\b", query, re.I):
         return f"Mi {subject} személyi igazolvány száma?"
-    if re.search(r"\\bmit\\s+tudsz\\b", query, re.I):
+    if re.search(r"\bmit\s+tudsz\b", query, re.I):
         return f"Mit tudsz {subject} személyéről?"
     return None
