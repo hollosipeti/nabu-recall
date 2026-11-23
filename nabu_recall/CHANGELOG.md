@@ -1,5 +1,9 @@
 # Nabu Recall — maintained releases
 
+## 1.1.4 — 2026-11-23 (HAOS app only)
+- Recall diagnosztika: a keresés jelölt és kiválasztott memória-/naplóazonosítóinak naplózása, személyes adatok nélkül.
+- A keresési és memóriafeldolgozási működés nem változott.
+
 ## 1.1.3 — 2026-11-22 (HAOS app only)
 
 - Replace the default brain emoji in the Ingress Web UI header with the existing Nabu Recall brand icon.
