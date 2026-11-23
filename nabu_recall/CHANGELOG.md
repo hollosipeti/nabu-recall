@@ -1,5 +1,10 @@
 # Nabu Recall — maintained releases
 
+## 1.1.6 — 2026-11-23 (HAOS app only)
+- Fix critical startup failure: package structured_context.py into the add-on Docker image.
+- Add release regression ensuring every local server import is copied to /app.
+- No change to SQLCipher data, integration version or conversation logic.
+
 ## 1.1.5 — 2026-11-23 (HAOS app + companion integration 1.0.8)
 - Strukturált adatkérésekhez hiányzó, ugyanazon személyhez tartozó tartós tények hozzáadása a keresési jelöltek közül; naplóbejegyzések kizárva.
 - Az integráció egyetlen, teljes választ ad az egyértelmű születési dátum / TAJ / személyi igazolvány lekérdezésekre; nem módosítja az OpenAI streamelt válaszát.
