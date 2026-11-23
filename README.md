@@ -11,7 +11,7 @@ Aktuális verziók: 1.1.7 / 1.0.9
 
 - **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
 - **[Nabu Recall rendszerutasítás-minta](NABU_RECALL_PROMPT.md)** — OpenAI utasításminta.
-- **[Google Naptár-példa](examples/README.md)** — külön telepítendő naptárszkript.
+- **[Google Naptár-példa](examples/README.md)** — régi, opcionális példák; az új beépített naptárhoz nem szükségesek.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
 > **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
@@ -83,7 +83,7 @@ Ezután **indítsd újra a Home Assistantot**.
 
 1. Nyisd meg: **Settings > Devices & services > Add integration**.
 2. Keresd meg és válaszd ki a **Nabu Recall** integrációt.
-3. Töltsd ki a három mezőt:
+3. Töltsd ki a meglévő ügynök, belső URL és token mezőjét. **Opcionálisan válassz egy naptár-entitást** (pl. `calendar.esemenyek`). Ha üresen hagyod, a Nabu Recall naptárfunkciói kikapcsolva maradnak:
 
 ![default](Pics/integration.png)
 
@@ -186,29 +186,20 @@ A felhasználás szempontjából fontos, hogy az asszisztens:
 
 A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz kell igazítani.
 
-## 10. Google Naptár
+## 10. Opcionális, beépített naptár
 
-A [naptáresemény-létrehozó szkript](examples/google_calendar_create_event.yaml) külön telepíthető Home Assistant-szkript, **nem a Nabu Recall automatikusan telepített része**. A hangasszisztensnek külön elérhetővé kell tenni.
+**Az új modellben nincs telepítendő naptárszkript.** A HA-integráció a Home Assistant Assist API-jához két saját LLM-eszközt biztosít, amennyiben a konfigurációban kiválasztottál egy naptár-entitást.
 
-A szkript segítségével az asszisztens a beállított `calendar.esemenyek` naptárba hozhat létre eseményeket, például:
+- **Beállítás:** Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Választhatsz pl. `calendar.esemenyek`-et; a mező üresen hagyásával kikapcsolod a funkciót.
+- **Lekérdezés:** ma, holnap, hétvége, következő 7 nap, következő esemény. A hétvége szombat 00:00–hétfő 00:00 (kizárólagos vég); a teljes napos pénteki esemény kimarad.
+- **Létrehozás:** pontos dátum vagy magyar relatív dátum alapján, a megadott kezdő- és befejezőidővel. Hiányzó dátum vagy kezdőóra esetén visszakérdez, nem találgat. Alapértelmezés: 30 perc.
+- **Biztonságos hatókör:** kizárólag a beállított naptár entitását kezeli; nem támogat eseménytörlést vagy módosítást.
+- **OpenAI Conversation:** a meglévő upstream ügynökben a Home Assistant **Assist (eszközvezérlés)** LLM API legyen engedélyezve. A kiválasztott naptárhoz tartozó eszközleírásokat az integráció adja, a régi kézi `CALENDAR EVENT CREATION` és `CALENDAR EVENT QUERY` utasításblokkokra nincs szükség.
+- **Frissítés:** nincs külön másolandó YAML, sem két HA-szkript. A naptár kiválasztása később a Nabu Recall integráció beállításaiban módosítható.
 
-- „Írd be a naptárba holnap reggel nyolcra, hogy fogorvos.”
-- „Írd be december 15-re délután négyre, hogy szülői értekezlet.”
+A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A korábban használt [kézi naptárszkriptek](examples/README.md) történeti példák; ha azokat már létrehoztad és exposed állapotban vannak, az új megoldás élesítésekor kapcsold ki az AI számára való elérhetőségüket, hogy ne legyenek párhuzamos, versengő eszközök.
 
-Ha a nap vagy az időpont hiányzik, az asszisztens kérdezzen vissza. Ha nincs megadva időtartam, a szkript alapértéke **30 perc**.
-
-## Fontos, hogy a naptár entitást mindenkinek a sajátjára át kell állítania!
-
-```yaml
-  - action: calendar.create_event
-    target:
-    # FIGYELEM!!! az entity_id mindenkinél más lehet!!! Ellenőrizd a saját naptáradat!
-      entity_id: calendar.esemenyek
-```
-
-**Naptáresemény hangos törlése vagy módosítása ebben a kiadásban még nincs megvalósítva.** A meglévő eseményeket egyelőre a Google Naptárban módosítsd vagy töröld.
-
-A szkript külön beállítást és éles Home Assistant-próbát igényel. [Részletes naptárpéldák](examples/README.md).
+**Fejlesztői állapot:** ez az új modell a `dev-integrated-calendar` ágon tesztelendő; csak sikeres HAOS/Assist end-to-end ellenőrzés után kerülhet a stabil kiadásba.
 
 ## 11. Gyakorlati példák
 
@@ -219,7 +210,7 @@ A szkript külön beállítást és éles Home Assistant-próbát igényel. [Ré
 | „Javítsd: most négy piros ceruza van benne.” | A korábbi tény célzott módosítása |
 | „Tedd a tejet a bevásárlólistára.” | A bevásárlólista frissítése, nem új tartós emlék |
 | „Kapcsold le a nappali lámpáját.” | A már működő OpenAI Conversation ügynök intézi |
-| „Írd be holnap kilencre, hogy próba esemény.” | A külön beállított naptárszkript létrehozza az eseményt |
+| „Írd be holnap kilencre, hogy próba esemény.” | Az integráció naptáreszköze létrehozza az eseményt, ha a naptár be van állítva |
 
 ## 12. Gyors hibakeresés
 
@@ -229,7 +220,7 @@ A szkript külön beállítást és éles Home Assistant-próbát igényel. [Ré
 | A Web UI nem enged be | A Nabu Recall alkalmazás **Konfiguráció** lapján megadott `dashboard_password` jelszót használod-e? |
 | Az asszisztens nem emlékszik | A Web UI-n megjelent-e a tartós emlék? Van-e OpenAI API-hiba az alkalmazás naplójában? |
 | Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
-| Naptári esemény nem jön létre | A naptárszkript telepítve és az asszisztens számára elérhető-e? Megadtad a dátumot és a kezdési időt? |
+| Naptári esemény nem jön létre | Az integrációban van-e kiválasztott naptár? Engedélyezett-e az upstream OpenAI-ügynöknél az Assist LLM API? Megadtad a dátumot és a kezdési időt? |
 
 További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
 
