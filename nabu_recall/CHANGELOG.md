@@ -1,5 +1,10 @@
 # Nabu Recall — maintained releases
 
+## 1.1.5 — 2026-11-23 (HAOS app + companion integration 1.0.8)
+- Strukturált adatkérésekhez hiányzó, ugyanazon személyhez tartozó tartós tények hozzáadása a keresési jelöltek közül; naplóbejegyzések kizárva.
+- Az integráció egyetlen, teljes választ ad az egyértelmű születési dátum / TAJ / személyi igazolvány lekérdezésekre; nem módosítja az OpenAI streamelt válaszát.
+- Hiányos, ellentmondásos vagy nyitott kérdés az eredeti OpenAI Conversation ügynökhöz kerül; a memóriatár, titkosítás és eszközvezérlés változatlan.
+
 ## 1.1.4 — 2026-11-23 (HAOS app only)
 - Recall diagnosztika: a keresés jelölt és kiválasztott memória-/naplóazonosítóinak naplózása, személyes adatok nélkül.
 - A keresési és memóriafeldolgozási működés nem változott.
