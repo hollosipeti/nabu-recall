@@ -48,15 +48,16 @@ def exact_taj_answer(query, context):
         birth and re.search(r"\bszület\w*\b", query, re.I)) else ""
     return f"{prefix}{subject} TAJ-száma: {', '.join(digits)}."
 
-# The following helper returns only an exact, selected durable-memory value.
-# It is used when composing multi-part requests through the original assistant.
 def selected_taj_answer(query, context):
+    """Get an exact TAJ value for a multi-part question, if unambiguous."""
     if not isinstance(query, str) or not isinstance(context, str):
         return None
-    simplified = re.sub(r"\\b(?:személyi|igazolvány|mit\\s+tudsz)\\b", "", query, flags=re.I)
-    # Read the TAJ value from the exact same durable source, not from journal text.
-    person_words = set(re.findall(r"[^\\W_]+", query.casefold()))
-    if "apa" in person_words and "anya" in person_words:
+    if not _TAJ_QUESTION.search(query):
+        return None
+    if re.search(r"\\b(?:ne\\s+(?:mondd|add)|nem\\s+kérem)\\b", query, re.I):
+        return None
+    words = set(re.findall(r"[^\\W_]+", query.casefold()))
+    if "apa" in words and "anya" in words:
         return None
     matches = set()
     for line in context.splitlines():
@@ -64,7 +65,7 @@ def selected_taj_answer(query, context):
             continue
         person = _PERSON.match(line)
         number = _TAJ_VALUE.search(line)
-        if person and number and any(alias and alias.casefold() in person_words
+        if person and number and any(alias and alias.casefold() in words
                                      for alias in (person.group(1), person.group(2))):
             matches.add((person.group(1), number.group(1)))
     if len(matches) != 1:
@@ -74,7 +75,7 @@ def selected_taj_answer(query, context):
 
 
 def complementary_question(query, subject):
-    """Recognize a second request; otherwise retain the original question."""
+    """Recognize a distinct question accompanying a TAJ request."""
     if not isinstance(query, str) or not isinstance(subject, str):
         return None
     if re.search(r"\\b(?:személyi|szemelyi|igazolvány|igazolvany)\\b", query, re.I):
