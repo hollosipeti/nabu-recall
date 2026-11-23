@@ -44,6 +44,32 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         server.store, server.ai, server.token = self.old
         self.tmp.cleanup()
 
+    async def test_two_distinct_durable_identifier_facts_both_reach_context(self):
+        """Even if AI picks one memory, structured recall includes the other."""
+        class FirstOnlyAI:
+            async def search_terms(self, query):
+                return ["Apa", "taj", "személyi"]
+            async def recall(self, query, turns, memories):
+                picked = next(x for x in memories if "TAJ" in x["fact"])
+                return {"turn_ids": [], "memory_ids": [picked["id"]]}
+
+        server.ai = FirstOnlyAI()
+        server.store.apply([
+            {"action": "add", "fact": "Apa (Peti) TAJ száma 123456789."},
+            {"action": "add", "fact": "Apa személyi igazolvány száma: 111222AB."},
+            {"action": "add", "fact": "Anya (Betti) személyi igazolvány száma: 222333CD."},
+        ])
+        response = await self.client.post(
+            "/bridge/recall",
+            json={"query": "Mi apa TAJ-száma és személyi igazolvány száma?"},
+            headers={"X-Recall-Token": "test-bridge-token"}
+        )
+        self.assertEqual(response.status, 200)
+        data = (await response.json())["context"]
+        self.assertIn("123456789", data)
+        self.assertIn("111222AB", data)
+        self.assertNotIn("222333CD", data)
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",
