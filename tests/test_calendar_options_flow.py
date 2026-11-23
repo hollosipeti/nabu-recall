@@ -10,6 +10,10 @@ SOURCE = Path(__file__).resolve().parents[1] / "custom_components/nabu_recall"
 
 
 class FakeFlowBase:
+    async def async_set_unique_id(self, unique_id):
+        self._unique_id = unique_id
+    def _abort_if_unique_id_configured(self):
+        pass
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__()
     def async_show_form(self, **kwargs):
@@ -59,8 +63,12 @@ class CalendarOptionsTests(unittest.IsolatedAsyncioTestCase):
             async_get_clientsession=lambda hass: None)
         package = mod("_calendar_config_test")
         package.__path__ = [str(SOURCE)]
-        gateway = mod("_calendar_config_test.gateway",
-                      Bridge=lambda *args: None)
+        class Bridge:
+            def __init__(self, *args):
+                pass
+            async def ping(self):
+                return True
+        mod("_calendar_config_test.gateway", Bridge=Bridge)
         self.module_patch = patch.dict(sys.modules, self.fake)
         self.module_patch.start()
         spec = importlib.util.spec_from_file_location(
@@ -72,6 +80,20 @@ class CalendarOptionsTests(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         sys.modules.pop("_calendar_config_test.config_flow", None)
         self.module_patch.stop()
+
+    async def test_initial_flow_offers_calendar_and_keeps_selection(self):
+        flow = self.module.ConfigFlow()
+        flow.hass = object()
+        form = await flow.async_step_user()
+        self.assertIn("calendar_entity", form["data_schema"])
+        answer = await flow.async_step_user({
+            "upstream": "conversation.original",
+            "url": "http://internal-addon:8765",
+            "token": "x" * 32,
+            "calendar_entity": "calendar.family",
+        })
+        self.assertEqual(answer["type"], "create_entry")
+        self.assertEqual(answer["data"]["calendar_entity"], "calendar.family")
 
     async def test_choose_calendar_and_replace_it_without_reinstall(self):
         entry = SimpleNamespace(data={"calendar_entity": "calendar.first"},
