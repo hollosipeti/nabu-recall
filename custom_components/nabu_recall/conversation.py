@@ -6,7 +6,7 @@ from homeassistant.components.conversation.const import ConversationEntityFeatur
 from homeassistant.const import MATCH_ALL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .gateway import Bridge
-from .exact_recall import exact_taj_answer
+from .exact_recall import exact_taj_answer, selected_taj_answer, complementary_question
 import re
 
 _LOGGER = logging.getLogger(__name__)
@@ -122,13 +122,24 @@ class RecallAgent(ConversationEntity):
         # append a second, hidden system instruction block here.
         extra = "\n\n".join(x for x in (
             user_input.extra_system_prompt or "", memory) if x)
+        # For a recognized compound question, ask the upstream agent only
+        # the complementary part; append the exact selected durable TAJ value.
+        # This avoids truncating the request at the first answer.
+        selected = selected_taj_answer(user_input.text, memory)
+        followup = complementary_question(user_input.text, selected[0]) if selected else None
+        upstream_text = followup or user_input.text
         result = await conversation.async_converse(
-            self.hass, text=user_input.text,
+            self.hass, text=upstream_text,
             conversation_id=user_input.conversation_id,
             context=user_input.context, language=user_input.language,
             agent_id=upstream, device_id=user_input.device_id,
             satellite_id=user_input.satellite_id, extra_system_prompt=extra)
         answer = extract_spoken_answer(result)
+        if followup and answer:
+            # Preserve the original HA ConversationResult, including its ID,
+            # then replace only the spoken response with the complete answer.
+            answer = f"{selected[1]} {answer}"
+            result.response.async_set_speech(answer)
         self.hass.async_create_background_task(
             self._log(bridge, user_input.text, answer,
                       result.conversation_id or user_input.conversation_id or ""),
