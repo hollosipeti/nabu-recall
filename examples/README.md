@@ -13,8 +13,13 @@ A tapasztalat szerint a HUN OpenAI Conversation a `calendar__get_events` eszköz
 - `ora`: kötelező kezdőóra 0–23
 - `perc`: opcionális; hiány esetén 0
 - `idotartam`: opcionális; hiány esetén 30 perc
+- `vege_ora`, `vege_perc`: opcionális befejezési idő; ha adott az intervallum (pl. 10 és 11 között), ezt add át, így nem veszik el az időtartam
 
 Ha a felhasználó csak hónapot és napot mond, az AI **`MM-DD`-t adjon át, soha ne találjon ki évszámot**. A Home Assistant a következő még jövőbeli előfordulást választja; teljes évszám esetén azt változtatás nélkül használja, és elutasítja a múltbeli dátumot. Az AI **nem** találhat ki dátumot vagy kezdőórát. Kérdés hiányában a szkriptet meg sem hívhatja. A Home Assistant a `now()` időből számítja a relatív napokat, és elutasítja az érvénytelen/múltbeli időpontokat. A helyi időzónát Home Assistantban **Europe/Budapest** értékre állítsd. A jelenlegi szkript az `MM-DD` formátummal évváltáskor is működik. A „jövő hét kedd” eltér a „következő kedd”-től: előbbihez a `llm__GetDateTime` alapján pontos ISO-napot kell számolnia az AI-nak. A szkript egyszerű hétköznapnevei mindig a legközelebbi következő előfordulást jelölik.
+
+**Fontos frissítés:** a "jövő hét kedden" típusú relatív napokat a szkript számolja ki a HA helyi idejéből, ezért az AI-nak a nap mezőbe **szó szerint ezt a kifejezést** kell átadnia, nem egy becsült `MM-DD` dátumot. Egyszerű "pénteken" kérésnél a következő jövőbeli pénteket választja. A megadott befejezési idő elsőbbséget élvez; ha időtartamot is adtak, és a kettő nem egyezik, a szkript elutasítja a kérést. Sikeres írás után az esemény tényleges kezdő és befejező idejét visszaadja az AI-nak. A szkript `mode: parallel` üzemmódban várja meg a válaszüzenetet.
+
+**Telepítéskor a meglévő HA-szkriptet külön frissíteni kell a YAML-szerkesztőjében**, mivel a GitHub fájl módosítása nem frissíti automatikusan a Home Assistantban már létrehozott szkriptet. Ugyanez igaz a `NABU_RECALL_PROMPT.md` fájlra: a módosított szöveg nem jelenik meg automatikusan a tényleges OpenAI Conversation Instructions mezőben.
 
 A szkript **dokumentációs példa**, nem a telepített éles szkript automatikus frissítése. Az itt közzétett `MM-DD` változatot még külön ellenőrizni kell a tényleges HA-sablonmotorban és Google Naptárban; a korábbi beszélgetésben szereplő helyi teszteredmény nem bizonyít HAOS-integrációs futást. A szkript **nem teljes Google Calendar-integrációs csomag**. Éles használat előtt ellenőrizd a mentett eseményt a Google naptárban, különösen DST/óraátállás, hiányos dátum és több azonos nevű esemény esetén.
 
