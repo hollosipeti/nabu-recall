@@ -13,7 +13,12 @@ TAJ_REQUEST = re.compile(r'\btaj(?:[\s-]*sz[aá]m\w*)?\b', re.I)
 CARD_REQUEST = re.compile(r'\bszemélyi(?:\s+igazolvány)?(?:[\s-]*sz[aá]m\w*)?\b|\bigazolvány(?:[\s-]*sz[aá]m\w*)?\b', re.I)
 BIRTH_REQUEST = re.compile(r'\b(?:szület\w*|szülinap\w*)\b', re.I)
 OPEN_REQUEST = re.compile(r'\b(?:mit\s+tudsz|mesél\w*|mondj\s+el|jellem\w*|miért|hogyan|milyen|hány|kapcsold|állítsd|töröld|módosítsd|jegyezd|mentsd|ne\s+(?:mondd|add))\b', re.I)
-PERSON = re.compile(r'^([^\W\d_][\w-]*)(?:\s*\(([^()]*)\))?', re.I)
+# A person's full name is the complete prefix before a structured attribute.
+# Do not treat the first token of a multiword name as a separate identity.
+SUBJECT = re.compile(
+    r'^\s*(.+?)\s+(?=(?:születési|TAJ|személyi|igazolvány)\b)', re.I
+)
+PAREN_ALIAS = re.compile(r'^(.*?)\s*\(([^()]+)\)\s*$', re.I)
 
 
 def norm(value):
@@ -22,26 +27,36 @@ def norm(value):
 
 
 def _matches_name(query, aliases):
-    words = set(re.findall(r'[^\W_]+', norm(query)))
+    normalized = norm(query)
     for alias in aliases:
-        root = norm(alias)
-        if root in words or any(root + ending in words for ending in
-                                ('nak', 'nek', 'rol', 'tol', 'hoz', 'hez', 'et', 't')):
+        escaped = re.escape(norm(alias))
+        # Optional Hungarian case suffix on the complete name, not its first word.
+        if re.search(r'(?<!\w)' + escaped +
+                     r'(?:nak|nek|rol|tol|hoz|hez|hon|ban|ben|t)?(?!\w)',
+                     normalized):
             return True
     return False
 
 
 def _fact_aliases(fact):
-    match = PERSON.match(fact)
+    match = SUBJECT.match(fact)
     if match is None:
         return None
-    subject = match.group(1)
-    # Handle the Hungarian dative: "Enikőnek születési dátuma ...".
-    base = re.sub(r'(?:nak|nek)$', '', subject, flags=re.I)
-    aliases = {subject, base}
-    if match.group(2):
-        aliases.add(match.group(2))
-    return base, aliases
+    full_subject = match.group(1).strip(' ,:')
+    if parenthesized := PAREN_ALIAS.fullmatch(full_subject):
+        primary = parenthesized.group(1).strip()
+        aliases = {primary, parenthesized.group(2).strip()}
+    else:
+        primary = full_subject
+        aliases = {primary}
+    # "Enikőnek születési dátuma..." is an inflected name.
+    if len(primary.split()) == 1 and primary.casefold().endswith(('nak', 'nek')):
+        primary = primary[:-3]
+        aliases.add(primary)
+    if not primary or any(not part or not part[0].isalpha()
+                          for part in primary.split()):
+        return None
+    return primary, aliases
 
 
 def extract_precise(query, context):
