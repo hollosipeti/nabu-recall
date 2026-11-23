@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install test dependencies
-        run: python -m pip install -r nabu_recall/requirements.txt
+        run: python -m pip install -r nabu_recall/requirements.txt Jinja2 PyYAML
       - name: Compile
         run: python -m compileall -q nabu_recall custom_components
       - name: Unit tests
