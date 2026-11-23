@@ -134,10 +134,26 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result.error)
         self.assertEqual([e["summary"] for e in result.data["events"]],
                          ["Saturday event"])
+        self.assertEqual(result.data["events"][0]["date"], "2026-11-28")
+        self.assertNotIn("end", result.data["events"][0])
+        self.assertNotIn("last_day_inclusive", result.data["events"][0])
+        self.assertEqual(result.data["event_count"], 1)
         sent = self.services.calls[-1][2]
         self.assertEqual(sent["entity_id"], "calendar.test")
         self.assertTrue(sent["start_date_time"].startswith("2026-11-28T00:00"))
         self.assertTrue(sent["end_date_time"].startswith("2026-11-30T00:00"))
+
+    async def test_next_event_is_fresh_and_uses_future_window(self):
+        tool = self.get_tools().tools[0]
+        result = await tool.async_call(
+            self.hass, SimpleNamespace(tool_args={"period": "next"}),
+            self.ctx,
+        )
+        self.assertFalse(result.error)
+        self.assertEqual(result.data["period"], "next")
+        sent = self.services.calls[-1][2]
+        self.assertTrue(sent["start_date_time"].startswith("2026-11-23T14:00"))
+        self.assertGreater(result.data["event_count"], 0)
 
     async def test_create_correct_friday_interval(self):
         tool = self.get_tools().tools[1]
