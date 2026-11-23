@@ -1,50 +1,78 @@
-"""Complete identifier facts from ranked durable-memory candidates.
+"""Relevance-safe completion of structured identifier facts.
 
-Never reads historical journal turns. No modifications to storage or AI rank.
+The AI shortlist may omit a second fact for the *same* person. This helper
+adds matching facts but cannot turn a shared first-name token into an identity.
+Unknown subjects do not inherit other people's identifier records.
 """
 import re
 import unicodedata
 
-IDENTIFIER = re.compile(r'\b(?:taj|személyi|igazolvány)\b', re.I)
-HEADING = re.compile(r'^([^\W\d_][\w-]*)(?:\s*\(([^()]*)\))?', re.I)
+IDENTIFIER = re.compile(r'\b(?:TAJ|személyi|igazolvány)\b', re.I)
+SUBJECT = re.compile(
+    r'^\s*(.+?)\s+(?=(?:születési|TAJ|személyi|igazolvány)\b)', re.I
+)
+PAREN_ALIAS = re.compile(r'^(.*?)\s*\(([^()]+)\)\s*$', re.I)
+
 
 def norm(text):
     return ''.join(c for c in unicodedata.normalize('NFKD', text.casefold())
                    if not unicodedata.combining(c))
 
-def enrich_selected_facts(query, selected, candidates):
-    """Append requested person's missing durable identifier facts, max 16.
 
-    If the subject is ambiguous, leave the AI-selected facts unchanged.
-    """
+def _parse(fact):
+    match = SUBJECT.match(fact)
+    if match is None:
+        return None
+    heading = match.group(1).strip(' ,:')
+    alias_match = PAREN_ALIAS.fullmatch(heading)
+    name = alias_match.group(1).strip() if alias_match else heading
+    aliases = {name}
+    if alias_match:
+        aliases.add(alias_match.group(2).strip())
+    if len(name.split()) == 1 and norm(name).endswith(('nak', 'nek')):
+        name = name[:-3]
+        aliases.add(name)
+    return norm(name), aliases
+
+
+def _named(query, aliases):
+    q = norm(query)
+    for alias in aliases:
+        a = re.escape(norm(alias))
+        if re.search(r'(?<!\w)' + a +
+                     r'(?:nak|nek|rol|tol|hoz|hez|t)?(?!\w)', q):
+            return True
+    return False
+
+
+def enrich_selected_facts(query, selected, candidates):
+    """Complete one unambiguous person's record without copying other IDs."""
     if not isinstance(query, str) or not IDENTIFIER.search(query):
         return selected
-    words = set(re.findall(r'[^\W_]+', norm(query)))
-    subjects = set()
-    parsed = []
+    requested = set()
     for item in candidates:
-        heading = HEADING.match(item["fact"])
-        if not heading:
+        parsed = _parse(item['fact'])
+        if parsed and _named(query, parsed[1]):
+            requested.add(parsed[0])
+    if len(requested) != 1:
+        # No reliable single subject: do not provide an unrelated identifier
+        # selected by the relevance model as authoritative evidence.
+        return [item for item in selected if not IDENTIFIER.search(item['fact'])]
+    subject = next(iter(requested))
+    result = []
+    ids = set()
+    for item in selected:
+        parsed = _parse(item['fact'])
+        if IDENTIFIER.search(item['fact']) and (not parsed or parsed[0] != subject):
             continue
-        name = heading.group(1)
-        aliases = [name]
-        if heading.group(2):
-            aliases.append(heading.group(2))
-        if any(norm(alias) in words for alias in aliases):
-            subjects.add(norm(name))
-        parsed.append((item, norm(name)))
-    if len(subjects) != 1:
-        return selected
-    subject = next(iter(subjects))
-    seen = {item["id"] for item in selected}
-    extended = list(selected)
-    for item, name in parsed:
-        if name != subject or item["id"] in seen:
-            continue
-        if not IDENTIFIER.search(item["fact"]):
-            continue
-        extended.append(item)
-        seen.add(item["id"])
-        if len(extended) >= 16:
-            break
-    return extended
+        result.append(item)
+        ids.add(item['id'])
+    for item in candidates:
+        parsed = _parse(item['fact'])
+        if (parsed and parsed[0] == subject and
+                IDENTIFIER.search(item['fact']) and item['id'] not in ids):
+            if len(result) >= 16:
+                break
+            result.append(item)
+            ids.add(item['id'])
+    return result
