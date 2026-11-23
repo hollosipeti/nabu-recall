@@ -1,85 +1,98 @@
-"""Exact, unambiguous readback of explicitly requested stored TAJ numbers.
+"""Conservative readback of structured facts from durable memories.
 
-Only consumes already selected durable Fact lines. Never searches transcripts
-or guesses a person's identity from a conversation or device.
+Never use journal turns. If any question part is not understood or values
+conflict, leave the entire request to the original HA conversation agent.
 """
 import re
+import unicodedata
 
-_TAJ_QUESTION = re.compile(r"\btaj(?:[\s-]*sz[aá]m\w*)?\b", re.I)
-_TAJ_VALUE = re.compile(r"\bTAJ[\s-]*sz[aá]m\w*\s*[:=]?\s*(\d{9})\b", re.I)
-_PERSON = re.compile(r"^Fact:\s*([^\W\d_][\w-]*)(?:\s*\(([^()]+)\))?", re.I)
-_BIRTH = re.compile(r"születési dátuma\s+(\d{4}\.\s*[\wáéíóöőúüű]+\s+\d{1,2}\.)", re.I)
+TAJ = re.compile(r'\bTAJ(?:[\s-]*sz[aá]m\w*)?\s*[:=]?\s*(\d{9})\b', re.I)
+CARD = re.compile(r'\bszemélyi(?:\s+igazolvány)?(?:[\s-]*sz[aá]m\w*)?\s*[:=]?\s*([A-Z0-9]{7,12})\b', re.I)
+BIRTH = re.compile(r'\bszület(?:ési|ett)\s+(?:dátuma|ideje|napja)?\s*[:=]?\s*(\d{4}\.\s*[a-záéíóöőúüű]+\s+\d{1,2}\.)', re.I)
+TAJ_REQUEST = re.compile(r'\btaj(?:[\s-]*sz[aá]m\w*)?\b', re.I)
+CARD_REQUEST = re.compile(r'\bszemélyi(?:\s+igazolvány)?(?:[\s-]*sz[aá]m\w*)?\b|\bigazolvány(?:[\s-]*sz[aá]m\w*)?\b', re.I)
+BIRTH_REQUEST = re.compile(r'\b(?:szület\w*|szülinap\w*)\b', re.I)
+OPEN_REQUEST = re.compile(r'\b(?:mit\s+tudsz|mesél\w*|mondj\s+el|jellem\w*|miért|hogyan|milyen|hány|kapcsold|állítsd|töröld|módosítsd|jegyezd|mentsd|ne\s+(?:mondd|add))\b', re.I)
+PERSON = re.compile(r'^([^\W\d_][\w-]*)(?:\s*\(([^()]*)\))?', re.I)
 
 
-def exact_taj_answer(query, context):
-    """Return a readback only for one clearly identified durable record."""
+def norm(value):
+    return ''.join(c for c in unicodedata.normalize('NFKD', value.casefold())
+                   if not unicodedata.combining(c))
+
+
+def _matches_name(query, aliases):
+    words = set(re.findall(r'[^\W_]+', norm(query)))
+    for alias in aliases:
+        root = norm(alias)
+        if root in words or any(root + ending in words for ending in
+                                ('nak', 'nek', 'rol', 'tol', 'hoz', 'hez', 'et', 't')):
+            return True
+    return False
+
+
+def _fact_aliases(fact):
+    match = PERSON.match(fact)
+    if match is None:
+        return None
+    subject = match.group(1)
+    # Handle the Hungarian dative: "Enikőnek születési dátuma ...".
+    base = re.sub(r'(?:nak|nek)$', '', subject, flags=re.I)
+    aliases = {subject, base}
+    if match.group(2):
+        aliases.add(match.group(2))
+    return base, aliases
+
+
+def extract_precise(query, context):
+    """One final reply only when every requested field has one grounded value."""
     if not isinstance(query, str) or not isinstance(context, str):
         return None
-    if not _TAJ_QUESTION.search(query):
+    if OPEN_REQUEST.search(query):
         return None
-    # Multi-part questions must not be terminated after the first field.
-    if re.search(r"\b(?:személyi|szemelyi|igazolvány|igazolvany|mit\s+tudsz|mesélj|meselj)\b", query, re.I):
+    field_matches = []
+    for key, pattern in (('taj', TAJ_REQUEST), ('card', CARD_REQUEST),
+                         ('birth', BIRTH_REQUEST)):
+        if match := pattern.search(query):
+            field_matches.append((match.start(), key))
+    if not field_matches:
         return None
-    if re.search(r"\b(?:ne\s+(?:mondd|add)|nem\s+kérem)\b", query, re.I):
-        return None
-    query_words = set(re.findall(r"[^\W_]+", query.casefold()))
-    # Never answer a multiple-person request with a single person's number.
-    if "apa" in query_words and "anya" in query_words:
-        return None
-    matches = set()
+    fields = [key for _, key in sorted(field_matches)]
+    # Never silently answer only half of a compound question.
+    if re.search(r'\bés\b', query, re.I):
+        for clause in re.split(r'\bés\b', query, flags=re.I):
+            if not any(pattern.search(clause) for pattern in
+                       (TAJ_REQUEST, CARD_REQUEST, BIRTH_REQUEST)):
+                return None
+    people = {}
     for line in context.splitlines():
-        if not line.startswith("Fact: "):
+        if not line.startswith('Fact: '):
             continue
-        person = _PERSON.match(line)
-        number = _TAJ_VALUE.search(line)
-        if person is None or number is None:
+        fact = line[6:]
+        names = _fact_aliases(fact)
+        if names is None:
             continue
-        aliases = [person.group(1), person.group(2)]
-        if not any(alias and alias.casefold() in query_words for alias in aliases):
+        subject, aliases = names
+        if not _matches_name(query, aliases):
             continue
-        # Number is read digit by digit for unambiguous Hungarian TTS.
-        birth = _BIRTH.search(line)
-        matches.add((person.group(1), number.group(1),
-                     birth.group(1) if birth else ""))
-    if len(matches) != 1:
+        entry = people.setdefault(norm(subject), {
+            'name': subject, 'values': {'taj': set(), 'card': set(), 'birth': set()}
+        })
+        for field, pattern in (('taj', TAJ), ('card', CARD), ('birth', BIRTH)):
+            for hit in pattern.finditer(fact):
+                entry['values'][field].add(hit.group(1).strip())
+    if len(people) != 1:
         return None
-    subject, digits, birth = matches.pop()
-    prefix = f"{subject} születési dátuma: {birth} " if (
-        birth and re.search(r"\bszület\w*\b", query, re.I)) else ""
-    return f"{prefix}{subject} TAJ-száma: {', '.join(digits)}."
-
-def selected_taj_answer(query, context):
-    """Get an exact TAJ value for a multi-part question, if unambiguous."""
-    if not isinstance(query, str) or not isinstance(context, str):
+    person = next(iter(people.values()))
+    if any(len(person['values'][field]) != 1 for field in fields):
         return None
-    if not _TAJ_QUESTION.search(query):
-        return None
-    if re.search(r"\b(?:ne\s+(?:mondd|add)|nem\s+kérem)\b", query, re.I):
-        return None
-    words = set(re.findall(r"[^\W_]+", query.casefold()))
-    if "apa" in words and "anya" in words:
-        return None
-    matches = set()
-    for line in context.splitlines():
-        if not line.startswith("Fact: "):
-            continue
-        person = _PERSON.match(line)
-        number = _TAJ_VALUE.search(line)
-        if person and number and any(alias and alias.casefold() in words
-                                     for alias in (person.group(1), person.group(2))):
-            matches.add((person.group(1), number.group(1)))
-    if len(matches) != 1:
-        return None
-    subject, digits = matches.pop()
-    return subject, f"{subject} TAJ-száma: {', '.join(digits)}."
-
-
-def complementary_question(query, subject):
-    """Recognize a distinct question accompanying a TAJ request."""
-    if not isinstance(query, str) or not isinstance(subject, str):
-        return None
-    if re.search(r"\b(?:személyi|szemelyi|igazolvány|igazolvany)\b", query, re.I):
-        return f"Mi {subject} személyi igazolvány száma?"
-    if re.search(r"\bmit\s+tudsz\b", query, re.I):
-        return f"Mit tudsz {subject} személyéről?"
-    return None
+    result = []
+    for field in fields:
+        value = next(iter(person['values'][field]))
+        if field == 'taj':
+            result.append(f"{person['name']} TAJ-száma: {', '.join(value)}.")
+        elif field == 'card':
+            result.append(f"{person['name']} személyi igazolvány száma: {value}.")
+        else:
+            result.append(f"{person['name']} születési dátuma: {value}")
+    return ' '.join(result)
