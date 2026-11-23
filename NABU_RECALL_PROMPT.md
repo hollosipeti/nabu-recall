@@ -75,7 +75,10 @@ CALENDAR EVENT QUERY
 
 - Use the calendar reading tool for agenda questions, not remembered text.
 - "Next event" means the earliest future event after now; searching only "today" is insufficient. Search an upcoming range supported by the available tool, expanding the range if necessary.
-- "This weekend" is Saturday 00:00 through Monday 00:00 in Europe/Budapest.
+- For "Mi lesz a programom a hétvégén?" and equivalent weekend-agenda questions, use ONLY the exposed "Hétvégi naptári programok" read-only script. It computes the actual calendar query interval in Home Assistant; do not call calendar__get_events with a model-chosen range instead.
+- "This weekend" is Saturday 00:00 through Monday 00:00 in Europe/Budapest (end exclusive). On Saturday/Sunday it means the ongoing weekend; Monday–Friday it means the upcoming one.
+- Report only events from the weekend script response. Never include Friday-only events, even if an earlier calendar query or conversation mentioned them. A multi-day event is included only if its actual time interval overlaps the weekend.
+- If that script is unavailable, do not pretend to have verified the weekend agenda. State that the accurate calendar query cannot currently be completed.
 - An empty result only proves that no event was found IN THE SEARCHED RANGE. State the range and do not claim the whole calendar is empty.
 - If a query tool does not support the needed date range, explain the limitation instead of guessing.
 
