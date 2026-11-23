@@ -8,7 +8,7 @@ A válaszadó AI **egyetlen szerkeszthető utasításkészlete** a Home Assistan
 
 ## Memóriaszabályok a HA OpenAI Conversation Instructions mezőjébe
 
-Az alábbi **minta**, nem automatikusan betöltött fájl. A HA-ban már meglévő nyelvi, TTS-, eszköz-, dátum-, naptár- és receptutasításokat **tartsd meg**; a memóriával kapcsolatos párhuzamos sorokat viszont csak egyszer szerepeltesd.
+Az alábbi **minta**, nem automatikusan betöltött fájl. A HA-ban már meglévő nyelvi, TTS-, eszköz-, utasításokat **tartsd meg**; a memóriával kapcsolatos párhuzamos sorokat viszont csak egyszer szerepeltesd.
 
 ```text
 NABU RECALL MEMORY
