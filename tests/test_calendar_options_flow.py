@@ -113,14 +113,16 @@ class CalendarOptionsTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_calendar_is_optional_and_can_be_disabled(self):
         entry = SimpleNamespace(data={}, options={})
-        flow = self.module.CalendarOptionsFlow(entry)
+        flow = self.module.CalendarOptionsFlow()
+        flow._config_entry = entry
         answer = await flow.async_step_init({})
         self.assertEqual(answer["type"], "create_entry")
         self.assertEqual(answer["data"], {"calendar_entity": ""})
 
     async def test_reject_non_calendar_domain(self):
         entry = SimpleNamespace(data={}, options={})
-        flow = self.module.CalendarOptionsFlow(entry)
+        flow = self.module.CalendarOptionsFlow()
+        flow._config_entry = entry
         answer = await flow.async_step_init(
             {"calendar_entity": "light.kitchen"})
         self.assertEqual(answer["type"], "form")
