@@ -91,6 +91,20 @@ class CalendarLogicTests(unittest.TestCase):
         self.assertEqual(start.isoformat(), "2027-03-27T00:00:00+01:00")
         self.assertEqual(end.isoformat(), "2027-03-29T00:00:00+02:00")
 
+    def test_dst_ambiguous_or_missing_time_rejected(self):
+        for day, hour, minute in [
+            ("2027-03-28", 2, 30),
+            ("2027-10-31", 2, 30),
+        ]:
+            with self.subTest(day=day):
+                now = datetime(2027, 3, 1, 12, tzinfo=TZ)
+                with self.assertRaises(ValueError):
+                    event_bounds(day, hour, minute, now)
+        start, end = event_bounds("2027-03-28", 3, 30,
+                                  datetime(2027, 3, 1, tzinfo=TZ))
+        self.assertEqual(start.utcoffset(), timedelta(hours=2))
+        self.assertGreater(end, start)
+
     def test_next_event_range_not_just_today(self):
         a, b = query_window("next", NOW)
         self.assertEqual(a, NOW)
