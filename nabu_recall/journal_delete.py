@@ -5,6 +5,7 @@ Only the authenticated Ingress UI may call these functions. No bridge/voice API.
 """
 import hashlib
 import json
+import sqlcipher3 as sqlite3
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -72,7 +73,12 @@ def deletion_commit(store, ids, expected_digest):
         if count != len(ids):
             raise JournalDeletionConflict("Deletion count changed")
         store.db.commit()
-        store.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        # A checkpoint failure cannot roll back an already committed deletion.
+        # Do not incorrectly tell the user that their rows are still present.
+        try:
+            store.db.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+        except sqlite3.OperationalError:
+            pass
         return count
     except BaseException:
         store.db.rollback()
