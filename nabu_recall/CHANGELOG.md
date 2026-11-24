@@ -1,5 +1,12 @@
 # Nabu Recall — maintained releases
 
+### HA-integráció 1.0.11 — 2026-11-24 (alkalmazás változatlan: 1.1.9)
+- A Nabu Recall saját rendszerutasításait az integrációban csomagolt `repo_instructions.py` állítja elő; kézi HA OpenAI prompt-másolás nem szükséges.
+- A megerősített aktuális, egyértelmű személyes kedvencek determinisztikus visszaolvasása megakadályozza, hogy az upstream OpenAI ChatLog régi válasza felülírja a friss tartós tényt.
+- A történeti kérdések, az eszközvezérlés, a naptáreszközök és a 45 napos napló változatlanul a korábbi útvonalon működnek.
+- A HA OpenAI Conversation általános promptja továbbra is a HA tulajdona; a Nabu Recall csak a saját szabályait birtokolja.
+
+
 ## 1.1.9 — 2026-11-24 (HAOS app only; HA integration stays 1.0.10)
 - Prefer verified current durable memories for unambiguous named-person preference questions, preventing obsolete 45-day journal dialogue from overriding corrected facts.
 - After deletion, an old conversation cannot be used as an active preference.

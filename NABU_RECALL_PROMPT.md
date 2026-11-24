@@ -1,3 +1,15 @@
+# Nabu Recall – repo által kezelt AI-utasítások
+
+**Az aktív Nabu Recall utasítások a GitHub repóban, a `custom_components/nabu_recall/repo_instructions.py` fájlban vannak.** A telepített integráció automatikusan továbbítja őket az eredeti OpenAI Conversation ügynöknek minden általa kezelt kérésnél. Nabu-specifikus utasítást nem kell és nem is javasolt a Home Assistant felületén megadni.
+
+A naptári eszközök leírását a `custom_components/nabu_recall/llm.py`, a memória tanulási és kezelési utasításait a `nabu_recall/ai.py` tartalmazza. Minden Nabu-specifikus szabály verziókezelt; módosításuk forráskód-frissítéssel történik.
+
+**Technikai korlát:** az alap Home Assistant OpenAI Conversation integrációnak továbbra is van saját szerkeszthető általános promptja. A Nabu Recall ennek létezését nem tudja megszüntetni úgy, hogy közben változatlanul megtartja az eredeti ügynököt és annak eszközeit. A Home Assistant-promptot hagyd általános HA-utasításnak, ne duplikáld benne a Nabu Recall memória- és naptárszabályait.
+
+A jelen dokumentum további része **archivált promptminta**, nem telepítendő utasítás. Új kiadásnál az aktív `repo_instructions.py` az irányadó.
+
+---
+
 # Nabu Recall – válaszadó AI rendszerutasításai
 
 **Nabu Recall HA-integráció 1.0.5-től:** a `conversation.py` nem ad hozzá külön, rejtett, állandó viselkedési utasításblokkot a Home Assistant OpenAI Conversation ügynökéhez. Csak a visszakeresett emlékeket és az esetleges, kéréshez kapott meglévő kontextust továbbítja.
@@ -6,7 +18,7 @@ A válaszadó AI **egyetlen szerkeszthető utasításkészlete** a Home Assistan
 
 **Új telepítési modell:** a naptár-opció az integrációban választható ki, saját HA Assist LLM-eszközökkel. Nem szükséges naptárszkriptet telepíteni és a naptár konkrét eszközleírásait a modell automatikusan megkapja. Az alábbi példa a válaszadó AI viselkedését mutatja; nem egy automatikusan telepített prompt.
 
-## Memóriaszabályok a HA OpenAI Conversation Instructions mezőjébe
+## Archivált memóriautasítás-minta (ne másold a HA-ba)
 
 Az alábbi **minta**, nem automatikusan betöltött fájl. A HA-ban már meglévő nyelvi, TTS- és eszközutasításokat **tartsd meg**. A beépített naptár LLM-eszközeinek leírását a HA automatikusan átadja az AI-nak, a külön naptárblokk ezért csak szemléltető; azonos szabályokat ne duplikálj az upstream ügynöknél.
 

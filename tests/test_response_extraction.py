@@ -47,6 +47,8 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
         from unittest.mock import patch
         sys.path.insert(0, str(SOURCE.parents[0]))
         from exact_recall import extract_precise
+        from current_preference_reply import extract_current_preference
+        from repo_instructions import compose_instructions
 
         self.calls = []
         self.logged = []
@@ -115,6 +117,8 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
             "conversation": FakeConversation(),
             "calendar_action": lambda text: False,
             "extract_precise": extract_precise,
+            "extract_current_preference": extract_current_preference,
+            "compose_instructions": compose_instructions,
             "extract_spoken_answer": extract_spoken_answer,
             "_LOGGER": SimpleNamespace(warning=lambda *args: None),
         }
@@ -169,6 +173,21 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
         result = await self.ask("Jegyezd meg ezt a próbaadatot!")
         self.assertEqual(len(self.calls), 0)
         self.assertEqual(extract_spoken_answer(result), "Rendben.")
+
+    async def test_repo_owned_instruction_is_passed_to_upstream(self):
+        result = await self.ask("Kapcsold fel a nappali lámpát!")
+        self.assertEqual(len(self.calls), 1)
+        prompt = self.calls[0]["extra_system_prompt"]
+        self.assertIn("REPOSITORY-MANAGED RULES", prompt)
+        self.assertIn("Durable memories are the authoritative", prompt)
+
+    async def test_current_preference_does_not_ask_stale_upstream(self):
+        self.context = ("CURRENT CONFIRMED DURABLE FACTS ONLY. Historical "
+                        "conversation text is not evidence of current preferences.\\n"
+                        "Fact: Bodor Zalán kedvenc gyümölcse a mangó.")
+        result = await self.ask("Mi Bodor Zalán kedvenc gyümölcse?")
+        self.assertIn("mangó", extract_spoken_answer(result))
+        self.assertEqual(self.calls, [])
 
     async def test_bridge_error_preserves_original_agent(self):
         self.fail = True
