@@ -12,7 +12,7 @@ from policy import filter_memory_operations
 from shopping_filter import is_shopping_list_action
 from learning_source import assertion_turn, credible_extracted_fact
 from journal_time import journal_window, in_window
-from management import operation_kind, validate_change, previous_context, context_needed
+from management import operation_kind, validate_change, previous_context, context_needed, identical_existing_fact
 from structured_context import enrich_selected_facts
 
 logging.basicConfig(level=logging.INFO)
@@ -91,6 +91,9 @@ async def manage(request):
                 if context is None:
                     return web.json_response({"status": "not_found",
                         "message": "Mit szeretnél elmenteni? Mondd el a tényt is."})
+                if kind == "add" and identical_existing_fact(context, memories):
+                    return web.json_response({"status": "confirmed", "action": "add",
+                                              "message": "Ezt már korábban megjegyeztem."})
             operations = await ai.manage(utterance, kind, memories, context)
             op = validate_change(kind, operations, memories)
             if op is None:
