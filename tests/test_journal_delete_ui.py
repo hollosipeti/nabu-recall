@@ -127,6 +127,29 @@ class JournalDeletionUiTests(unittest.IsolatedAsyncioTestCase):
         _, html = await self.csrf(headers)
         self.assertNotIn("Végső ellenőrzés", html)
 
+    async def test_select_page_without_inline_javascript_and_protect_sources(self):
+        first = self.add("Disposable first")
+        second = self.add("Disposable second")
+        protected = self.add("Referenced source", linked=True)
+        headers = await self.login()
+        csrf, html = await self.csrf(headers)
+        self.assertNotIn("onclick=", html)
+        self.assertIn('name="mode" value="page"', html)
+        self.assertIn('name="visible_id" value="%d"' % first, html)
+        self.assertIn('name="visible_id" value="%d"' % second, html)
+        self.assertNotIn('name="visible_id" value="%d"' % protected, html)
+        response = await self.client.post(
+            "/maintenance/journal/select", headers=headers,
+            data=[("csrf", csrf), ("mode", "page"),
+                  ("visible_id", str(first)),
+                  ("visible_id", str(second))], allow_redirects=False)
+        self.assertEqual(response.status, 303)
+        self.assertEqual(self.store.statistics()["turns"], 3)
+        _, html = await self.csrf(headers)
+        self.assertIn("2 kijelölt párbeszéd", html)
+        self.assertIn("Disposable first", html)
+        self.assertNotIn("Végleges törlés sikeres", html)
+
     async def test_filter_and_page(self):
         for i in range(45):
             self.add("Synthetic sequence %03d" % i)
