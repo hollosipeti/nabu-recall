@@ -27,7 +27,7 @@ def extract_current_preference(query, context):
     match = _QUERY.fullmatch(query)
     if match is None or not context.startswith("CURRENT CONFIRMED DURABLE FACTS ONLY."):
         return None
-    fact_lines = [line[6:].strip() for line in context.splitlines()
+    fact_lines = [line[6:].strip() for line in context.replace(chr(92) + "n", "\n").splitlines()
                   if line.startswith("Fact: ")]
     if not fact_lines and _MISSING in context:
         return "Ezt az adatot most nem találom a memóriámban."
