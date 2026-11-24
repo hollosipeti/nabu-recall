@@ -128,6 +128,55 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("narancssárga", result)
         self.assertNotIn("Fact:", result)
 
+    async def test_current_preference_update_overrides_old_journal(self):
+        """Do not treat old conversation answers as current authoritative data."""
+        class AllAI:
+            async def search_terms(self, query):
+                return ["Orion", "kedvenc", "gyümölcse"]
+            async def recall(self, query, turns, memories):
+                return {"turn_ids": [row["id"] for row in turns],
+                        "memory_ids": [row["id"] for row in memories]}
+        server.ai = AllAI()
+        old_fact = "Teszt Orion kedvenc gyümölcse az alma."
+        revised_fact = "Teszt Orion kedvenc gyümölcse a barack."
+        server.store.add_turn(
+            "Jegyezd meg, hogy Teszt Orion kedvenc gyümölcse az alma.",
+            "Megjegyeztem.")
+        server.store.apply([{"action": "add", "fact": old_fact}])
+        memory = server.store.memory_list()[0]
+        server.store.apply_confirmed(
+            {"action": "update", "id": memory["id"], "fact": revised_fact})
+        response = await self.client.post(
+            "/bridge/recall", json={"query": "Mi Teszt Orion kedvenc gyümölcse?"},
+            headers={"X-Recall-Token": "test-bridge-token"})
+        self.assertEqual(response.status, 200)
+        context = (await response.json())["context"]
+        self.assertIn("barack", context)
+        self.assertNotIn("alma", context)
+        self.assertNotIn("Previous conversation", context)
+        # The 45-day journal remains untouched and is available for history.
+        self.assertEqual(len(server.store.recent_turns()), 1)
+
+    async def test_deleted_preference_does_not_reappear_from_old_turns(self):
+        class AllAI:
+            async def search_terms(self, query):
+                return ["Orion"]
+            async def recall(self, query, turns, memories):
+                return {"turn_ids": [row["id"] for row in turns],
+                        "memory_ids": [row["id"] for row in memories]}
+        server.ai = AllAI()
+        server.store.add_turn(
+            "Teszt Orion kedvenc gyümölcse az alma.",
+            "Teszt Orion kedvenc gyümölcse az alma.")
+        response = await self.client.post(
+            "/bridge/recall", json={"query": "Mi Teszt Orion kedvenc gyümölcse?"},
+            headers={"X-Recall-Token": "test-bridge-token"})
+        context = (await response.json())["context"]
+        self.assertIn("NO CURRENT FACT STORED", context)
+        self.assertNotIn("alma", context)
+        self.assertNotIn("Previous conversation", context)
+        self.assertEqual(len(server.store.recent_turns()), 1)
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",
