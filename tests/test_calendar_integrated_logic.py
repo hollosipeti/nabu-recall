@@ -130,6 +130,21 @@ class CalendarLogicTests(unittest.TestCase):
         self.assertFalse(timed["all_day"])
         self.assertEqual(timed["end"], "2026-11-27T17:30:00+01:00")
 
+    def test_specific_day_is_full_day_and_rejects_missing_date(self):
+        start, end = query_window("day", NOW, "pénteken")
+        self.assertEqual(start.isoformat(), "2026-11-27T00:00:00+01:00")
+        self.assertEqual(end.isoformat(), "2026-11-28T00:00:00+01:00")
+        self.assertTrue(event_overlaps({
+            "start": "2026-11-27T17:00:00+01:00",
+            "end": "2026-11-27T17:30:00+01:00",
+        }, start, end))
+        self.assertFalse(event_overlaps({
+            "start": "2026-11-28",
+            "end": "2026-11-29",
+        }, start, end))
+        with self.assertRaises(ValueError):
+            query_window("day", NOW)
+
     def test_next_event_range_not_just_today(self):
         a, b = query_window("next", NOW)
         self.assertEqual(a, NOW)
