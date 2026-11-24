@@ -3,7 +3,7 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 1.1.7 / 1.0.9
+Aktuális verziók: 1.1.8 / 1.0.10
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -191,7 +191,7 @@ A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz k
 **Az új modellben nincs telepítendő naptárszkript.** A HA-integráció a Home Assistant Assist API-jához két saját LLM-eszközt biztosít, amennyiben a konfigurációban kiválasztottál egy naptár-entitást.
 
 - **Beállítás:** Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Választhatsz pl. `calendar.esemenyek`-et; a mező üresen hagyásával kikapcsolod a funkciót.
-- **Lekérdezés:** ma, holnap, hétvége, következő 7 nap, következő esemény. A hétvége szombat 00:00–hétfő 00:00 (kizárólagos vég); a teljes napos pénteki esemény kimarad.
+- **Lekérdezés:** ma, holnap, hétvége, konkrét nap (pl. pénteken), következő 7 nap, következő esemény. A hétvége szombat 00:00–hétfő 00:00 (kizárólagos vég); a teljes napos pénteki esemény kimarad.
 - **Létrehozás:** pontos dátum vagy magyar relatív dátum alapján, a megadott kezdő- és befejezőidővel. Hiányzó dátum vagy kezdőóra esetén visszakérdez, nem találgat. Alapértelmezés: 30 perc.
 - **Biztonságos hatókör:** kizárólag a beállított naptár entitását kezeli; nem támogat eseménytörlést vagy módosítást.
 - **OpenAI Conversation:** a meglévő upstream ügynökben a Home Assistant **Assist (eszközvezérlés)** LLM API legyen engedélyezve. A kiválasztott naptárhoz tartozó eszközleírásokat az integráció adja, a régi kézi `CALENDAR EVENT CREATION` és `CALENDAR EVENT QUERY` utasításblokkokra nincs szükség.
@@ -200,7 +200,7 @@ A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz k
 
 A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A korábban használt [kézi naptárszkriptek](examples/README.md) történeti példák; ha azokat már létrehoztad és exposed állapotban vannak, az új megoldás élesítésekor kapcsold ki az AI számára való elérhetőségüket, hogy ne legyenek párhuzamos, versengő eszközök.
 
-**Fejlesztői állapot:** ez az új modell a `dev-integrated-calendar` ágon tesztelendő; csak sikeres HAOS/Assist end-to-end ellenőrzés után kerülhet a stabil kiadásba.
+**Kiadási állapot:** a naptármodul éles HA Assist-próbákkal és regressziótesztekkel ellenőrzött; a memóriaírás új védelme automatizáltan tesztelt, ezért éles használatnál külön ellenőrizzük az új emlékek létrejöttét és módosítását.
 
 ## 11. Gyakorlati példák
 
