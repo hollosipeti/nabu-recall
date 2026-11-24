@@ -1,4 +1,4 @@
-"""Prompt ownership regression: HA handles the responding agent's rules."""
+"""Prompt ownership regression: repository controls Nabu-specific behavior."""
 import ast
 import pathlib
 import unittest
@@ -7,13 +7,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 class PromptOwnershipTests(unittest.TestCase):
-    def test_response_rules_are_owned_by_home_assistant(self):
+    def test_nabu_response_rules_are_loaded_from_repository(self):
         source = (ROOT / "custom_components/nabu_recall/conversation.py").read_text()
         ast.parse(source)
         self.assertNotIn("        instructions = (", source)
         self.assertNotIn("TAJ number", source)
         self.assertNotIn("Ordinary personal and family facts", source)
-        self.assertIn('user_input.extra_system_prompt or "", memory', source)
+        self.assertIn("compose_instructions(user_input.extra_system_prompt, memory)", source)
+        self.assertIn("from .repo_instructions import compose_instructions", source)
         self.assertIn("agent_id=upstream", source)
         self.assertIn("extra_system_prompt=extra", source)
         self.assertIn("calendar_action(user_input.text)", source)
@@ -25,6 +26,7 @@ class PromptOwnershipTests(unittest.TestCase):
         source = (ROOT / "custom_components/nabu_recall/conversation.py").read_text()
         ast.parse(source)
         self.assertIn("exact_answer = extract_precise(user_input.text, memory)", source)
+        self.assertIn("extract_current_preference(user_input.text, memory)", source)
         self.assertIn("self.hass, text=user_input.text", source)
         self.assertEqual(source.count("result = await conversation.async_converse("), 1)
         self.assertNotIn("upstream_text", source)
