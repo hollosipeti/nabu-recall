@@ -22,7 +22,7 @@ class InstallerStagingTests(unittest.TestCase):
 
     def test_staging_version_distinct_from_stable(self):
         staging = (ROOT / "custom_components/nabu_recall/manifest.json").read_text()
-        self.assertIn('"version":"1.0.10b1"', staging)
+        self.assertIn('"version":"1.0.10"', staging)
         self.assertIn('"domain":"nabu_recall"', staging)
 
 if __name__ == "__main__":
