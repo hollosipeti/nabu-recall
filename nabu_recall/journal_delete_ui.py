@@ -126,12 +126,9 @@ def setup_journal_delete(app, store, state, authorized, headers, page,
             '<article><h3>Beszélgetések kiválasztása</h3>'
             '<form method="post" action="./journal/select">'
             '<input type="hidden" name="csrf" value="%s">'
-            '<button type="button" onclick="document.querySelectorAll('
-            "'input[name=journal_id]:not(:disabled)').forEach("
-            'x=>x.checked=true)">Az oldal törölhető sorainak kijelölése</button> '
-            '<button type="button" onclick="document.querySelectorAll('
-            "'input[name=journal_id]').forEach("
-            'x=>x.checked=false)">Kijelölés törlése</button>'
+            '<button type="submit" name="mode" value="page">'
+            'Az oldal összes törölhető sorának ellenőrzése</button> '
+            '<button type="reset">Pipák törlése</button>'
             % _h(csrf)
         )
         for item in listing["rows"]:
@@ -144,14 +141,18 @@ def setup_journal_delete(app, store, state, authorized, headers, page,
                 'style="width:auto" %s>' %
                 (item["id"], "disabled" if protected else "")
             )
+            if not protected:
+                body += ('<input type="hidden" name="visible_id" value="%d">' %
+                         item["id"])
             body += (
                 '<article><label>%s <strong>#%d · %s · %s</strong></label>'
                 '<p><b>Kérdés:</b> %s</p><p><b>Válasz:</b> %s</p></article>' %
                 (checkbox, item["id"], _h(row_time(item["created"])),
                  _h(reason), _h(item["user_text"]), _h(item["assistant_text"]))
             )
-        body += ('<button type="submit">Kijelöltek ellenőrzése '
-                 '(még nincs törlés)</button></form></article>')
+        body += ('<button type="submit" name="mode" value="selected">'
+                 'Bepipáltak ellenőrzése (még nincs törlés)</button>'
+                 '</form></article>')
         if page_number:
             body += '<a href="%s">← Előző oldal</a> ' % _h(
                 target(search, day, page_number - 1))
@@ -171,7 +172,10 @@ def setup_journal_delete(app, store, state, authorized, headers, page,
         guard(request, form)
         session = session_key(request)
         try:
-            raw = form.getall("journal_id", [])
+            mode = str(form.get("mode", "selected"))
+            if mode not in ("selected", "page"):
+                raise JournalDeletionConflict("Invalid selection mode")
+            raw = form.getall("visible_id" if mode == "page" else "journal_id", [])
             if not 1 <= len(raw) <= MAX_SELECT:
                 raise JournalDeletionConflict("Invalid selection count")
             if any(not text.isdigit() for text in raw):
