@@ -21,8 +21,8 @@ class ReleaseDocsTests(unittest.TestCase):
         config=(ROOT/"nabu_recall/config.yaml").read_text()
         server=(ROOT/"nabu_recall/server.py").read_text()
         self.assertEqual(manifest["version"],"2.0.0")
-        self.assertIn('version: "2.0.0"', config)
-        self.assertIn("'version': '2.0.0'",server)
+        self.assertIn('version: "2.0.1"', config)
+        self.assertIn("'version': '2.0.1'",server)
         notes=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
         self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["2.0.0"])
 
