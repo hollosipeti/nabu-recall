@@ -24,7 +24,7 @@ class ReleaseDocsTests(unittest.TestCase):
         self.assertIn('version: "2.0.1"', config)
         self.assertIn("'version': '2.0.1'",server)
         notes=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
-        self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["2.0.0"])
+        self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["2.0.1","2.0.0"])
 
     def test_prompt_map_links_exact_live_sources(self):
         instructions = (ROOT/"NABU_RECALL_PROMPT.md").read_text()
