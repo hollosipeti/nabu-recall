@@ -10,6 +10,7 @@ from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
 from shopping_filter import is_shopping_list_action
+from learning_source import assertion_turn, credible_extracted_fact
 from management import operation_kind, validate_change, previous_context, context_needed
 from structured_context import enrich_selected_facts
 
@@ -118,8 +119,9 @@ async def process_pending():
             try:
                 # A shopping-list task is an action, not durable user knowledge.
                 # Keep the complete original transcript in the 45-day journal.
-                learnable = [row for row in pending if not is_shopping_list_action(
-                    row["user_text"], row["assistant_text"])]
+                learnable = [row for row in pending if assertion_turn(row["user_text"]) and
+                             not is_shopping_list_action(
+                                 row["user_text"], row["assistant_text"])]
                 if learnable:
                     recent_memories = store.memory_list(40)
                     terms = await ai.search_terms(" ".join(
@@ -130,8 +132,10 @@ async def process_pending():
                         limit=120)
                     by_id = {r["id"]: r for r in recent_memories + relevant}
                     operations = await ai.learn(learnable, list(by_id.values())[:160])
-                    safe = filter_memory_operations(
+                    safe = [op for op in filter_memory_operations(
                         operations, [x["user_text"] for x in learnable])
+                            if op.get("action") not in ("add", "update") or
+                            credible_extracted_fact(op.get("fact"))]
                 else:
                     operations = []
                     safe = []
