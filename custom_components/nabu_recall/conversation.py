@@ -7,6 +7,8 @@ from homeassistant.const import MATCH_ALL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .gateway import Bridge
 from .exact_recall import extract_precise
+from .current_preference_reply import extract_current_preference
+from .repo_instructions import compose_instructions
 import re
 
 _LOGGER = logging.getLogger(__name__)
@@ -105,6 +107,8 @@ class RecallAgent(ConversationEntity):
         # Read back only uniquely identified, selected durable identifiers.
         # All other requests retain the upstream HA/OpenAI control and chat path.
         exact_answer = extract_precise(user_input.text, memory)
+        if exact_answer is None:
+            exact_answer = extract_current_preference(user_input.text, memory)
         if exact_answer is not None:
             from homeassistant.helpers import intent
             response = intent.IntentResponse(language=user_input.language)
@@ -116,12 +120,10 @@ class RecallAgent(ConversationEntity):
                           result.conversation_id),
                 "Nabu Recall: store exact memory readback")
             return result
-        # The upstream OpenAI Conversation agent owns all response-behavior
-        # instructions, including Nabu Recall memory interpretation.
-        # Preserve request context and dynamically retrieved memory; do not
-        # append a second, hidden system instruction block here.
-        extra = "\n\n".join(x for x in (
-            user_input.extra_system_prompt or "", memory) if x)
+        # Nabu Recall behavioral instructions are shipped with this integration
+        # and are never copied into the user's editable OpenAI Instructions field.
+        # The upstream HA OpenAI agent still controls HA tools and chat behavior.
+        extra = compose_instructions(user_input.extra_system_prompt, memory)
         result = await conversation.async_converse(
             self.hass, text=user_input.text,
             conversation_id=user_input.conversation_id,
