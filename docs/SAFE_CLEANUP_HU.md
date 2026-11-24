@@ -2,6 +2,14 @@
 
 **Állapot:** a 2.0.0 főverzióhoz tartozó biztonsági mentési és jóváhagyott karbantartási útmutató. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon titkosított naplóarchiválás, visszaállítás és ellenőrzött memóriaösszevonás lehetséges. A főverzió előtti állapot a `stable-2026-11-24-before-v2` ágon visszakereshető.
 
+## 2.0.1 – Forgó memória kézzel kijelölt, VÉGLEGES törlése
+
+A Web UI **Memóriakezelés → Forgó memória – végleges törlés** oldalán külön művelet jelent meg. Ez eltér az alább dokumentált, visszaállítható hiányosnapló-archiválástól: **a kijelölt beszélgetéseket ténylegesen törli a titkosított adatbázisból, nem archiválja, és nem ad hozzá visszavonási lehetőséget**.
+
+Kereshetsz, dátum szerint szűrhetsz, 40 soros oldalakon pipálhatsz, majd teljes előnézetből kétlépcsős jóváhagyással törölhetsz. Az aktív tartós emlék forrásaként hivatkozott, illetve feldolgozatlan sorok védettek. Törlés előtt a rendszer újraellenőrzi minden kijelölt sor épségét és hivatkozását; eltérésnél az egész művelet meghiúsul. A felhasználói adatok nem kerülnek automatikusan kiválasztásra.
+
+Törlés előtt készíts ellenőrzött, konzisztens HA-mentést. A biztonsági mentésekben megmaradhat a korábbi szöveg, ezek életciklusát a Nabu Recall nem kezeli. A törlés SQLite `secure_delete` és WAL-truncate műveletet használ, de **a teljes fájlrendszeres adattörlés garanciáját ez önmagában nem jelenti**. Visszaállítás csak külső, a törlés előtti adatmentésből lehetséges.
+
 ## Miért kell külön mentés?
 
 A `/data/recall.sqlite3` SQLCipherrel titkosított adatbázis. A hozzá tartozó

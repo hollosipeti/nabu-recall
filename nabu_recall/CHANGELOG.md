@@ -1,5 +1,15 @@
 # Nabu Recall — kiadási napló
 
+## 2.0.1 — 2026-11-24 (HAOS alkalmazás; HA-integráció továbbra is 2.0.0)
+
+- **Kézi, visszavonhatatlan beszélgetéstörlés:** Web UI → Memóriakezelés → Forgó memória – végleges törlés. Pipa minden teljes kérdés–válasz párhoz, keresés, magyar időzónás dátumszűrés, lapozás, az aktuális oldalon törölhető sorok kézi kijelölése.
+- A kijelölés után a teljes szövegű előnézet külön megerősítést és jelölőnégyzetet igényel, majd a törlés egyetlen SQLCipher-tranzakcióban történik. Egy művelet legfeljebb 40 sort töröl, 10 perc után lejár.
+- A feldolgozatlan vagy bármely aktív tartós emlékhez `source_turn` kapcsolattal kötött naplósorok védettek. Az adatbázis minden sort újraellenőriz, így változás vagy védett rekord esetén semmit nem töröl.
+- **Nem archiválás:** a törölt sor nem kerül a `journal_archive` táblába, nem állítható vissza a Nabu Recall UI-ján. SQLite `secure_delete` és WAL-checkpoint alkalmazva. Korábbi rendszermentés külön tartalmazhatja az adatokat.
+- A meglévő 45 napos lejárat, automatikus tanulás, tartós emlékek, memóriaoptimalizálás és annak visszavonása, naptár, HA eszközvezérlés, a 2.0.0 HA-integráció és az AI-utasítások változatlanok.
+- Új adatbázis-/UI-regressziók: jogosultság, CSRF, XSS, kézi megerősítés, törlési versenyhelyzet, véglegesség, referencia-védelem és 426 soros lapozás.
+
+
 ## 2.0.0 — 2026-11-24 (HAOS alkalmazás és HA-integráció)
 
 **Főverzió, meglévő telepítésre frissíthető.** Az alkalmazás és az integráció ugyanazt a 2.0.0 verziót kapta.

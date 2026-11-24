@@ -3,7 +3,7 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 2.0.0 / 2.0.0
+Aktuális verziók: 2.0.1 / 2.0.0
 
 **Főverzió 2.0.0:** meglévő Nabu Recall alkalmazás és integráció egységes verzióval, a titkosított tartós memória és a 45 napos forgó napló adatainak migrációja nélkül. A telepített felhasználói OpenAI Instructions mező változatlan marad.
 
@@ -169,6 +169,19 @@ A modell alapbeállítása `gpt-4.1-mini`. Ezt csak akkor változtasd meg, ha tu
 A „Jegyezd meg”, „Javítsd” és „Töröld” típusú műveletek sikerét csak a tényleges mentés vagy módosítás visszaigazolása után tekintsd biztosnak. A **teljes memória hangos tömeges törlése tiltott**.
 
 A bevásárlólistához hozzáadott vagy onnan törölt tételek nem válnak automatikusan tartós emlékké; a valódi vásárlási szokásokat viszont megjegyezheti.
+
+## 8.1 Forgó memória – kiválasztott beszélgetések végleges törlése (2.0.1)
+
+A 2.0.1-es alkalmazástól a **Web UI → Memóriakezelés → Forgó memória – kiválasztás és végleges törlés** lapon a korábbi párbeszédek kézzel kiválaszthatók és végleg törölhetők.
+
+- Keresés a kérdések és válaszok szövegében, dátumszűrés a Home Assistant magyar időzónájában, 40 soros lapozás.
+- Minden párbeszéd mellett pipa; az aktuális oldalon a törölhető sorok külön gombbal kijelölhetők. **Semmi nincs előre kijelölve, és nincs automatikus tesztadat-felismerés vagy -törlés.**
+- A feldolgozatlan sorok és az aktív tartós emlékek `source_turn` hivatkozásai által védett sorok nem törölhetők. Vegyes, védett tételt tartalmazó kijelölés teljes egészében elutasításra kerül.
+- Az előnézet megmutatja a kiválasztott sorok pontos tartalmát; külön megerősítés és jelölőnégyzet szükséges. Egyszerre legfeljebb 40 párbeszéd végleg törölhető.
+- **Nem archiválás, nincs alkalmazáson belüli visszaállítás.** A kijelölt bejegyzések az aktív titkosított adatbázisból törlődnek. A SQLite WAL-t a rendszer ellenőrzőpontozza; régebbi HA biztonsági mentésekben ettől még megmaradhatnak a korábbi adatok.
+- Törlés előtt készíts teljes, ellenőrzött HA-mentést. A tartós emlékek és a 45 napos normál lejárat logikája változatlan.
+
+Ez **alkalmazásfrissítés**: a 2.0.0-s HA-integrációt a 2.0.1 funkcióhoz nem szükséges frissíteni.
 
 ## 9. Nabu Recall AI-utasítások: csak a repóban
 

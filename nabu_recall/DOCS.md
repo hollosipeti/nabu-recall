@@ -1,6 +1,6 @@
-# Nabu Recall 2.0.0 — Home Assistant alkalmazás
+# Nabu Recall 2.0.1 — Home Assistant alkalmazás
 
-Az alkalmazás és a Home Assistant-egyedi integráció **egyaránt 2.0.0**. A régi telepített `nabu_recall` alkalmazást kell frissíteni, nem új alkalmazást létrehozni.
+Az alkalmazás **2.0.1**, a Home Assistant-egyedi integráció változatlanul **2.0.0**. A régi telepített `nabu_recall` alkalmazást kell frissíteni, nem új alkalmazást létrehozni.
 
 - [Teljes magyar telepítési és frissítési útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
 - [Az összes OpenAI-utasítás tényleges forrásfájlja és helye](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md)
@@ -11,11 +11,17 @@ Az alkalmazás és a Home Assistant-egyedi integráció **egyaránt 2.0.0**. A r
 ## Biztonságos frissítés
 
 1. Készíts és ellenőrizz teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással és annak adataival.
-2. Frissítsd a meglévő Nabu Recall alkalmazást 2.0.0-ra.
+2. Frissítsd a meglévő Nabu Recall alkalmazást 2.0.1-re.
 3. Frissítsd a Nabu Recall HA-integrációt a repó [`install_integration.sh`](https://github.com/hollosipeti/nabu-recall/blob/main/install_integration.sh) telepítőjével, majd indítsd újra a HA Core-t.
-4. Ellenőrizd az alkalmazás és az integráció 2.0.0 verzióját, a tartós memória tartalmát, az Assist vezérlést, a naptárt és egy korábbi beszélgetés visszakeresését.
+4. Ellenőrizd, hogy az alkalmazás 2.0.1, az integráció 2.0.0, és a tartós memória, Assist-eszközvezérlés, naptár és beszélgetés-visszakeresés működik.
 
 A titkosított adatbázis és kulcsa az alkalmazás saját `/data/recall.sqlite3` és `/data/recall.key` fájljában van. Ezeket együtt kell biztonságosan menteni. A 45 napos napló és a tartós emlékek változatlan formában maradnak; **nem kell és nem szabad új adatbázist létrehozni**.
+
+## Újdonság a 2.0.1-es alkalmazásban
+
+**Forgó memória – kézi, végleges törlés:** Web UI → Memóriakezelés → Forgó memória. Kereshető, dátumra szűrhető és lapozható lista, minden bejegyzésnél jelölőnégyzettel. A rendszer semmit nem választ ki és nem töröl automatikusan; a felhasználó kiválaszt legfeljebb 40 törölhető, feldolgozott bejegyzést, átnézi a teljes előnézetet, majd külön jelöléssel és megerősítéssel végleg törli azokat.
+
+Ez **nem archiválás**; nincs visszavonás a felületen, a tartós emlékhez forrásként kötött vagy még feldolgozatlan naplók védettek. A régi mentések továbbra is őrizhetik a törölt szövegeket. A biztonságos teljes HA-mentés a törlés előtt kötelező elővigyázatosság.
 
 ## Képességek
 
