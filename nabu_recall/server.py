@@ -97,6 +97,14 @@ async def manage(request):
             operations = await ai.manage(utterance, kind, memories, context)
             op = validate_change(kind, operations, memories)
             if op is None:
+                # Only non-sensitive diagnostics: never log utterances, fact
+                # bodies, identifiers, or raw model JSON.
+                LOG.info("Memory edit not confirmed: requested=%s, candidate_count=%d, "
+                         "model_operations=%d, model_actions=%s",
+                         kind, len(memories),
+                         len(operations) if isinstance(operations, list) else -1,
+                         [o.get("action") for o in operations[:2]
+                          if isinstance(o, dict)] if isinstance(operations, list) else [])
                 return web.json_response({"status": "not_found", "message": "Nem sikerült egyértelműen azonosítani az emléket."})
             changed = store.apply_confirmed(op)
             if not changed:
