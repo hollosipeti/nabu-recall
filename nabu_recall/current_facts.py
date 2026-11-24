@@ -34,15 +34,27 @@ def current_preference_subject(query):
 
 
 def authoritative_preferences(query, memories):
-    """Only relevant complete-subject durable facts; no fuzzy first-name match."""
+    """Return current durable facts for a named person's requested preference.
+
+    None means the query is outside this narrowly scoped safeguard. An empty
+    list means the precise current attribute is not stored; old transcript
+    text must not silently recreate a deleted or corrected preference.
+    """
     name = current_preference_subject(query)
-    if not name:
+    if name is None:
         return None
+    # Distinguish favourite fruit from favourite drink, even for one person.
+    attribute = re.search(r"\bkedvenc\w*\s+(\w+)", query, re.I)
+    attribute = fold(attribute.group(1)) if attribute else None
     result = []
     for item in memories:
         fact = item.get("fact", "")
         normalized = fold(fact)
-        if (re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", normalized) and
-                PREFERENCE.search(fact)):
-            result.append(item)
+        if not re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", normalized):
+            continue
+        if not PREFERENCE.search(fact):
+            continue
+        if attribute and not re.search(r"(?<!\w)" + re.escape(attribute) + r"(?!\w)", normalized):
+            continue
+        result.append(item)
     return result
