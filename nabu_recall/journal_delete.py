@@ -57,6 +57,9 @@ def deletion_commit(store, ids, expected_digest):
     ids = _ids(ids)
     if not isinstance(expected_digest, str) or len(expected_digest) != 64:
         raise JournalDeletionConflict("Invalid confirmation")
+    # Overwrite freed SQLite cells; reclaim the WAL after commit so erased
+    # conversation bodies are not left in a still-active journal segment.
+    store.db.execute("PRAGMA secure_delete=ON")
     store.db.execute("BEGIN IMMEDIATE")
     try:
         current = deletion_preview(store, ids)
@@ -69,6 +72,7 @@ def deletion_commit(store, ids, expected_digest):
         if count != len(ids):
             raise JournalDeletionConflict("Deletion count changed")
         store.db.commit()
+        store.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
         return count
     except BaseException:
         store.db.rollback()
