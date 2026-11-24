@@ -74,8 +74,10 @@ A további fejlesztés csak akkor kerülhet éles rendszerbe, ha:
 
 ## Tesztterv
 
-Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzés lépései:
-[HAOS_AUDIT_TEST_HU.md](HAOS_AUDIT_TEST_HU.md).
+Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzéshez a
+[2.0.0 fő útmutató](../README.md) frissítési szakaszát használd,
+majd ellenőrizd a titkosított adatbázis és kulcs megőrzését, a napló és
+a tartós emlékek számát, valamint az Assist működését.
 
 Az `tests/test_audit_fixture.py` ellenőrzése valódi titkosított SQLCipher
 próbaadatbázist használ: bizonyítja, hogy a lekérdezés nem módosítja a
