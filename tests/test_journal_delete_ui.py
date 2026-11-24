@@ -136,6 +136,8 @@ class JournalDeletionUiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status, 200)
         html = await response.text()
         self.assertIn("Találatok: 45", html)
+        self.assertIn('action="./journal" method="get"', html)
+        self.assertIn('href="./journal?search=sequence"', html)
         self.assertIn("Synthetic sequence 000", html)
         self.assertNotIn("Synthetic sequence 044", html)
 
