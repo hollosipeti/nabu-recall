@@ -92,6 +92,42 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("123456789", context)
         self.assertNotIn("987654321", context)
 
+    async def test_yesterday_recall_excludes_today_and_timeless_facts(self):
+        """The assistant may not turn today's conversation into yesterday's."""
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        from unittest.mock import patch
+        tz = ZoneInfo("Europe/Budapest")
+        today = int(datetime(2026, 11, 24, 8, 0, tzinfo=tz).timestamp())
+        yesterday = int(datetime(2026, 11, 23, 9, 0, tzinfo=tz).timestamp())
+        yesterday_id = server.store.add_turn(
+            "Tegnap a műhelyben piros doboz volt.", "Értem.",
+            created=yesterday)
+        server.store.add_turn(
+            "A műhelyben narancssárga doboz van.", "Értem.",
+            created=today)
+        server.store.apply([
+            {"action": "add", "fact": "A műhelyben narancssárga doboz van."}
+        ])
+        class AllSelectingAI:
+            async def search_terms(self, query):
+                return ["doboz"]
+            async def recall(self, query, turns, memories):
+                return {"turn_ids": [t["id"] for t in turns],
+                        "memory_ids": [m["id"] for m in memories]}
+        server.ai = AllSelectingAI()
+        day_begin = int(datetime(2026, 11, 23, 0, 0, tzinfo=tz).timestamp())
+        day_end = int(datetime(2026, 11, 24, 0, 0, tzinfo=tz).timestamp())
+        with patch.object(server, "journal_window", return_value=(day_begin, day_end)):
+            response = await self.client.post(
+                "/bridge/recall",
+                json={"query": "Mit mondtam tegnap a dobozról?"},
+                headers={"X-Recall-Token": "test-bridge-token"})
+        result = (await response.json())["context"]
+        self.assertIn("Tegnap a műhelyben piros", result)
+        self.assertNotIn("narancssárga", result)
+        self.assertNotIn("Fact:", result)
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",
