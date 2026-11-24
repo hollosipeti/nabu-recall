@@ -3,7 +3,7 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 2.0.0 / 2.0.0
+Aktuális verziók: 2.0.1 / 2.0.0
 
 **Főverzió 2.0.0:** meglévő Nabu Recall alkalmazás és integráció egységes verzióval, a titkosított tartós memória és a 45 napos forgó napló adatainak migrációja nélkül. A telepített felhasználói OpenAI Instructions mező változatlan marad.
 
