@@ -5,6 +5,7 @@ import secrets
 import time
 from html import escape
 from aiohttp import web
+from journal_delete_ui import setup_journal_delete
 from maintenance import (
     cleanup_preview, cleanup_commit, cleanup_restore, latest_cleanup,
     validate_proposal, memory_apply, memory_apply_many, memory_restore, memory_restore_many, recent_memory_undo,
@@ -67,6 +68,12 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
         body = (
             '<nav><a href="./">Vissza a Nabu Recallhoz</a></nav>'
             '<h2>Memóriakezelés</h2>'
+            '<article><h3>Forgó memória — végleges kézi törlés</h3>'
+            '<p>Jelölőnégyzetek, dátum/keresés, külön végső jóváhagyás. '
+            'A kijelölt, már feldolgozott, tartós emlékhez nem kötött '
+            'párbeszédek <b>végleg törlődnek</b>, archiválás nélkül.</p>'
+            '<p><a href="./maintenance/journal">Forgó memória — kiválasztás és végleges törlés →</a></p>'
+            '</article>'
             '<p><b>1.</b> A naplókarbantartás a hibás, üres válaszú '
             'beszélgetések áthelyezése egy titkosított archívumba.</p>'
             '<p><b>2.</b> Az emlékellenőrzés az ismétlődő vagy ütköző '
@@ -335,3 +342,4 @@ def setup_maintenance(app, store, state, key, authorized, headers, page, ai=None
 
     app.router.add_get("/maintenance", home)
     app.router.add_post("/maintenance/{action}", perform)
+    setup_journal_delete(app, store, state, authorized, headers, page, token, lock)
