@@ -3,9 +3,12 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 2.0.1 / 2.0.0
+| Komponens | GitHub `main` ágán elérhető verzió |
+| --- | --- |
+| HAOS alkalmazás (APP) | **2.0.1** |
+| HA-integráció | **2.0.0** |
 
-**Főverzió 2.0.0:** meglévő Nabu Recall alkalmazás és integráció egységes verzióval, a titkosított tartós memória és a 45 napos forgó napló adatainak migrációja nélkül. A telepített felhasználói OpenAI Instructions mező változatlan marad.
+A külön átadott, éles használatban ellenőrzött **2.0.2-es HA-integráció** kibővített naptárfunkciókat tartalmaz (lásd a 10. pontot). Ez a javítócsomag még nem része a GitHub `main` ágának, ezért az alábbi GitHub-telepítő jelenleg a 2.0.0-s integrációt telepíti. Ha már 2.0.2 fut a rendszereden, ne telepítsd rá a régebbi verziót. Az APP mindkét integrációverzió mellett 2.0.1 marad.
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -75,10 +78,12 @@ Ez **nem ugyanaz**, mint az előző lépésben telepített alkalmazás: az integ
 A Home Assistant **Terminal** felületén futtasd ezt az **egyetlen parancssort** (előtte a telepítő tartalmát a GitHubon ellenőrizheted):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu_recall.sh && sh /tmp/install_nabu_recall.sh
+curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu.sh && sh /tmp/install_nabu.sh main
 ```
 
-Ezután **indítsd újra a Home Assistantot**.
+A parancs kizárólag a HA-integrációt telepíti vagy cseréli le, nem az APP-ot és nem annak adatait. A telepítő kiírja a telepített manifest verzióját, és a korábbi integrációfájlokat a `/config/nabu_recall_backups` könyvtárba menti. Külön Python-telepítés nem szükséges. Jelenleg a `main` verziója 2.0.0.
+
+Ezután **indítsd újra a Home Assistant Core-t** (a terminálból: `ha core restart`).
 
 ### 3.3 Az integráció beállítása
 
@@ -123,9 +128,14 @@ Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontba
 
 ## 4. Frissítés
 
-1. **Készíts teljes Home Assistant-alkalmazásmentést** a Nabu Recall alkalmazásról.
-2. Frissítsd a **Nabu Recall alkalmazást** az alkalmazásboltból.
-3. **Csak akkor, ha a Nabu Recall-integráció is új verziót kapott:** futtasd újra a **3.2. pontban megadott `install_integration.sh` telepítőt**, majd indítsd újra a Home Assistantot.
+Az APP és a HA-integráció egymástól függetlenül frissíthető. Nem kell mindkettőt újratelepíteni, ha csak az egyik változott.
+
+1. Készíts ellenőrzött teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával. Részletek: [Biztonsági mentés és karbantartás](docs/SAFE_CLEANUP_HU.md).
+2. Ha az **APP** kapott új verziót, frissítsd a meglévő alkalmazást az alkalmazásboltból.
+3. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t. A külön átadott 2.0.2-es naptárjavítást ne írd felül a jelenlegi 2.0.0-s `main` verzióval.
+4. Ellenőrizd a két verziószámot, a memóriaadatokat, az eszközvezérlést és (ha be van állítva) a naptárt.
+
+A 2.0.x itt dokumentált frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő memóriát törölni. Az APP titkosított adatbázisát és kulcsát együtt őrizd meg.
 
 ## 5. Adatok, memória és titkosítás
 
@@ -181,7 +191,7 @@ A 2.0.1-es alkalmazástól a **Web UI → Memóriakezelés → Forgó memória �
 - **Nem archiválás, nincs alkalmazáson belüli visszaállítás.** A kijelölt bejegyzések az aktív titkosított adatbázisból törlődnek. A SQLite WAL-t a rendszer ellenőrzőpontozza; régebbi HA biztonsági mentésekben ettől még megmaradhatnak a korábbi adatok.
 - Törlés előtt készíts teljes, ellenőrzött HA-mentést. A tartós emlékek és a 45 napos normál lejárat logikája változatlan.
 
-Ez **alkalmazásfrissítés**: a 2.0.0-s HA-integrációt a 2.0.1 funkcióhoz nem szükséges frissíteni.
+Ez az **APP 2.0.1** funkciója; a HA-integrációt nem szükséges hozzá frissíteni. A külön 2.0.2-es naptárjavítás sem változtatja meg ezt a funkciót.
 
 ## 9. Nabu Recall AI-utasítások: csak a repóban
 
@@ -193,19 +203,41 @@ A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py
 
 ## 10. Opcionális, beépített naptár
 
-**Az új modellben nincs telepítendő naptárszkript.** A HA-integráció a Home Assistant Assist API-jához két saját LLM-eszközt biztosít, amennyiben a konfigurációban kiválasztottál egy naptár-entitást.
+A Nabu Recall a Home Assistantban már elérhető naptár-entitással dolgozik. Nem kell külön YAML-t vagy naptárszkriptet telepíteni. A naptár nélküli telepítés továbbra is teljes értékű tartós memória.
 
-- **Beállítás:** Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Választhatsz pl. `calendar.esemenyek`-et; a mező üresen hagyásával kikapcsolod a funkciót.
-- **Lekérdezés:** ma, holnap, hétvége, konkrét nap (pl. pénteken), következő 7 nap, következő esemény. A hétvége szombat 00:00–hétfő 00:00 (kizárólagos vég); a teljes napos pénteki esemény kimarad.
-- **Létrehozás:** pontos dátum vagy magyar relatív dátum alapján, a megadott kezdő- és befejezőidővel. Hiányzó dátum vagy kezdőóra esetén visszakérdez, nem találgat. Alapértelmezés: 30 perc.
-- **Biztonságos hatókör:** kizárólag a beállított naptár entitását kezeli; nem támogat eseménytörlést vagy módosítást.
-- **OpenAI Conversation:** a meglévő upstream ügynökben a Home Assistant **Assist (eszközvezérlés)** LLM API legyen engedélyezve. A kiválasztott naptárhoz tartozó eszközleírásokat az integráció adja, a régi kézi `CALENDAR EVENT CREATION` és `CALENDAR EVENT QUERY` utasításblokkokra nincs szükség.
-- **Eszközütközés elkerülése:** a kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, a kettős, eltérő lekérdezési lehetőség elkerülésére vedd ki a natív Assist-kitettségből; ez a Google Naptárat és a Nabu Recallban kiválasztott hozzáférést nem törli.
-- **Frissítés:** nincs külön másolandó YAML, sem két HA-szkript. A naptár kiválasztása később a Nabu Recall integráció beállításaiban módosítható.
+### Beállítás
 
-A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A régi kézi naptárszkriptek már nincsenek a 2.0.0 aktív repófájljai között. Ha a saját HA rendszeredben korábban telepítetted őket, az Assist-eszközök közül vedd ki a kitettségüket, hogy ne versengjenek a beépített naptáreszközökkel. A HA-ban már létező szkriptek ettől nem törlődnek automatikusan.
+- Nyisd meg: Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Válassz egy naptár-entitást (pl. `calendar.esemenyek`). Ha üresen hagyod, a naptárfunkciók kikapcsolva maradnak.
+- A meglévő OpenAI Conversation ügynöknél legyen engedélyezve a Home Assistant **Assist (eszközvezérlés)** LLM API.
+- A kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, az eszközütközések elkerüléséhez vedd ki a natív Assist-kitettségből. Ettől a naptár és a Nabu Recall hozzáférése nem törlődik.
+- A régi kézi naptárszkriptek Assist-kitettségére és a régi naptárutasításokra nincs szükség. Ha korábban beállítottad őket, szüntesd meg a kettős vezérlést; a meglévő szkripteket nem kell törölni.
 
-**Kiadási állapot:** a naptármodul éles HA Assist-próbákkal és regressziótesztekkel ellenőrzött; a memóriaírás új védelme automatizáltan tesztelt, ezért éles használatnál külön ellenőrizzük az új emlékek létrejöttét és módosítását.
+### Működés és példák
+
+| Mit szeretnél? | Példamondat | HA-integráció |
+| --- | --- | --- |
+| Mai programok | „Mi van mára a naptáramban?” | 2.0.0-tól |
+| Következő esemény | „Mi lesz a következő programom?” | 2.0.0-tól |
+| Konkrét nap vagy hétvége | „Van valami programom a hétvégén?” | 2.0.0-tól |
+| Időzített esemény | „Írd be a naptáramba, hogy holnap háromtól négyig megbeszélésem lesz.” | 2.0.0-tól |
+| Jövő hét | „Milyen programjaim lesznek jövő héten?” | 2.0.2 |
+| Tetszőleges időszak | „Van valami programom a következő két hétben?” | 2.0.2 |
+| Teljes hónap | „Milyen elfoglaltságaim lesznek decemberben?” | 2.0.2 |
+| Két megadott dátum között | „Mi van a naptáramban november 28. és december 8. között?” | 2.0.2 |
+| Név szerinti keresés | „Mikor megyek fogorvoshoz, és meddig tart?” | 2.0.2 |
+| Egész napos esemény | „December 6-án egész nap szabadságon leszek. Írd be a naptáramba!” | 2.0.2 |
+| Többnapos esemény | „December 11-től 14-ig szabadságon leszek. Írd be a naptáramba!” | 2.0.2 |
+| Éjfélen átnyúló esemény | „December 9-én este tizenegytől másnap hajnali egyig karbantartás lesz. Írd be a naptáramba!” | 2.0.2 |
+
+A 2.0.0 is támogatja a mai, holnapi, hétvégi, konkrét napi és következő hét napos lekérdezést, valamint a következő eseményt és az időzített eseménylétrehozást. A 2.0.2-ben javult a magyar dátumok és időpontok értelmezése, az azonos órán belüli események kezelése, továbbá valódi egész napos és többnapos naptárbejegyzések hozhatók létre.
+
+A jövő hét hétfőtől vasárnapig tart; a következő két hét a mai naptól számított 14 naptári nap. A két konkrét dátum között kért lekérdezésnél mindkét határnap beleszámít. A név szerinti keresés alapértelmezésben 365 napra előre keres a naptári események címében; megadható szűkebb időszak is.
+
+Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alapértelmezés 30 perc. Ha hiányzik a szükséges dátum vagy időpont, illetve ellentmondás van a kérésben, az asszisztensnek pontosítást kell kérnie. Fontos eseménynél mindig ellenőrizd a tényleges naptárbejegyzést.
+
+**Korlátok:** a Nabu Recall csak a kiválasztott naptárat kezeli. Naptári események törlése és módosítása nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
+
+**Verzió:** a 2.0.2 funkciói a külön átadott, éles tesztelésen ellenőrzött integrációjavításban találhatók; a GitHub `main` ágáról jelenleg a 2.0.0 telepíthető. Lásd a fenti verziótáblázatot.
 
 ## 11. Gyakorlati példák
 
@@ -226,7 +258,8 @@ A naptár nélküli telepítés továbbra is teljes értékű tartós memória. 
 | A Web UI nem enged be | A Nabu Recall alkalmazás **Konfiguráció** lapján megadott `dashboard_password` jelszót használod-e? |
 | Az asszisztens nem emlékszik | A Web UI-n megjelent-e a tartós emlék? Van-e OpenAI API-hiba az alkalmazás naplójában? |
 | Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
-| Naptári esemény nem jön létre | Az integrációban van-e kiválasztott naptár? Engedélyezett-e az upstream OpenAI-ügynöknél az Assist LLM API? Megadtad a dátumot és a kezdési időt? |
+| Naptári esemény nem jön létre | Van-e kiválasztott naptár, engedélyezett-e az Assist LLM API, és megadtad-e a szükséges dátumot (időzített eseménynél kezdési időt is)? A naptár támogatja-e az eseménylétrehozást? |
+| A kibővített naptárfunkciók nem működnek | Ellenőrizd a HA-integráció verzióját: ezekhez a külön 2.0.2-es javítás szükséges. Az APP 2.0.1 verziója önmagában nem elegendő. |
 
 További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
 

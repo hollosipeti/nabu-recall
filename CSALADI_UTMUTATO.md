@@ -29,7 +29,21 @@ A példák nem garantált, szó szerint felismerendő parancsok. A válasz függ
 - **A háttérfeldolgozás nem mindig azonnali:** hétköznapi beszélgetésekből később is keletkezhet tartós emlék. A kifejezett mentés külön visszaigazolást ad.
 - **Közös háztartási memória:** a rendszer nem tudja biztosan felismerni, hogy ki beszél. Az ugyanazt az asszisztenst használók közös emlékeket kérdezhetnek le.
 - Az érzékeny azonosítók hangos kezelését ez a verzió nem védi beszélőazonosítással.
-- **A memória nem naptár:** a naptárkezelés külön, opcionális, beépített HA-eszközökkel működik, ha kiválasztottad a naptárt a Nabu Recall integráció beállításainál. Nem kell külön szkriptet telepíteni; eseménytörlés és módosítás továbbra sincs megvalósítva.
+- **A memória nem naptár:** a naptárkezelés külön, opcionális funkció. Csak akkor érhető el, ha a rendszergazda kiválasztott egy naptárt a Nabu Recall integráció beállításainál. A naptáresemények törlését és módosítását a naptár saját felületén kell elvégezni.
+
+## Naptár használata
+
+| Mit szeretnél? | Példamondat |
+| --- | --- |
+| Mai programok | „Mi van mára a naptáramban?” |
+| Hétvégi programok | „Van valami programom a hétvégén?” |
+| Új esemény | „Írd be a naptáramba, hogy holnap délután háromtól négyig megbeszélésem lesz.” |
+| Jövő heti programok | „Milyen programjaim lesznek jövő héten?” |
+| Keresés név szerint | „Mikor megyek fogorvoshoz?” |
+| Egész napos esemény | „December 6-án egész nap szabadságon leszek. Írd be a naptáramba!” |
+| Többnapos esemény | „December 11-től 14-ig szabadságon leszek. Írd be a naptáramba!” |
+
+A jövő heti, név szerinti, egész napos és többnapos példákhoz a külön 2.0.2-es naptárjavítás szükséges. A pontos verzióállapotot a [telepítési útmutató](README.md) tartalmazza. Fontos időpontnál ne csak az asszisztens válaszát, hanem a tényleges naptárbejegyzést is ellenőrizd.
 
 ## Háromperces családi próba
 
@@ -43,4 +57,8 @@ Az elvárt válasz előbb három kék, majd négy piros ceruza. A régi állapot
 
 ## A családi rendszergazdának
 
-A Nabu Recall Web UI-ján ellenőrizhetők a tartós emlékek, a 45 napos napló és a karbantartási javaslatok. Az archiválás és memóriaösszevonás jóváhagyást igényel; a Web UI jelszóval védett. Módosítás előtt a titkosított adatbázist és a külön kulcsot **együtt** kell biztonságosan menteni.
+A jelszóval védett Nabu Recall Web UI-ján ellenőrizhetők a tartós emlékek, a 45 napos napló és a karbantartási javaslatok. Az archiválás és a memóriaösszevonás jóváhagyást igényel.
+
+A 2.0.1-es APP-ban a **Memóriakezelés → Forgó memória** oldalon külön beszélgetéseket kézzel, előnézet és megerősítés után végleg törölhetsz. Ez nem ugyanaz, mint a tartós emlék törlése vagy a visszaállítható archiválás. A végleges törlés nem vonható vissza a felületen.
+
+Módosítás előtt a titkosított adatbázist és a külön kulcsot **együtt** kell biztonságosan menteni. Lásd a [biztonsági mentési és karbantartási útmutatót](docs/SAFE_CLEANUP_HU.md).

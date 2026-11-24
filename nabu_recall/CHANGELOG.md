@@ -1,5 +1,7 @@
 # Nabu Recall — kiadási napló
 
+> **Külön átadott HA-integráció-javítás: 2.0.2 (2026-11-24).** Éles használatban ellenőrzött naptárjavítás: jövő hét, tetszőleges dátumtartomány, havi lekérdezés, név szerinti eseménykeresés, egész napos, többnapos és éjfélen átnyúló események, magyar dátumok és percpontosságú időkezelés. A 35 magyar nyelvű éles teszt és a 4 végső rendszerellenőrzés a felhasználói visszajelzés szerint sikeres. Az APP 2.0.1 és a forgó memória törlése változatlan; a naptári módosítás és törlés továbbra sem támogatott. Ez a javítás még nem része a GitHub `main` ágának; az alábbi kiadási bejegyzések a repóban elérhető verziókat dokumentálják.
+
 ## 2.0.1 — 2026-11-24 (HAOS alkalmazás; HA-integráció továbbra is 2.0.0)
 
 - **Kézi, visszavonhatatlan beszélgetéstörlés:** Web UI → Memóriakezelés → Forgó memória – végleges törlés. Pipa minden teljes kérdés–válasz párhoz, keresés, magyar időzónás dátumszűrés, lapozás, az aktuális oldalon törölhető sorok kézi kijelölése.

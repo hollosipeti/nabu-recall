@@ -1,6 +1,6 @@
-# Nabu Recall 2.0.0 — biztonsági mentés és naplókarbantartás
+# Nabu Recall — biztonsági mentés és naplókarbantartás
 
-**Állapot:** a 2.0.0 főverzióhoz tartozó biztonsági mentési és jóváhagyott karbantartási útmutató. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon titkosított naplóarchiválás, visszaállítás és ellenőrzött memóriaösszevonás lehetséges. A főverzió előtti állapot a `stable-2026-11-24-before-v2` ágon visszakereshető.
+**Állapot:** a 2.0.x alkalmazáshoz tartozó biztonsági mentési és jóváhagyott karbantartási útmutató, beleértve a 2.0.1-es forgómemória-törlést. A HA-integráció külön naptárjavítása nem változtatja meg a mentési és karbantartási eljárást. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon titkosított naplóarchiválás, visszaállítás és ellenőrzött memóriaösszevonás lehetséges. A főverzió előtti állapot a `stable-2026-11-24-before-v2` ágon visszakereshető.
 
 ## 2.0.1 – Forgó memória kézzel kijelölt, VÉGLEGES törlése
 
@@ -24,7 +24,7 @@ ilyen hivatkozásokat, miközben maga az emlék megmarad.
 ## Biztonságos mentési ellenőrzőlista (kézi)
 
 1. Home Assistant **Beállítások → Rendszer → Biztonsági mentések** felületén
-   készíts új, az **Nabu Recall alkalmazást és adatait** is tartalmazó mentést.
+   készíts új, a **Nabu Recall alkalmazást és adatait** is tartalmazó mentést.
    A felület és a mentési opciók HA-verziótól függően eltérhetnek.
 2. Ellenőrizd, hogy a mentés elkészült és a fájl elérhető. Ha lehet, őrizd
    meg egy második, helyben biztonságosan tárolt példányban is.
@@ -69,21 +69,21 @@ A Naplóellenőrzés három, egymást kizáró csoportot mutat:
 
 A **Naplóellenőrzés** jelentés kizárólag SELECT lekérdezéseket használ. A **Kézi karbantartás** oldalon viszont külön, tudatos kattintással a jelölt naplók archívumba helyezhetők; visszaállításuk lehetséges. Az archívum a 45 napos megőrzési szabály alá esik. A tartós emlékek összevonása AI-javaslat után egyenként jóváhagyandó.
 
-## Jövőbeli tisztító végrehajtás kötelező feltételei
+## Karbantartási műveletek biztonsági feltételei
 
-A további fejlesztés csak akkor kerülhet éles rendszerbe, ha:
+Karbantartás vagy új karbantartási funkció bevezetése előtt ellenőrizd, hogy:
 - a mentés és a próba-visszaállítás dokumentáltan sikeres,
 - a változtatandó napló-ID-k és a védett források külön láthatók,
 - a jelöltek újraellenőrzése a végrehajtás pillanatában megtörténik,
 - a végrehajtást külön, tudatos felhasználói megerősítés engedélyezi,
 - a tartós emlékek megőrzése és a visszavonás tesztelve van.
 
-**Az alkalmazás nem futtat automatikus naplótisztítást vagy memória-összevonást.** A külön jóváhagyású műveletek visszavonási lehetősége a megőrzési határidőn és adatbázis-ütközésellenőrzésen belül él.
+**A normál 45 napos lejáraton kívül az alkalmazás nem futtat automatikus naplótisztítást vagy memória-összevonást.** A külön jóváhagyású műveletek visszavonási lehetősége a megőrzési határidőn és adatbázis-ütközésellenőrzésen belül él.
 
 ## Tesztterv
 
 Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzéshez a
-[2.0.0 fő útmutató](../README.md) frissítési szakaszát használd,
+[fő telepítési útmutató](../README.md) frissítési szakaszát használd,
 majd ellenőrizd a titkosított adatbázis és kulcs megőrzését, a napló és
 a tartós emlékek számát, valamint az Assist működését.
 
