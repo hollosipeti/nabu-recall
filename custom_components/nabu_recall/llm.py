@@ -35,14 +35,21 @@ class QueryCalendarTool(Tool):
         "previous tool result. For 'mi a következő eseményem' use period=next "
         "and consult the freshly returned event, not the earlier weekend. "
         "Only report returned events, not remembered calendar events. "
-        "All-day dates in the response are DISPLAY dates, not exclusive "
-        "RFC5545 end dates."
+        "For an explicitly named date/weekday, use period=day and pass "
+        "date EXACTLY as the user said it (e.g. 'pénteken' or 'jövő hét kedden'); "
+        "period=next returns only ONE event, so it must never be used for "
+        "'mi van pénteken'. The supplied date controls the entire day. "
+        "Calendar event deletion is NOT supported. Do not search for an "
+        "event as if a deletion were possible; explicitly say deletion "
+        "is not available. All-day dates in the response are DISPLAY dates, "
+        "not exclusive RFC5545 end dates."
     )
     annotations = _READ
     integration = _DOMAIN
     parameters = probatio.Schema({
         probatio.Required("period"): probatio.In(
-            ["today", "tomorrow", "weekend", "week", "next"]),
+            ["today", "tomorrow", "weekend", "week", "next", "day"]),
+        probatio.Optional("date"): str,
     })
 
     def __init__(self, entity_id: str):
@@ -53,7 +60,7 @@ class QueryCalendarTool(Tool):
         try:
             period = self.parameters(tool_input.tool_args)["period"]
             now = dt_util.now()
-            start, end = query_window(period, now)
+            start, end = query_window(period, now, tool_input.tool_args.get("date"))
             result = await hass.services.async_call(
                 "calendar", "get_events",
                 {"entity_id": self.entity_id,
@@ -180,6 +187,11 @@ def async_get_tools(hass: HomeAssistant, llm_context: LLMContext,
             "new calendar question, even consecutive follow-ups. "
             "For 'next event' ALWAYS use period=next, NEVER infer the next "
             "event from an earlier weekend or today query. "
+            "For 'mi van pénteken' or another specific day, ALWAYS use "
+            "period=day and date='pénteken' (or the user's exact day). "
+            "The 'next' result is only one event, not the full day's agenda. "
+            "No calendar deletion tool exists: for deletion requests clearly "
+            "explain the limitation without claiming to have searched or deleted. "
             "For all-day events, use the date or date + last_day_inclusive "
             "provided in the tool result; do not add one day to the date. "
             "For creation preserve the user's weekday exactly: "
