@@ -155,6 +155,30 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(sent["start_date_time"].startswith("2026-11-23T14:00"))
         self.assertGreater(result.data["event_count"], 0)
 
+    async def test_friday_query_returns_all_friday_events_not_saturday(self):
+        self.services.async_call_original = self.services.async_call
+        async def fake_call(domain, service, data, **kwargs):
+            self.services.calls.append((domain, service, data, kwargs))
+            return {"calendar.test": {"events": [
+                {"start": "2026-11-27", "end": "2026-11-28",
+                 "summary": "Friday concert"},
+                {"start": "2026-11-27T17:00:00+01:00",
+                 "end": "2026-11-27T17:30:00+01:00",
+                 "summary": "Friday family"},
+                {"start": "2026-11-28", "end": "2026-11-29",
+                 "summary": "Saturday only"},
+            ]}}
+        self.services.async_call = fake_call
+        tool = self.get_tools().tools[0]
+        result = await tool.async_call(
+            self.hass, SimpleNamespace(tool_args={
+                "period": "day", "date": "pénteken"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual([v["summary"] for v in result.data["events"]],
+                         ["Friday concert", "Friday family"])
+        self.assertEqual(result.data["event_count"], 2)
+        self.assertTrue(self.services.calls[-1][2]["start_date_time"].startswith("2026-11-27T00:00"))
+
     async def test_create_correct_friday_interval(self):
         tool = self.get_tools().tools[1]
         result = await tool.async_call(self.hass, SimpleNamespace(tool_args={
