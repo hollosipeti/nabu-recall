@@ -4,8 +4,8 @@ set -eu
 # Optional controlled branch selection for one-at-a-time staging.
 BRANCH="${1:-main}"
 case "$BRANCH" in
-  main|dev-integrated-calendar|stable-2026-11-24-before-memory-fixes) ;;
-  *) echo "HIBA: main, dev-integrated-calendar vagy stabil visszaállítási ág használható." >&2; exit 1 ;;
+  main|stable-2026-11-24-before-v2) ;;
+  *) echo "HIBA: csak main vagy stable-2026-11-24-before-v2 engedélyezett." >&2; exit 1 ;;
 esac
 if [ ! -d /config ]; then
   echo "HIBA: /config nem található. Home Assistant Terminalból futtasd." >&2
