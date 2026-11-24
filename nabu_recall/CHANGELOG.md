@@ -1,5 +1,13 @@
 # Nabu Recall — maintained releases
 
+## 1.1.9 — 2026-11-24 (HAOS app only; HA integration stays 1.0.10)
+- Prefer verified current durable memories for unambiguous named-person preference questions, preventing obsolete 45-day journal dialogue from overriding corrected facts.
+- After deletion, an old conversation cannot be used as an active preference.
+- Keep the full 45-day conversation journal and its historical lookup unchanged; no database migration or data deletion.
+- Add exact-person and preference-attribute isolation tests and HTTP correction/deletion regressions.
+- Home Assistant integration, calendar tools, device controls and privacy policy unchanged.
+
+
 ## 1.1.8 — 2026-11-24 (HAOS app + companion integration 1.0.10)
 - Integrated optional calendar selector and calendar tools; no separately installed calendar scripts.
 - Corrected weekend/all-day calendar display and added exact per-day agenda queries.
