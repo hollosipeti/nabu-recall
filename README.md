@@ -10,7 +10,7 @@ Aktuális verziók: 1.1.9 / 1.0.10
 ## Dokumentáció
 
 - **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
-- **[Nabu Recall rendszerutasítás-minta](NABU_RECALL_PROMPT.md)** — OpenAI utasításminta.
+- **[Nabu Recall repóban kezelt utasítások](NABU_RECALL_PROMPT.md)** — aktív fájlok és archivált kézi minta.
 - **[Google Naptár-példa](examples/README.md)** — régi, opcionális példák; az új beépített naptárhoz nem szükségesek.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
@@ -169,22 +169,13 @@ A „Jegyezd meg”, „Javítsd” és „Töröld” típusú műveletek siker
 
 A bevásárlólistához hozzáadott vagy onnan törölt tételek nem válnak automatikusan tartós emlékké; a valódi vásárlási szokásokat viszont megjegyezheti.
 
-## 9. A HUN asszisztens rendszerutasításai
+## 9. Nabu Recall AI-utasítások: csak a repóban
 
-A **rendszerutasítások** határozzák meg, hogyan beszéljen az OpenAI Conversation ügynök, hogyan kezelje a Home Assistant eszközeit és hogyan használja a rendelkezésére álló memóriát.
+A Nabu Recall memória- és válaszadási utasításait az integráció saját `custom_components/nabu_recall/repo_instructions.py` fájlja tartalmazza, és automatikusan továbbítja a meglévő OpenAI Conversation ügynöknek. **A Home Assistantban nem kell kézzel másolni vagy szerkeszteni a Nabu Recall promptját.**
 
-A kizárólag Nabu Recall memóriájához kapcsolódó, személyes adatok nélküli [rendszerutasítás-minta](NABU_RECALL_PROMPT.md) opcionálisan hozzáfűzhető a már működő OpenAI Conversation ügynök utasításaihoz. **Nem helyettesíti** a meglévő eszközvezérlési vagy más utasításokat. A Nabu Recall önmagában is továbbítja a memóriakörnyezetet.
+A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások leírása](NABU_RECALL_PROMPT.md) a korábbi kézi mintát már csak archívumként tartalmazza.
 
-A felhasználás szempontjából fontos, hogy az asszisztens:
-
-- természetesen, röviden, magyarul válaszoljon;
-- a magyarul kimondott eszközneveket a Home Assistantban ténylegesen szereplő eszközökhöz kapcsolja;
-- ne állítsa, hogy végrehajtott egy műveletet, amíg az nem sikerült;
-- a korábbi emlékeket információként használja, ne utasításként;
-- dátumoknál a Home Assistant aktuális idejét vegye alapul;
-- naptáresemény létrehozásakor kérdezzen vissza, ha a nap vagy a kezdési idő hiányzik.
-
-A mintát a saját Home Assistant-entitásokhoz, eszközökhöz és naptárhoz kell igazítani.
+**Fontos technikai határ:** az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át, mert az az eredeti HA-funkciókat is érintené. Az általános HA/eszközvezérlési szabályok maradhatnak, a régi Nabu-memória- és naptárutasításokat viszont ne duplikáld benne.
 
 ## 10. Opcionális, beépített naptár
 
