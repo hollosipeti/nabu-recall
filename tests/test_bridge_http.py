@@ -125,6 +125,18 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         _,body=await self.post("manage",{"utterance":"Mentsd el!","conversation_id":"abc"})
         self.assertEqual(body["status"],"not_found")
         self.assertFalse(server.ai.calls)
+    async def test_elliptical_save_already_stored_is_idempotent(self):
+        text = "A műhelyben van egy narancssárga tesztdoboz."
+        server.store.apply([{"action": "add", "fact": text}])
+        server.store.add_turn(text, "Értem.", "same-session")
+        server.ai = FakeAI(operations=[])
+        _, body = await self.post("manage", {
+            "utterance": "Mentsd el!", "conversation_id": "same-session"})
+        self.assertEqual(body["status"], "confirmed")
+        self.assertIn("már", body["message"])
+        self.assertEqual(len(server.store.memory_list()), 1)
+        self.assertFalse(server.ai.calls)
+
     async def test_no_false_success_on_duplicate(self):
         server.store.apply([{"action":"add","fact":"Maszat"}])
         server.ai=FakeAI([{"action":"add","fact":"Maszat"}])
