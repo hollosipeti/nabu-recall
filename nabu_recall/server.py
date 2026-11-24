@@ -14,6 +14,7 @@ from learning_source import assertion_turn, credible_extracted_fact
 from journal_time import journal_window, in_window
 from management import operation_kind, validate_change, previous_context, context_needed, identical_existing_fact
 from structured_context import enrich_selected_facts
+from current_facts import authoritative_preferences
 
 logging.basicConfig(level=logging.INFO)
 LOG = logging.getLogger("nabu_recall")
@@ -191,6 +192,22 @@ async def recall(request):
             # A timeless durable fact does not establish what was discussed
             # during yesterday; do not attach it as dated evidence.
             memories = []
+        # Current named-person preference questions are answered only from
+        # confirmed durable memories. Historical turns remain stored and
+        # retrievable when explicitly asking what was said earlier.
+        current = authoritative_preferences(query, memories)
+        if current is not None:
+            lines = ["CURRENT CONFIRMED DURABLE FACTS ONLY. Historical "
+                     "conversation text is not evidence of current preferences. "
+                     "Do not use older conversation messages to override these facts."]
+            if current:
+                lines.extend("Fact: " + row["fact"] for row in current[:8])
+            else:
+                lines.append("NO CURRENT FACT STORED FOR REQUESTED PERSON AND "
+                             "PREFERENCE. Do not infer it from previous conversation.")
+            LOG.info("Current preference lookup: matched=%d; journal excluded from "
+                     "retrieval context", len(current))
+            return web.json_response({"context": "\n".join(lines)})
         # Diagnostic IDs only: never log memory facts or personal identifiers.
         LOG.info("Recall candidates: durable_ids=%s, journal_ids=%s",
                  [m["id"] for m in memories], [t["id"] for t in turns])
