@@ -1,5 +1,16 @@
 # Nabu Recall — maintained releases
 
+## 1.1.8 — 2026-11-24 (HAOS app + companion integration 1.0.10)
+- Integrated optional calendar selector and calendar tools; no separately installed calendar scripts.
+- Corrected weekend/all-day calendar display and added exact per-day agenda queries.
+- Automatic durable-memory learning ignores questions and missing-information statements; explicit memory editing remains separate.
+- Idempotent repeated 'Mentsd el' when the previous fact is already stored verbatim.
+- Timestamp-filtered yesterday-journal recall without treating timeless facts as dated conversations.
+- Improved correction/deletion AI guidance and added privacy-safe diagnostics for unconfirmed operations.
+- Added isolated, HTTP-level, packaging and date-window regression tests.
+- Prior stable main preserved in branch stable-2026-11-24-before-memory-fixes; database format and encryption unchanged.
+
+
 ## 1.1.7 — 2026-11-23 (HAOS app + companion integration 1.0.9)
 - Prevent ambiguous full-name collisions in exact identifier readback and selected-context enrichment.
 - Add synthetic adversarial name-collision HTTP tests and calendar YAML/Jinja date/duration tests.
