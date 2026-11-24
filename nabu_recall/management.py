@@ -1,5 +1,6 @@
 """Lightweight Hungarian memory-command routing. No new memory layers."""
 import re
+import unicodedata
 
 DELETE = re.compile(r"\b(?:töröld|törölj|felejtsd|felejts|távolítsd|távolíts)\b", re.I)
 EDIT = re.compile(r"\b(?:javítsd|javítsuk|javíts|javítsam|módosítsd|módosítsuk|módosíts|változtasd|írd\s+át|helyesbítsd|helyesbíts|ki\s+kell\s+javítani|ezt\s+is\s+javítsuk)\b", re.I)
@@ -73,3 +74,21 @@ def previous_context(turns, conversation_id, now, max_age=300):
             return None
         return candidate[:2000]
     return None
+
+
+
+def identical_existing_fact(candidate, memories):
+    """Idempotent save acknowledgement only for a literal matching fact.
+
+    Never claim a fuzzy/semantic match without verification. No database write.
+    """
+    if not isinstance(candidate, str):
+        return False
+    def normalize(value):
+        value = unicodedata.normalize("NFKC", value).casefold()
+        return re.sub(r"[.!?,;:\s]+", " ", value).strip()
+    target = normalize(candidate)
+    return bool(target) and any(
+        isinstance(item.get("fact"), str) and
+        normalize(item["fact"]) == target for item in memories
+    )

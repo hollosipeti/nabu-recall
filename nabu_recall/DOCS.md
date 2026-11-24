@@ -24,7 +24,7 @@
 - A 8765-ös bridge és a 8766-os Ingress portot **ne publikáld** LAN-ra vagy WAN-ra.
 - Az OpenAI API-hívások használatalapúan számlázottak, a ChatGPT-előfizetés ezt nem váltja ki.
 - Az Ingress Web UI alapvető diagnosztikai oldalai olvasásra szolgálnak; a külön **Kézi karbantartás** oldalon jelszóval védett, egyenként jóváhagyott archiválás és memória-összevonás, valamint visszavonás érhető el.
-- Naptárhoz a [frissített, külön éles tesztelendő Google Calendar script példát](https://github.com/hollosipeti/nabu-recall/tree/main/examples) külön kell konfigurálni. **Év nélküli dátumot `MM-DD` formátumban adj át; az évet a HA számolja. Hangos naptáresemény-törlés még nincs.**
+- **Naptár:** az új integrációban opcionálisan kiválasztható egy `calendar.*` entitás, amelyhez az Assist beépített lekérdező/létrehozó LLM-eszközöket kap. Nincs szükség külön Google Calendar YAML-szkriptekre. A naptárbejegyzések hangos törlése és módosítása továbbra sem része a funkciónak. A korábbi [kézi szkriptek](https://github.com/hollosipeti/nabu-recall/tree/main/examples) archivált példák.
 
 ## Biztonságos naplókarbantartás (fejlesztői ág)
 

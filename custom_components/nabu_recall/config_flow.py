@@ -17,10 +17,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             url = user_input["url"].rstrip("/")
             token = user_input["token"]
             upstream = user_input["upstream"]
+            calendar_entity = user_input.get("calendar_entity", "")
             if not re.fullmatch(r"http://[a-zA-Z0-9._-]+:\d{2,5}", url):
                 errors["url"] = "invalid_url"
             elif len(token) < 32:
                 errors["token"] = "invalid_token"
+            elif calendar_entity and not calendar_entity.startswith("calendar."):
+                errors["calendar_entity"] = "invalid_calendar"
             elif not upstream.startswith("conversation."):
                 errors["upstream"] = "invalid_agent"
             else:
@@ -40,5 +43,40 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required("url", default="http://YOUR_ADDON_HOST:8765"): str,
             vol.Required("token"): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)),
+            vol.Optional("calendar_entity"): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="calendar")),
         })
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return CalendarOptionsFlow()
+
+
+class CalendarOptionsFlow(config_entries.OptionsFlow):
+    """Change the optional calendar without reinstalling the integration."""
+
+    async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            calendar_entity = user_input.get("calendar_entity") or ""
+            if calendar_entity and not calendar_entity.startswith("calendar."):
+                return self.async_show_form(
+                    step_id="init", data_schema=self._schema(),
+                    errors={"calendar_entity": "invalid_calendar"},
+                )
+            return self.async_create_entry(
+                title="", data={"calendar_entity": calendar_entity}
+            )
+        return self.async_show_form(step_id="init", data_schema=self._schema())
+
+    def _schema(self):
+        current = self.config_entry.options.get(
+            "calendar_entity", self.config_entry.data.get("calendar_entity", "")
+        )
+        if current:
+            key = vol.Optional("calendar_entity", default=current)
+        else:
+            key = vol.Optional("calendar_entity")
+        return vol.Schema({
+            key: selector.EntitySelector(selector.EntitySelectorConfig(domain="calendar")),
+        })

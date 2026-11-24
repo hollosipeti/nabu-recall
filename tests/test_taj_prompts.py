@@ -37,7 +37,7 @@ class PromptOwnershipTests(unittest.TestCase):
             "Home Assistant OpenAI Conversation", "historical information",
             "only after confirmation", "identification", "shared",
             "banking credentials", "DATE AND TIME MANAGEMENT",
-            "CALENDAR EVENT QUERY", "jövő hét", "vege_ora", "1.0.5",
+            "CALENDAR (OPTIONAL, INTEGRATED)", "nabu_recall__calendar_query", "nabu_recall__calendar_create", "1.0.5",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, guide)
