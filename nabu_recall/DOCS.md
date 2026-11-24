@@ -1,59 +1,40 @@
-# Nabu Recall — Home Assistant alkalmazás
+# Nabu Recall 2.0.0 — Home Assistant alkalmazás
 
-**Opcionális, általános memóriautasítások:** [NABU_RECALL_PROMPT.md](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md)
+Az alkalmazás és a Home Assistant-egyedi integráció **egyaránt 2.0.0**. A régi telepített `nabu_recall` alkalmazást kell frissíteni, nem új alkalmazást létrehozni.
 
-**Családi használati útmutató:** [CSALADI_UTMUTATO.md](https://github.com/hollosipeti/nabu-recall/blob/main/CSALADI_UTMUTATO.md)
+- [Teljes magyar telepítési és frissítési útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
+- [Az összes OpenAI-utasítás tényleges forrásfájlja és helye](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md)
+- [Családi használati útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/CSALADI_UTMUTATO.md)
+- [Biztonsági mentés és karbantartás](https://github.com/hollosipeti/nabu-recall/blob/main/docs/SAFE_CLEANUP_HU.md)
+- [Kiadási változások](https://github.com/hollosipeti/nabu-recall/blob/main/nabu_recall/CHANGELOG.md)
 
-**Magyar telepítési és használati útmutató:** [README.md](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
+## Biztonságos frissítés
 
-## Telepítés röviden
+1. Készíts és ellenőrizz teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással és annak adataival.
+2. Frissítsd a meglévő Nabu Recall alkalmazást 2.0.0-ra.
+3. Frissítsd a Nabu Recall HA-integrációt a repó [`install_integration.sh`](https://github.com/hollosipeti/nabu-recall/blob/main/install_integration.sh) telepítőjével, majd indítsd újra a HA Core-t.
+4. Ellenőrizd az alkalmazás és az integráció 2.0.0 verzióját, a tartós memória tartalmát, az Assist vezérlést, a naptárt és egy korábbi beszélgetés visszakeresését.
 
-1. A Home Assistant alkalmazásbolthoz add hozzá a `https://github.com/hollosipeti/nabu-recall` adattárat, majd telepítsd a Nabu Recall alkalmazást.
-2. Konfiguráció: `openai_api_key` (külön OpenAI API-kulcs), `openai_model` (alap: `gpt-4.1-mini`), `bridge_token` (legalább 32 karakter), `dashboard_password` (külön erős Web UI-jelszó).
-3. Indítsd el az alkalmazást. Az **OPEN WEB UI** az Ingress diagnosztikát nyitja meg; a HA-belépés mellett külön jelszó is kell. A munkamenet a belépéstől számított **10 perc** után lejár. Jelszó nélkül a felület zárolt.
-4. Telepítsd **külön** a `custom_components/nabu_recall` integrációt a HA `/config/custom_components/` könyvtárába. A telepítés egy parancssorral elvégezhető; a parancsot a részletes kézikönyvben találod. Indítsd újra a **Home Assistant Core-t**.
-5. Az új Nabu Recall integrációnál válaszd ki a meglévő OpenAI Conversation HUN ügynököt, add meg a helyes belső app URL-t és a `bridge_token` értéket. Az Assistban válaszd a „Nabu Recall – memória” ügynököt.
+A titkosított adatbázis és kulcsa az alkalmazás saját `/data/recall.sqlite3` és `/data/recall.key` fájljában van. Ezeket együtt kell biztonságosan menteni. A 45 napos napló és a tartós emlékek változatlan formában maradnak; **nem kell és nem szabad új adatbázist létrehozni**.
 
-## Mire figyelj?
+## Képességek
 
-**Ne taníts be fontos, érzékeny személyes információkat az asszisztensnek.** A beszélgetésmemória közös, és az OpenAI API is részt vesz a feldolgozásában.
+- 45 napig tárolt, szó szerinti beszélgetési napló, amelyből kérésre visszakeres.
+- AI által kezelt tartós emlékek, külön explicit mentés, módosítás és célzott törlés.
+- Védett Web UI a megtekintéshez, karbantartási előnézethez, jóváhagyott műveletekhez és visszavonáshoz.
+- Opcionális integrált HA naptárlekérdezés és eseménylétrehozás, külön YAML-szkriptek nélkül. Naptári eseménytörlés és -módosítás még nem támogatott.
+- Az eredeti OpenAI Conversation ügynök továbbra is végrehajtja a HA eszközvezérlést.
 
-- A napló **45 nap után lejár**; a tartós emlékek nem járnak le automatikusan.
-- A teljes SQLite fájl **SQLCipherrel titkosított**, kulcsa az alkalmazás saját `/data/recall.key` fájljában van. **Mindkét fájlt együtt mentsd!**
-- Az alkalmazás saját `/data` könyvtára **nem** a HA `/config` mappája. Frissítésnél ne töröld vagy telepítsd újra az alkalmazást biztonsági mentés nélkül.
-- A 8765-ös bridge és a 8766-os Ingress portot **ne publikáld** LAN-ra vagy WAN-ra.
-- Az OpenAI API-hívások használatalapúan számlázottak, a ChatGPT-előfizetés ezt nem váltja ki.
-- Az Ingress Web UI alapvető diagnosztikai oldalai olvasásra szolgálnak; a külön **Kézi karbantartás** oldalon jelszóval védett, egyenként jóváhagyott archiválás és memória-összevonás, valamint visszavonás érhető el.
-- **Naptár:** az új integrációban opcionálisan kiválasztható egy `calendar.*` entitás, amelyhez az Assist beépített lekérdező/létrehozó LLM-eszközöket kap. Nincs szükség külön Google Calendar YAML-szkriptekre. A naptárbejegyzések hangos törlése és módosítása továbbra sem része a funkciónak. A korábbi [kézi szkriptek](https://github.com/hollosipeti/nabu-recall/tree/main/examples) archivált példák.
+## AI-utasítások
 
-## Biztonságos naplókarbantartás (fejlesztői ág)
+A Nabu Recall saját OpenAI-utasításai **csak a repóban vannak**, az alkalmazás/integráció telepített kódjából töltődnek be. A felhasználó saját OpenAI Conversation Instructions mezője érintetlen marad.
 
-A napló biztonságos, kézzel jóváhagyott archiválásának és visszavonásának ellenőrzőlistája: [biztonsági mentés és naplótisztítás](../docs/SAFE_CLEANUP_HU.md). Az alkalmazásban a teljes adatbázis és a külön titkosítási kulcs együtt szükséges; a puszta élő SQLite-fájl másolása nem elég. A diagnosztikai előnézet nem módosít adatot, csak a külön karbantartási oldal végezhet kézzel jóváhagyott módosítást.
+Az aktív források: `custom_components/nabu_recall/repo_instructions.py`, `custom_components/nabu_recall/llm.py` és `nabu_recall/ai.py`. A fenti [OpenAI-utasítástérkép](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md) megmutatja az egyes függvényeket és a telepített fájlok helyét. A régi kézzel bemásolandó naptár- és Nabu-memóriapromptok már nem szükségesek.
 
-## Kézi karbantartás — 1.0.4
+## Elérési és adatvédelmi alapok
 
-Az **OPEN WEB UI → Kézi karbantartás** oldalon a hiányos, feldolgozott és tartós emlék forrásaként nem hivatkozott naplók titkosított archiválása engedélyezhető, majd az archívum visszaállítható (ha a sorok nem jártak le és nincs azonosítóütközés). Az archívumra is vonatkozik a 45 napos eredeti adatmegőrzés. A tartós emlékek AI-alapú optimalizálása csak javaslatokat készít; minden módosítás külön jóváhagyandó, és visszavonási lehetőséget ad. A visszavonási előzmények hét napig maradnak. **Művelet előtt készíts ellenőrzött Home Assistant biztonsági mentést az alkalmazás adatairól.**
+A Nabu Recall privát bridge szolgáltatása a 8765-ös, az Ingress UI a 8766-os portot használja. Ezeket nem kell a külső hálózatra publikálni. A HA integrációhoz a működő upstream OpenAI Conversation ügynököt válaszd, a Voice Assistban pedig a „Nabu Recall – memória” ügynököt. Az OpenAI API használata külön díjazású.
 
-## HAOS v1.0.5 — nagy tartós memóriatáblák
+## Korábbi verziók
 
-A lekérdezés nem csak az utolsó 200 tartós emléket vizsgálja: a teljes titkosított állományban keres, és a megfelelő találatokat adja át az AI-nak. A külön karbantartási lapon a gyors **Teljes állomány duplikátumjelöltjei** és a lapozható **Következő adag szemantikai AI-elemzése** is elérhető. A találatok csak javaslatok, az összevonáshoz továbbra is kézi jóváhagyás szükséges. A szemantikailag eltérő megfogalmazások teljes körű feltárására nincs garancia; az AI-feldolgozás kötegekben történik.
-
-## HAOS v1.0.6 — használhatóbb Memóriakezelés
-
-A fő navigációból kikerült a külön „Naplóellenőrzés”; a fontos számai a Memóriakezelés oldalon láthatók. Az AI-duplikációjavaslatoknál pipa alapján választható ki több, egymástól független tétel. Az előnézet önmagában nem hajt végre adatbázis-módosítást. Második jóváhagyás után a kijelölt javaslatok közös tranzakcióban lépnek életbe, vagy az egész csomag visszagörgetődik. Az utolsó csoport visszavonása külön gombbal lehetséges, a hét napos időkereten és konfliktusellenőrzésen belül. Az automatikus emléktörlés vagy összevonás továbbra sem működik.
-
-
-## HAOS v1.1.0 – egyszerűbb, egységes kiadás
-
-- A szokásos `nabu_recall` alkalmazás frissül, az eredeti titkosított `/data/recall.sqlite3` és `recall.key` fájlokkal.
-- A magyar ékezet nélküli keresés a korábbi ékezetes emlékeket is megtalálhatja; az eredeti tárolt szöveg változatlan.
-- A gyors egymás utáni kérések feldolgozása összevonva, egy memóriafeldolgozó feladaton történik.
-- A béta külön tesztmemóriája **nem költözik át** a stabil rendszerbe.
-- A korábban telepített HA-integráció verziója továbbra is 1.0.4, az Assist-beállítást nem szükséges módosítani.
-- Azonosítókkal kapcsolatos hangos hozzáférés és adatvédelmi szabályok változatlanok.
-- Frissítés előtt ellenőrzött alkalmazásmentés szükséges. A külön béta csak a stabil kiadás ellenőrzése után állítható le és távolítható el.
-
-
-## HAOS 1.1.2 – bevásárlólista-szűrés
-
-A bevásárlólista hozzáadási/törlési visszaigazolásait a rendszer nem tanulja meg tartós tényként. A 45 napos napló ettől függetlenül megmarad; a korábban bekerült téves emlékeket külön kell ellenőrizni és egyenként javítani vagy törölni.
+A régi kiadások dokumentációja és a kézi naptárszkript-példák a Git-előzményből visszakereshetők, **de a 2.0.0 aktív telepítéséhez nem tartoznak**. A visszaállítás előtti állapot külön `stable-2026-11-24-before-v2` ágon is rögzítve van.

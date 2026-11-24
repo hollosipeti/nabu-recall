@@ -1,7 +1,6 @@
-# Nabu Recall — biztonsági mentés és naplótisztítás (fejlesztési terv)
+# Nabu Recall 2.0.0 — biztonsági mentés és naplókarbantartás
 
-**Állapot:** v1.0.4 alkalmazáshoz tartozó jóváhagyott karbantartási eljárás. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon lehetséges a titkosított naplóarchiválás, visszaállítás és az emlékek egyenkénti összevonása.
-Az ALFA és a v1.0.4 referenciaágakat tilos módosítani.
+**Állapot:** a 2.0.0 főverzióhoz tartozó biztonsági mentési és jóváhagyott karbantartási útmutató. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon titkosított naplóarchiválás, visszaállítás és ellenőrzött memóriaösszevonás lehetséges. A főverzió előtti állapot a `stable-2026-11-24-before-v2` ágon visszakereshető.
 
 ## Miért kell külön mentés?
 
@@ -75,8 +74,10 @@ A további fejlesztés csak akkor kerülhet éles rendszerbe, ha:
 
 ## Tesztterv
 
-Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzés lépései:
-[HAOS_AUDIT_TEST_HU.md](HAOS_AUDIT_TEST_HU.md).
+Az éles állapot érintetlenül hagyásával végzett HAOS ellenőrzéshez a
+[2.0.0 fő útmutató](../README.md) frissítési szakaszát használd,
+majd ellenőrizd a titkosított adatbázis és kulcs megőrzését, a napló és
+a tartós emlékek számát, valamint az Assist működését.
 
 Az `tests/test_audit_fixture.py` ellenőrzése valódi titkosított SQLCipher
 próbaadatbázist használ: bizonyítja, hogy a lekérdezés nem módosítja a

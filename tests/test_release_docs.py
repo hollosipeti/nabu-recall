@@ -1,39 +1,53 @@
-"""Documentation/version contracts: no external credentials or live HA calls."""
+"""Release documentation, cleanup and source-of-truth contracts."""
 from pathlib import Path
+import json
 import re
 import unittest
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[1]
 
 class ReleaseDocsTests(unittest.TestCase):
+    def test_no_legacy_manual_calendar_installation_files(self):
+        self.assertFalse((ROOT/"examples").exists())
+        self.assertFalse((ROOT/"tests/test_calendar_script.py").exists())
+        self.assertFalse((ROOT/"tests/test_calendar_weekend.py").exists())
+        llm = (ROOT/"custom_components/nabu_recall/llm.py").read_text()
+        self.assertIn("nabu_recall__calendar_query", llm)
+        self.assertIn("nabu_recall__calendar_create", llm)
+        self.assertNotIn("calendar.delete_event", llm)
 
-    def test_examples_do_not_modify_memory_or_delete_events(self):
-        example=(ROOT/"examples/google_calendar_create_event.yaml").read_text()
-        self.assertIn("calendar.create_event",example)
-        self.assertIn("calendar.esemenyek",example)
-        self.assertIn("default(30, true)",example)
-        self.assertIn("h: \"{{ ora | default(-1) | int(-1) }}\"",example)
-        self.assertNotIn("todo.",example)
-        self.assertNotIn("calendar.delete_event",example)
-
-    def test_current_app_and_integration_release_numbers(self):
-        import json
+    def test_v2_single_version_and_release_notes(self):
         manifest=json.loads((ROOT/"custom_components/nabu_recall/manifest.json").read_text())
         config=(ROOT/"nabu_recall/config.yaml").read_text()
-        self.assertEqual(manifest["version"],"1.0.11")
-        self.assertIn('version: "1.1.9"',config)
-        changelog=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
-        # Only maintained releases in this file; the archive has older records.
-        versions=re.findall(r"^##\s+(\d+\.\d+\.\d+)",changelog,re.M)
-        self.assertEqual(versions,["1.1.9","1.1.8","1.1.7","1.1.6","1.1.5","1.1.4","1.1.3","1.1.2","1.1.1","1.1.0","1.0.6","1.0.5","1.0.4","1.0.3","1.0.4","1.0.3"])
+        server=(ROOT/"nabu_recall/server.py").read_text()
+        self.assertEqual(manifest["version"],"2.0.0")
+        self.assertIn('version: "2.0.0"', config)
+        self.assertIn("'version': '2.0.0'",server)
+        notes=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
+        self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["2.0.0"])
+
+    def test_prompt_map_links_exact_live_sources(self):
+        instructions = (ROOT/"NABU_RECALL_PROMPT.md").read_text()
+        for source in ("custom_components/nabu_recall/repo_instructions.py",
+                       "custom_components/nabu_recall/conversation.py",
+                       "custom_components/nabu_recall/llm.py",
+                       "nabu_recall/ai.py"):
+            self.assertIn(source,instructions)
+            self.assertTrue((ROOT/source).is_file())
+        self.assertNotIn("## Archivált",instructions)
+        self.assertIn("Instructions",instructions)
+        self.assertIn("NABU_RULES",instructions)
 
     def test_cleanup_requires_backup_and_no_delete_endpoint(self):
         guide=(ROOT/"docs/SAFE_CLEANUP_HU.md").read_text()
-        for required in ("recall.sqlite3", "recall.key", "WAL",
-                         "visszaállítási", "SELECT", "source_turn"):
+        for required in ("recall.sqlite3","recall.key","WAL",
+                         "visszaállítási","SELECT","source_turn"):
             with self.subTest(required=required):
-                self.assertIn(required, guide)
+                self.assertIn(required,guide)
         dashboard=(ROOT/"nabu_recall/dashboard.py").read_text()
         self.assertIn('tab == "audit"',dashboard)
         self.assertIn("journal_cleanup_preview()",dashboard)
         self.assertNotIn("journal_cleanup_execute(",dashboard)
+
+if __name__ == "__main__":
+    unittest.main()

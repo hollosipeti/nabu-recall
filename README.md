@@ -3,15 +3,16 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-Aktuális verziók: 1.1.9 / 1.0.11
+Aktuális verziók: 2.0.0 / 2.0.0
+
+**Főverzió 2.0.0:** meglévő Nabu Recall alkalmazás és integráció egységes verzióval, a titkosított tartós memória és a 45 napos forgó napló adatainak migrációja nélkül. A telepített felhasználói OpenAI Instructions mező változatlan marad.
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
 ## Dokumentáció
 
 - **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
-- **[Nabu Recall repóban kezelt utasítások](NABU_RECALL_PROMPT.md)** — aktív fájlok és archivált kézi minta.
-- **[Google Naptár-példa](examples/README.md)** — régi, opcionális példák; az új beépített naptárhoz nem szükségesek.
+- **[Az összes aktív OpenAI-utasítás pontos helye](NABU_RECALL_PROMPT.md)** — forrásfájlok, telepítési útvonalak, felhasználói HA-utasításokkal való összevetés.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
 > **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
@@ -173,7 +174,7 @@ A bevásárlólistához hozzáadott vagy onnan törölt tételek nem válnak aut
 
 A Nabu Recall memória- és válaszadási utasításait az integráció saját `custom_components/nabu_recall/repo_instructions.py` fájlja tartalmazza, és automatikusan továbbítja a meglévő OpenAI Conversation ügynöknek. **A Home Assistantban nem kell kézzel másolni vagy szerkeszteni a Nabu Recall promptját.**
 
-A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások leírása](NABU_RECALL_PROMPT.md) a korábbi kézi mintát már csak archívumként tartalmazza.
+A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások forrástérképe](NABU_RECALL_PROMPT.md) az összes aktív fájlt és a telepítési helyüket mutatja; a régi másolandó promptmintát eltávolítottuk.
 
 **Fontos technikai határ:** az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át, mert az az eredeti HA-funkciókat is érintené. Az általános HA/eszközvezérlési szabályok maradhatnak, a régi Nabu-memória- és naptárutasításokat viszont ne duplikáld benne.
 
@@ -189,7 +190,7 @@ A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py
 - **Eszközütközés elkerülése:** a kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, a kettős, eltérő lekérdezési lehetőség elkerülésére vedd ki a natív Assist-kitettségből; ez a Google Naptárat és a Nabu Recallban kiválasztott hozzáférést nem törli.
 - **Frissítés:** nincs külön másolandó YAML, sem két HA-szkript. A naptár kiválasztása később a Nabu Recall integráció beállításaiban módosítható.
 
-A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A korábban használt [kézi naptárszkriptek](examples/README.md) történeti példák; ha azokat már létrehoztad és exposed állapotban vannak, az új megoldás élesítésekor kapcsold ki az AI számára való elérhetőségüket, hogy ne legyenek párhuzamos, versengő eszközök.
+A naptár nélküli telepítés továbbra is teljes értékű tartós memória. A régi kézi naptárszkriptek már nincsenek a 2.0.0 aktív repófájljai között. Ha a saját HA rendszeredben korábban telepítetted őket, az Assist-eszközök közül vedd ki a kitettségüket, hogy ne versengjenek a beépített naptáreszközökkel. A HA-ban már létező szkriptek ettől nem törlődnek automatikusan.
 
 **Kiadási állapot:** a naptármodul éles HA Assist-próbákkal és regressziótesztekkel ellenőrzött; a memóriaírás új védelme automatizáltan tesztelt, ezért éles használatnál külön ellenőrizzük az új emlékek létrejöttét és módosítását.
 

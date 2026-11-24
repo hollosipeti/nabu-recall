@@ -33,16 +33,15 @@ class PromptOwnershipTests(unittest.TestCase):
         self.assertNotIn("complementary_question", source)
         self.assertNotIn("result.response.async_set_speech(answer)", source)
 
-    def test_human_editable_prompt_document_covers_critical_behavior(self):
+    def test_repo_owned_prompt_document_has_only_current_sources(self):
         guide = (ROOT / "NABU_RECALL_PROMPT.md").read_text()
         for phrase in (
-            "Home Assistant OpenAI Conversation", "historical information",
-            "only after confirmation", "identification", "shared",
-            "banking credentials", "DATE AND TIME MANAGEMENT",
-            "CALENDAR (OPTIONAL, INTEGRATED)", "nabu_recall__calendar_query", "nabu_recall__calendar_create", "1.0.5",
+            "Home Assistant", "Instructions", "repo_instructions.py",
+            "nabu_recall/ai.py", "nabu_recall/llm.py", "NABU_RULES",
         ):
             with self.subTest(phrase=phrase):
-                self.assertIn(phrase, guide)
+                self.assertIn(phrase,guide)
+        self.assertNotIn("## Archivált memóriautasítás-minta",guide)
 
     def test_learning_prompt_does_not_claim_plaintext_sqlite(self):
         source = (ROOT / "nabu_recall/ai.py").read_text()
