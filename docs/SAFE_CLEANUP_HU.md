@@ -1,7 +1,6 @@
-# Nabu Recall — biztonsági mentés és naplótisztítás (fejlesztési terv)
+# Nabu Recall 2.0.0 — biztonsági mentés és naplókarbantartás
 
-**Állapot:** v1.0.4 alkalmazáshoz tartozó jóváhagyott karbantartási eljárás. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon lehetséges a titkosított naplóarchiválás, visszaállítás és az emlékek egyenkénti összevonása.
-Az ALFA és a v1.0.4 referenciaágakat tilos módosítani.
+**Állapot:** a 2.0.0 főverzióhoz tartozó biztonsági mentési és jóváhagyott karbantartási útmutató. A diagnosztikai nézetek csak olvasnak; a külön Kézi karbantartás oldalon titkosított naplóarchiválás, visszaállítás és ellenőrzött memóriaösszevonás lehetséges. A főverzió előtti állapot a `stable-2026-11-24-before-v2` ágon visszakereshető.
 
 ## Miért kell külön mentés?
 
