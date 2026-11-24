@@ -87,9 +87,15 @@ def event_bounds(day: str, hour: int, minute: int, now: datetime,
     return start, end
 
 
-def query_window(period: str, now: datetime) -> tuple[datetime, datetime]:
+def query_window(period: str, now: datetime, day: str | None = None) -> tuple[datetime, datetime]:
     """Return half-open range in local HA timezone."""
     midnight = datetime.combine(now.date(), time.min, now.tzinfo)
+    if period == "day":
+        if not day:
+            raise ValueError("Hiányzó nap a naptárlekérdezéshez")
+        resolved = resolve_day(day, now)
+        start = datetime.combine(resolved, time.min, now.tzinfo)
+        return start, start + timedelta(days=1)
     if period == "today":
         return midnight, midnight + timedelta(days=1)
     if period == "tomorrow":
