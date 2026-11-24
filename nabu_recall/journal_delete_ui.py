@@ -50,7 +50,7 @@ def setup_journal_delete(app, store, state, authorized, headers, page,
             args.append("day=" + quote(day))
         if page_number:
             args.append("page=" + str(page_number))
-        return "../journal" + ("?" + "&".join(args) if args else "")
+        return "./journal" + ("?" + "&".join(args) if args else "")
 
     def row_time(value):
         return datetime.fromtimestamp(value, TIMEZONE).strftime("%Y-%m-%d %H:%M")
@@ -86,7 +86,7 @@ def setup_journal_delete(app, store, state, authorized, headers, page,
         if notice:
             body += '<article><p>%s</p></article>' % _h(notice)
         body += (
-            '<article><form action="../journal" method="get">'
+            '<article><form action="./journal" method="get">'
             '<label>Keresés a kérdésben vagy válaszban '
             '<input type="search" name="search" maxlength="120" value="%s"></label>'
             '<label>Nap (magyar helyi dátum, opcionális) '
