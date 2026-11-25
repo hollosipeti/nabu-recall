@@ -200,6 +200,19 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result.error)
         self.assertFalse(self.services.calls)
 
+    async def test_explicit_overnight_end_date_and_reversed_hours(self):
+        tool = self.get_tools().tools[1]
+        request = {"title": "Year boundary", "date": "2026-12-31",
+                   "start_hour": 23, "end_hour": 2, "end_date": "2027-01-01"}
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args=request), self.ctx)
+        self.assertFalse(result.error)
+        self.assertTrue(self.services.calls[-1][2]["end_date_time"].startswith("2027-01-01T02:00"))
+        self.services.calls.clear()
+        request.pop("end_date")
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args=request), self.ctx)
+        self.assertTrue(result.error)
+        self.assertFalse(self.services.calls)
+
     async def test_service_error_never_reports_success(self):
         self.services.fail = True
         tool = self.get_tools().tools[1]

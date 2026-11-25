@@ -146,3 +146,18 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         _,body=await self.post("turn",{"user":"Mentsd el!","assistant":"Tényleg.","conversation_id":"abc"})
         self.assertTrue(body["ok"])
         self.assertFalse(server.store.pending())
+
+    async def test_save_updates_existing_memory_and_reports_actual_action(self):
+        server.store.apply([{"action": "add", "fact": "A tesztlaborban 48 voltos tápegység van."},
+                            {"action": "add", "fact": "A műhely lámpája kék."}])
+        original = next(m for m in server.store.memory_list() if "tesztlabor" in m["fact"])
+        server.ai = FakeAI([{"action": "update", "id": original["id"],
+                             "fact": "A tesztlaborban 96 voltos tápegység van."}])
+        _, body = await self.post("manage", {"utterance":
+            "Jegyezd meg, hogy a tesztlaborban mostantól 96 voltos tápegység van."})
+        self.assertEqual(body["status"], "confirmed")
+        self.assertEqual(body["action"], "update")
+        rows = {m["id"]: m["fact"] for m in server.store.memory_list()}
+        self.assertEqual(rows[original["id"]], "A tesztlaborban 96 voltos tápegység van.")
+        self.assertEqual(len(rows), 2)
+        self.assertIn("A műhely lámpája kék.", rows.values())

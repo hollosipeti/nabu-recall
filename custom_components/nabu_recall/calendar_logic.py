@@ -65,7 +65,8 @@ def _valid_local_time(value: datetime) -> bool:
 
 def event_bounds(day: str, hour: int, minute: int, now: datetime,
                  duration: int | None = None, end_hour: int | None = None,
-                 end_minute: int | None = None) -> tuple[datetime, datetime]:
+                 end_minute: int | None = None,
+                 end_date: str | None = None) -> tuple[datetime, datetime]:
     """Convert request to a validated pair of local datetimes."""
     if not (0 <= hour <= 23 and 0 <= minute <= 59 and (end_minute is None or 0 <= end_minute <= 59)):
         raise ValueError("Érvénytelen időpont")
@@ -79,14 +80,19 @@ def event_bounds(day: str, hour: int, minute: int, now: datetime,
         raise ValueError("Nem egyértelmű vagy nem létező helyi időpont")
     if start <= now:
         raise ValueError("A múltba nem hozható létre esemény")
+    if end_date is not None and end_hour is None:
+        raise ValueError("A befejezési dátumhoz befejezési óra szükséges")
     if end_hour is not None:
+        # Explicit date only; never infer overnight from reversed hours.
+        from .calendar_ranges import iso_day
+        end_day = iso_day(end_date) if end_date is not None else resolved
         # If no ending minute was supplied, an explicit duration can supply it.
         # Never override a deliberately supplied, contradictory minute.
         if end_minute is None and duration is not None:
             implied = (start.astimezone(timezone.utc) + timedelta(minutes=duration)).astimezone(now.tzinfo)
-            if implied.date() == resolved and implied.hour == end_hour:
+            if implied.date() == end_day and implied.hour == end_hour:
                 end_minute = implied.minute
-        end = datetime.combine(resolved, time(end_hour, end_minute or 0), now.tzinfo)
+        end = datetime.combine(end_day, time(end_hour, end_minute or 0), now.tzinfo)
         if not _valid_local_time(end):
             raise ValueError("Nem egyértelmű vagy nem létező befejezési időpont")
         if end <= start:

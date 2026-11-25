@@ -133,6 +133,10 @@ class CreateCalendarTool(Tool):
         "Use either end_hour/end_minute or duration_minutes, not conflicting values. "
         "For an all-day event set all_day=true, omit ALL hour/minute/duration fields. "
         "For multi-day all-day events set end_date to the day AFTER the final day. "
+        "For timed events explicitly ending on a different date, set end_date to "
+        "the actual ending ISO date and provide end_hour/end_minute. "
+        "Example Dec 31 23:00 to Jan 1 02:00: end_date is Jan 1 of the following year. "
+        "Do not infer overnight when the user did not specify it. "
         "For a range such as 10–11, supply end_hour=11; "
         "never fall back to 30 minutes if a finishing time was given. "
         "Default duration is 30 minutes if no end/duration is specified. "
@@ -179,7 +183,7 @@ class CreateCalendarTool(Tool):
             else:
                 if "start_hour" not in values:
                     raise ValueError("Hiányzó kezdési időpont")
-                if "end_date" in values or ("end_minute" in values and "end_hour" not in values):
+                if ("end_date" in values or "end_minute" in values) and "end_hour" not in values:
                     raise ValueError("Érvénytelen időzített esemény paraméterei")
                 start, end = event_bounds(
                     values["date"], values["start_hour"],
@@ -187,6 +191,7 @@ class CreateCalendarTool(Tool):
                     duration=values.get("duration_minutes"),
                     end_hour=values.get("end_hour"),
                     end_minute=values.get("end_minute"),
+                    end_date=values.get("end_date"),
                 )
                 payload.update(start_date_time=start.isoformat(), end_date_time=end.isoformat())
                 actual = {"all_day": False, "start": start.isoformat(), "end": end.isoformat()}
@@ -243,7 +248,9 @@ def async_get_tools(hass: HomeAssistant, llm_context: LLMContext,
             "For 'mi van pénteken' or another specific day, ALWAYS use "
             "period=day and date='pénteken' (or the user's exact day). "
             "The 'next' result is only one event, not the full day's agenda. "
-            "No calendar deletion or modification tool exists: for such requests clearly "
+            "No calendar deletion or modification tool exists (including moving, "
+            "rescheduling or postponing a named event even without the word calendar). "
+            "Do not ask for a new date/time or create a replacement event. For such requests clearly "
             "explain the limitation without claiming to have searched, deleted or modified. "
             "For all-day events, use the date or date + last_day_inclusive "
             "provided in the tool result; do not add one day to the date. "

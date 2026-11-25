@@ -110,11 +110,12 @@ async def manage(request):
             changed = store.apply_confirmed(op)
             if not changed:
                 return web.json_response({"status": "not_found", "message": "Nem történt módosítás."})
-            LOG.info("Confirmed memory operation: %s, memory id=%s", kind, op.get("id", "new"))
-            return web.json_response({"status": "confirmed", "action": kind,
+            action = op["action"]
+            LOG.info("Confirmed memory operation: %s, memory id=%s", action, op.get("id", "new"))
+            return web.json_response({"status": "confirmed", "action": action,
                                       "message": {"delete": "A kért tartós emléket töröltem.",
                                                   "update": "A kért tartós emléket módosítottam.",
-                                                  "add": "A kért információt megjegyeztem."}[kind]})
+                                                  "add": "A kért információt megjegyeztem."}[action]})
         except Exception as exc:
             LOG.warning("Synchronous memory operation failed: %s", type(exc).__name__)
             return web.json_response({"status": "error", "message": "A memóriaműveletet nem sikerült megerősíteni."})

@@ -20,3 +20,16 @@ class ManagementTests(unittest.TestCase):
         self.assertIsNotNone(validate_change("update",[{"action":"update","id":3,"fact":"új"}],old))
         self.assertIsNone(validate_change("delete",[{"action":"delete","id":3},{"action":"delete","id":4}],old))
         self.assertIsNone(validate_change("update",[{"action":"update","id":55,"fact":"új"}],old))
+
+    def test_save_can_update_existing_fact_but_not_delete(self):
+        old = [{"id": 3, "fact": "A tesztlaborban 48 voltos tápegység van."}]
+        update = {"action": "update", "id": 3, "fact": "A tesztlaborban 96 voltos tápegység van."}
+        for text in ("Jegyezd meg, hogy a tesztlaborban mostantól 96 voltos tápegység van.",
+                     "A tesztlaborban mostantól 96 voltos tápegység van. Jegyezd meg!"):
+            self.assertEqual(operation_kind(text), "add")
+            self.assertEqual(validate_change(operation_kind(text), [update], old), update)
+        self.assertIsNone(validate_change("add", [{"action": "delete", "id": 3}], old))
+        self.assertIsNone(validate_change("add", [dict(update, id=99)], old))
+        self.assertIsNone(validate_change("add", [dict(update, id=True)], old))
+        self.assertIsNone(validate_change("update", [{"action": "add", "fact": "új"}], old))
+        self.assertIsNone(validate_change("add", [update, update], old))

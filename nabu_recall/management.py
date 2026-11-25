@@ -37,12 +37,14 @@ def validate_change(kind, operations, memories):
     if kind not in ("delete", "update", "add") or not isinstance(operations, list) or len(operations) != 1:
         return None
     op = operations[0]
-    if not isinstance(op, dict) or op.get("action") != kind:
+    allowed = ("add", "update") if kind == "add" else (kind,)
+    if not isinstance(op, dict) or op.get("action") not in allowed:
         return None
-    if kind in ("update", "delete"):
+    action = op["action"]
+    if action in ("update", "delete"):
         if type(op.get("id")) is not int or op["id"] not in {m["id"] for m in memories}:
             return None
-    if kind in ("update", "add"):
+    if action in ("update", "add"):
         if not isinstance(op.get("fact"), str) or not op["fact"].strip() or len(op["fact"]) > 1500:
             return None
     return op
