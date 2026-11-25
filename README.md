@@ -3,12 +3,16 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-| Komponens | GitHub `main` ágán elérhető verzió |
-| --- | --- |
-| HAOS alkalmazás (APP) | **2.0.1** |
-| HA-integráció | **2.0.2** |
+## Aktuális stabil projektverzió: **2.0.2**
 
-A külön átadott, éles használatban ellenőrzött **2.0.2-es HA-integráció** kibővített naptárfunkciókat tartalmaz (lásd a 10. pontot). Ez a javítócsomag még nem része a GitHub `main` ágának, ezért az alábbi GitHub-telepítő jelenleg a 2.0.0-s integrációt telepíti. Ha már 2.0.2 fut a rendszereden, ne telepítsd rá a régebbi verziót. Az APP mindkét integrációverzió mellett 2.0.1 marad.
+| Komponens | Legfrissebb, élesben ellenőrzött verzió |
+| --- | --- |
+| Nabu Recall HAOS alkalmazás (APP) | **2.0.1** |
+| Nabu Recall HA-integráció | **2.0.2** |
+
+A 2.0.2-es kiadás kibővített naptárfunkciókat tartalmaz. Az APP 2.0.1 forgómemória-törlése változatlanul működik. Az éles tesztelés során mind a 35 magyar nyelvű teszt és a 4 végső rendszerellenőrzés sikeres volt a felhasználói visszajelzés szerint.
+
+> **Letöltési állapot:** a 2.0.2-es integráció külön átadott javítócsomagként működik; a GitHub `main` ágán jelenleg még a 2.0.0-s integráció forrása található. Az alábbi telepítő ezért még 2.0.0-t telepít. Ha már 2.0.2 fut a rendszereden, ne írd felül a régebbi verzióval.
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
