@@ -4,7 +4,6 @@ Az alkalmazás **2.0.1**. A GitHub `main` ágáról a HA-integráció **2.0.2** 
 
 - [Teljes magyar telepítési és frissítési útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
 - [Az összes OpenAI-utasítás tényleges forrásfájlja és helye](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md)
-- [Családi használati útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/CSALADI_UTMUTATO.md)
 - [Biztonsági mentés és karbantartás](https://github.com/hollosipeti/nabu-recall/blob/main/docs/SAFE_CLEANUP_HU.md)
 - [Kiadási változások](https://github.com/hollosipeti/nabu-recall/blob/main/nabu_recall/CHANGELOG.md)
 

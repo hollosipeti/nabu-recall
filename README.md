@@ -12,7 +12,6 @@
 
 ## Dokumentáció
 
-- **[Családi útmutató](CSALADI_UTMUTATO.md)** — példák mindennapi használatra.
 - **[Az összes aktív OpenAI-utasítás pontos helye](NABU_RECALL_PROMPT.md)** — forrásfájlok, telepítési útvonalak, felhasználói HA-utasításokkal való összevetés.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
@@ -147,6 +146,7 @@ A frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő 
 - **Tartós memória:** a fontosnak kiválasztott tények nem járnak le automatikusan. Egyenként módosíthatók vagy törölhetők.
 - **Közös használat:** a memória az asszisztenst használó családtagok között közös; a rendszer nem azonosítja biztosan, ki beszél hozzá.
 - **Titkosítás:** a memóriaadatbázis SQLCipherrel titkosított.
+- **Biztonsági mentés:** a titkosított adatbázist és a hozzá tartozó kulcsot együtt kell menteni. [Biztonsági mentési útmutató](docs/SAFE_CLEANUP_HU.md).
 - **Figyelmeztetés:** ne taníts be az asszisztensnek fontos, érzékeny személyes információkat (például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat). A memória közös, a feldolgozás pedig OpenAI API-hívásokat is használ.
 
 ## 6. Web UI — a memória megtekintése és kezelése
@@ -171,6 +171,10 @@ A Nabu Recall saját OpenAI API-hívásokat használ a fontos emlékek kiválasz
 A modell alapbeállítása `gpt-4.1-mini`. Ezt csak akkor változtasd meg, ha tudod, hogy a választott modell kompatibilis a memóriakezeléssel.
 
 ## 8. Hogyan használd a memóriát?
+
+Nem minden beszélgetésből lesz tartós emlék: az AI a később is hasznos információkat választja ki. Az automatikus háttérfeldolgozás nem feltétlenül azonnali. Ha fontos egy adat, kérd kifejezetten a megjegyzését.
+
+Személyhez kötött információknál érdemes megnevezni, hogy kiről van szó. A változást is fogalmazd meg egyértelműen: „Vettem még egy biciklit” nem ugyanaz, mint „Lecseréltem a biciklimet”. A példamondatokat nem kell szó szerint használni.
 
 | Mit szeretnél? | Példamondat |
 | --- | --- |
@@ -253,6 +257,6 @@ Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alap
 | Naptári esemény nem jön létre | Van-e kiválasztott naptár, engedélyezett-e az Assist LLM API, és megadtad-e a szükséges dátumot (időzített eseménynél kezdési időt is)? A naptár támogatja-e az eseménylétrehozást? |
 | A kibővített naptárfunkciók nem működnek | Ellenőrizd a HA-integráció verzióját: ezekhez a 2.0.2-es javítás szükséges. Az APP 2.0.1 verziója önmagában nem elegendő. |
 
-További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
+További részletek: [Változásnapló](nabu_recall/CHANGELOG.md).
 
 Licenc: MIT.
