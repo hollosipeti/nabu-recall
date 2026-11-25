@@ -141,7 +141,8 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         server.store.apply([{"action":"add","fact":"Maszat"}])
         server.ai=FakeAI([{"action":"add","fact":"Maszat"}])
         _,body=await self.post("manage",{"utterance":"Jegyezd meg, hogy a tesztállatom Maszat"})
-        self.assertEqual(body["status"],"not_found")
+        self.assertEqual(body["status"],"confirmed")
+        self.assertEqual(len(server.store.memory_list()),1)
     async def test_explicit_commands_not_relearned_on_log(self):
         _,body=await self.post("turn",{"user":"Mentsd el!","assistant":"Tényleg.","conversation_id":"abc"})
         self.assertTrue(body["ok"])
@@ -161,3 +162,27 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(rows[original["id"]], "A tesztlaborban 96 voltos tápegység van.")
         self.assertEqual(len(rows), 2)
         self.assertIn("A műhely lámpája kék.", rows.values())
+
+    async def test_two_facts_atomic(self):
+        server.ai = FakeAI([{"action": "add", "fact": "Anna kedvence a körte."},
+                            {"action": "add", "fact": "Anikó kedvence a szilva."}])
+        _, body = await self.post("manage", {"utterance":
+            "Jegyezd meg, hogy Anna kedvence a körte, Anikóé a szilva."})
+        self.assertEqual(body["status"], "confirmed")
+        self.assertEqual(len(server.store.memory_list()), 2)
+
+    async def test_invalid_second_operation_does_not_write_first(self):
+        server.ai = FakeAI([{"action": "add", "fact": "Első tény."},
+                            {"action": "update", "id": 999, "fact": "Második tény."}])
+        _, body = await self.post("manage", {"utterance": "Jegyezd meg a két tényt."})
+        self.assertEqual(body["status"], "not_found")
+        self.assertEqual(server.store.memory_list(), [])
+
+    async def test_batch_rolls_back_on_unique_constraint(self):
+        server.store.apply([{"action": "add", "fact": "A"}, {"action": "add", "fact": "B"}])
+        rows = {m["fact"]: m["id"] for m in server.store.memory_list()}
+        server.ai = FakeAI([{"action": "add", "fact": "C"},
+                            {"action": "update", "id": rows["A"], "fact": "B"}])
+        _, body = await self.post("manage", {"utterance": "Jegyezd meg a változásokat."})
+        self.assertEqual(body["status"], "error")
+        self.assertEqual({m["fact"] for m in server.store.memory_list()}, {"A", "B"})
