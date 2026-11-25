@@ -200,6 +200,16 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result.error)
         self.assertFalse(self.services.calls)
 
+    async def test_range_schema_has_only_inclusive_end(self):
+        tool = self.get_tools().tools[0]
+        self.assertIn("last_day_inclusive", tool.parameters.fields)
+        self.assertNotIn("end_date", tool.parameters.fields)
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args={
+            "period": "range", "start_date": "2027-01-04", "last_day_inclusive": "2027-01-04"
+        }), self.ctx)
+        self.assertFalse(result.error)
+        self.assertTrue(self.services.calls[-1][2]["end_date_time"].startswith("2027-01-05T00:00"))
+
     async def test_inclusive_year_boundary(self):
         tool = self.get_tools().tools[0]
         result = await tool.async_call(self.hass, SimpleNamespace(tool_args={

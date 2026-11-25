@@ -1,3 +1,7 @@
+## 2.0.4 — célzott hibajavítás
+
+Befoglaló naptári zárónap, összetett kérdések köztes szövegének szűrése, hiányzó új érték bekérése és kontextusfüggő mentés javítása. Éles ellenőrzés szükséges.
+
 ## 2.0.3 — fejlesztési tesztverzió
 
 Memóriamentés és módosítás, többes mentés tranzakcióban, ismételt mentés, kontextus, összetett kérdések és naptári határnapok javítása. Éles HA-ellenőrzés szükséges.

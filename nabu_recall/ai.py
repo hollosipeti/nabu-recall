@@ -105,7 +105,7 @@ class AI:
             "For delete: emit action delete and integer id only if one matching existing "
             "fact is clearly identified. For update: action update with exact existing "
             "memory id and replacement fact retaining the correct person. "
-             "For add: action add with fact when explicitly requested; avoid duplicates. "
+             "For add: action add with fact when explicitly requested; if an equivalent existing fact already exists, return add with its EXACT stored fact verbatim for an idempotent acknowledgement. Never invent a match. "
             "For an existing fact being corrected, use update instead of add, even "
             "when requested_action is add. For a genuinely additional object use add "
             "and preserve existing objects. An update requires an actual new value or "

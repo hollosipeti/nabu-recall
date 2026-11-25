@@ -37,7 +37,7 @@ def schedule_learning():
         _learning_task = asyncio.create_task(process_pending())
 
 
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.3'}
+state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.4'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -46,7 +46,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.3"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.4"})
 
 async def log_turn(request):
     data = await request.json()
@@ -87,6 +87,9 @@ async def manage(request):
                              (relevant + store.memory_list(40))}.values())[:160]
             context = previous_context(store.recent_turns(30), conversation_id, int(time.time())) if kind in ("add", "update") else None
             if context_needed(utterance):
+                if context is not None:
+                    context_matches = store.memory_search(store.memory_query_terms(context), limit=120)
+                    memories = list({m["id"]: m for m in (context_matches + memories)}.values())[:160]
                 if context is None:
                     return web.json_response({"status": "not_found",
                         "message": "Mit szeretnél elmenteni? Mondd el a tényt is."})
@@ -104,13 +107,20 @@ async def manage(request):
                          len(operations) if isinstance(operations, list) else -1,
                          [o.get("action") for o in operations[:2]
                           if isinstance(o, dict)] if isinstance(operations, list) else [])
-                return web.json_response({"status": "not_found", "message": "Nem sikerült egyértelműen azonosítani az emléket."})
+                message = "Nem sikerült egyértelműen azonosítani az emléket."
+                if kind == "update":
+                    message = "Melyik emléket mire módosítsam? Add meg a pontos új értéket."
+                elif context_needed(utterance):
+                    message = "Mit szeretnél elmenteni? Mondd el a tényt is."
+                return web.json_response({"status": "not_found", "message": message})
             changed = store.apply_confirmed_batch(checked)
             action = checked[0]["action"] if len(checked) == 1 else kind
             LOG.info("Confirmed memory operations: %d, changed=%d", len(checked), changed)
             message = {"delete": "A kért tartós emléket töröltem.",
                        "update": "A kért tartós emléket módosítottam.",
                        "add": "A kért információt megjegyeztem."}[action]
+            if not changed and kind == "update":
+                return web.json_response({"status": "not_found", "message": "Mire módosítsam az emléket? Add meg az új értéket."})
             if not changed:
                 message = "Ez az információ már szerepel a memóriában."
             return web.json_response({"status": "confirmed", "action": action, "message": message})

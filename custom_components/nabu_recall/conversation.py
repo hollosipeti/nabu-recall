@@ -1,5 +1,6 @@
 """Transparent wrapper retaining the actual assistant speech and device control."""
 import logging
+from contextlib import contextmanager
 from homeassistant.components import conversation
 from homeassistant.components.conversation import ConversationEntity
 from homeassistant.components.conversation.const import ConversationEntityFeature
@@ -12,6 +13,30 @@ from .repo_instructions import compose_instructions
 import re
 
 _LOGGER = logging.getLogger(__name__)
+
+@contextmanager
+def suppress_nested_text():
+    """Suppress only nested assistant text; retain tool diagnostics and restore listener."""
+    try:
+        from homeassistant.components.conversation.chat_log import current_chat_log
+    except ImportError:
+        yield
+        return
+    chat_log = current_chat_log.get()
+    listener = getattr(chat_log, "delta_listener", None)
+    if listener is None:
+        yield
+        return
+
+    def filtered(log, delta):
+        if delta.get("role") == "tool_result" or delta.get("tool_calls"):
+            listener(log, {k: v for k, v in delta.items() if k != "content"})
+    chat_log.delta_listener = filtered
+    try:
+        yield
+    finally:
+        chat_log.delta_listener = listener
+
 
 def extract_spoken_answer(result):
     """Read Home Assistant IntentResponse speech in dict or attribute form."""
@@ -100,11 +125,12 @@ class RecallAgent(ConversationEntity):
                         context = await bridge.recall(user_input.text)
                         extra = compose_instructions(user_input.extra_system_prompt, context)
                         extra += "\\nThe memory operation is already complete. Answer only the separate question; do not repeat the memory action. The original user request was: " + user_input.text
-                        answer = await conversation.async_converse(
-                            self.hass, text=followup, conversation_id=user_input.conversation_id,
-                            context=user_input.context, language=user_input.language,
-                            agent_id=upstream, device_id=user_input.device_id,
-                            satellite_id=user_input.satellite_id, extra_system_prompt=extra)
+                        with suppress_nested_text():
+                            answer = await conversation.async_converse(
+                                self.hass, text=followup, conversation_id=user_input.conversation_id,
+                                context=user_input.context, language=user_input.language,
+                                agent_id=upstream, device_id=user_input.device_id,
+                                satellite_id=user_input.satellite_id, extra_system_prompt=extra)
                         spoken += " " + (extract_spoken_answer(answer) or "A további kérdésre nem kaptam választ.")
                     except Exception:
                         spoken += " A további kérdés feldolgozása sikertelen."

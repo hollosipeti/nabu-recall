@@ -48,10 +48,9 @@ class QueryCalendarTool(Tool):
         "For 'jövő héten' use period=next_week. Legacy week means the next 7 days. "
         "For any other interval (including 'következő két hét', a month, or "
         "two named dates), use period=range with ISO start_date inclusive "
-        "and last_day_inclusive equal to the final requested day, preferably. "
-        "Legacy end_date is exclusive (the day AFTER the final requested day); "
-        "never supply both. Example December 29 through January 4: "
-        "last_day_inclusive is January 4 of the next year. "
+        "and last_day_inclusive equal to the final requested day. "
+        "Never add a day yourself. Example December 29 through January 4: "
+        "last_day_inclusive is January 4 of the next year. For a whole month use its last calendar day. "
         "For a named event, e.g. 'mikor megyek fogorvoshoz?', use period=search "
         "and title='fogorvos', or period=range plus title for a bounded search. "
         "Search covers 365 days from now; disclose the searched range if empty. "
@@ -66,7 +65,6 @@ class QueryCalendarTool(Tool):
             ["today", "tomorrow", "weekend", "week", "next", "day", "next_week", "range", "search"]),
         probatio.Optional("date"): str,
         probatio.Optional("start_date"): str,
-        probatio.Optional("end_date"): str,
         probatio.Optional("last_day_inclusive"): str,
         probatio.Optional("title"): str,
     })
@@ -83,12 +81,15 @@ class QueryCalendarTool(Tool):
             if (title is not None and not title.strip()) or (period == "search" and not title):
                 raise ValueError("Hiányzó eseménynév a kereséshez")
             now = dt_util.now()
-            end_date = values.get("end_date")
-            if "last_day_inclusive" in values:
-                if period != "range" or end_date is not None:
-                    raise ValueError("Érvénytelen dátumtartomány")
+            end_date = None
+            if period == "range":
                 from .calendar_ranges import iso_day
-                end_date = (iso_day(values["last_day_inclusive"]) + timedelta(days=1)).isoformat()
+                last_day = values.get("last_day_inclusive")
+                if not last_day:
+                    raise ValueError("Hiányzik az utolsó kért nap")
+                end_date = (iso_day(last_day) + timedelta(days=1)).isoformat()
+            elif "last_day_inclusive" in values:
+                raise ValueError("Érvénytelen dátumtartomány")
             start, end = query_window(period, now, values.get("date"),
                                       values.get("start_date"), end_date)
             result = await hass.services.async_call(

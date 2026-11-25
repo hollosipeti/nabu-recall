@@ -186,3 +186,21 @@ class HttpMemoryTests(unittest.IsolatedAsyncioTestCase):
         _, body = await self.post("manage", {"utterance": "Jegyezd meg a változásokat."})
         self.assertEqual(body["status"], "error")
         self.assertEqual({m["fact"] for m in server.store.memory_list()}, {"A", "B"})
+
+    async def test_noop_update_requests_value(self):
+        server.store.apply([{"action":"add","fact":"A raktárban nyolc biztosíték van."}])
+        before = server.store.memory_list()
+        server.ai = FakeAI([{"action":"update","id":before[0]["id"],"fact":before[0]["fact"]}])
+        _, body = await self.post("manage", {"utterance":"Javítsd ki a biztosítékok számát!"})
+        self.assertEqual(body["status"], "not_found")
+        self.assertIn("új értéket", body["message"])
+        self.assertEqual(server.store.memory_list(), before)
+
+    async def test_elliptical_save_exact_existing(self):
+        fact = "A próbamérő a fiókban van."
+        server.store.apply([{"action":"add","fact":fact}])
+        server.store.add_turn(fact, "Rendben.", "same")
+        _, body = await self.post("manage", {"utterance":"Jegyezd meg ezt!", "conversation_id":"same"})
+        self.assertEqual(body["status"], "confirmed")
+        self.assertEqual(len(server.store.memory_list()), 1)
+        self.assertFalse(server.ai.calls)
