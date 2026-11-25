@@ -272,6 +272,38 @@ class Store:
                 return cursor.rowcount == 1
         return False
 
+    def apply_confirmed_batch(self, operations):
+        """All-or-nothing explicit writes; exact repeats are successful no-ops."""
+        changed = 0
+        with self.db:
+            for op in operations:
+                action = op["action"]
+                if action == "delete":
+                    cursor = self.db.execute("DELETE FROM memories WHERE id=?", (op["id"],))
+                elif action == "update":
+                    fact = op["fact"].strip()
+                    row = self.db.execute("SELECT fact FROM memories WHERE id=?", (op["id"],)).fetchone()
+                    if row is None:
+                        raise ValueError("Missing target")
+                    if row[0] == fact:
+                        continue
+                    cursor = self.db.execute("UPDATE memories SET fact=?,updated=? WHERE id=?",
+                                             (fact, int(time.time()), op["id"]))
+                elif action == "add":
+                    fact = op["fact"].strip()
+                    cursor = self.db.execute("INSERT OR IGNORE INTO memories(created,updated,fact) VALUES(?,?,?)",
+                                             (int(time.time()), int(time.time()), fact))
+                    if cursor.rowcount == 0:
+                        if self.db.execute("SELECT 1 FROM memories WHERE fact=?", (fact,)).fetchone():
+                            continue
+                        raise ValueError("Insert not confirmed")
+                else:
+                    raise ValueError("Unknown action")
+                if cursor.rowcount != 1:
+                    raise ValueError("Write not confirmed")
+                changed += 1
+        return changed
+
     def remove_memory(self, id):
         with self.db:
             return self.db.execute("DELETE FROM memories WHERE id=?", (id,)).rowcount

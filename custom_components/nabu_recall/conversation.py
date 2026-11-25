@@ -83,14 +83,31 @@ class RecallAgent(ConversationEntity):
             r"tárold\s+el|rögzítsd)\b",
             user_input.text, re.IGNORECASE)
         if memory_command and not calendar_action(user_input.text):
+            # Only forward an explicitly separate question; never replay the memory command.
+            tail = re.search(r"(?:[,;.]\s*|\s+és\s+)(?:és\s+)?(?:mondd meg,?\s+)?((?:mikor|meddig|hol|mennyi|mi|milyen|hány)\b.+)$", user_input.text, re.I)
+            followup = tail.group(1).strip() if tail else ""
+            memory_text = user_input.text[:tail.start()].strip(" ,;.") if tail else user_input.text
             try:
-                outcome = await bridge.manage(user_input.text, user_input.conversation_id or "")
+                outcome = await bridge.manage(memory_text, user_input.conversation_id or "")
             except Exception:
                 outcome = {"status": "error", "message": "A memóriaműveletet nem sikerült ellenőrizni."}
             if outcome.get("status") in ("confirmed", "blocked", "not_found", "error", "not_command"):
                 from homeassistant.helpers import intent
                 response = intent.IntentResponse(language=user_input.language)
                 spoken = outcome.get("message") or "Ez nem egyértelmű memóriaművelet."
+                if followup and outcome.get("status") == "confirmed":
+                    try:
+                        context = await bridge.recall(user_input.text)
+                        extra = compose_instructions(user_input.extra_system_prompt, context)
+                        extra += "\\nThe memory operation is already complete. Answer only the separate question; do not repeat the memory action. The original user request was: " + user_input.text
+                        answer = await conversation.async_converse(
+                            self.hass, text=followup, conversation_id=user_input.conversation_id,
+                            context=user_input.context, language=user_input.language,
+                            agent_id=upstream, device_id=user_input.device_id,
+                            satellite_id=user_input.satellite_id, extra_system_prompt=extra)
+                        spoken += " " + (extract_spoken_answer(answer) or "A további kérdésre nem kaptam választ.")
+                    except Exception:
+                        spoken += " A további kérdés feldolgozása sikertelen."
                 response.async_set_speech(spoken)
                 result = conversation.ConversationResult(
                     response=response, conversation_id=user_input.conversation_id or "")

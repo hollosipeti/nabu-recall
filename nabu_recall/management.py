@@ -49,13 +49,31 @@ def validate_change(kind, operations, memories):
             return None
     return op
 
+def validate_batch(kind, operations, memories):
+    """Bounded non-destructive batch; every target validated before writing."""
+    if not isinstance(operations, list) or not 1 <= len(operations) <= 8:
+        return None
+    if kind == "delete" and len(operations) != 1:
+        return None
+    checked = [validate_change(kind, [op], memories) for op in operations]
+    if any(op is None for op in checked):
+        return None
+    ids = [op["id"] for op in checked if op["action"] in ("update", "delete")]
+    if len(ids) != len(set(ids)):
+        return None
+    facts = [op["fact"].strip() for op in checked if op["action"] != "delete"]
+    if len(facts) != len(set(facts)):
+        return None
+    return checked
+
+
 def context_needed(text):
     """Only elliptical imperative requests may consult the preceding conversation turn."""
     if not isinstance(text, str):
         return False
     compact = re.sub(r"[.!?\s]+", " ", text).strip().casefold()
     return compact in ("mentsd el", "mentsük el", "jegyezd meg", "tárold el",
-                       "ezt mentsd el", "azt mentsd el", "ezt jegyezd meg")
+                       "ezt mentsd el", "azt mentsd el", "ezt jegyezd meg", "jegyezd meg ezt", "jegyezd meg azt", "tárold el ezt")
 
 def previous_context(turns, conversation_id, now, max_age=300):
     """Never infer an antecedent across conversations, missing IDs or old turns."""

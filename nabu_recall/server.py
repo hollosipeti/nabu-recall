@@ -12,7 +12,7 @@ from policy import filter_memory_operations
 from shopping_filter import is_shopping_list_action
 from learning_source import assertion_turn, credible_extracted_fact
 from journal_time import journal_window, in_window
-from management import operation_kind, validate_change, previous_context, context_needed, identical_existing_fact
+from management import operation_kind, validate_batch, previous_context, context_needed, identical_existing_fact
 from structured_context import enrich_selected_facts
 from current_facts import authoritative_preferences
 
@@ -37,7 +37,7 @@ def schedule_learning():
         _learning_task = asyncio.create_task(process_pending())
 
 
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.1'}
+state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.3'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -46,7 +46,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.1"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.3"})
 
 async def log_turn(request):
     data = await request.json()
@@ -85,10 +85,8 @@ async def manage(request):
             # exact lexical match, while searching ALL historical facts.
             memories = list({m["id"]: m for m in
                              (relevant + store.memory_list(40))}.values())[:160]
-            context = None
+            context = previous_context(store.recent_turns(30), conversation_id, int(time.time())) if kind in ("add", "update") else None
             if context_needed(utterance):
-                context = previous_context(
-                    store.recent_turns(30), conversation_id, int(time.time()))
                 if context is None:
                     return web.json_response({"status": "not_found",
                         "message": "Mit szeretnél elmenteni? Mondd el a tényt is."})
@@ -96,8 +94,8 @@ async def manage(request):
                     return web.json_response({"status": "confirmed", "action": "add",
                                               "message": "Ezt már korábban megjegyeztem."})
             operations = await ai.manage(utterance, kind, memories, context)
-            op = validate_change(kind, operations, memories)
-            if op is None:
+            checked = validate_batch(kind, operations, memories)
+            if checked is None:
                 # Only non-sensitive diagnostics: never log utterances, fact
                 # bodies, identifiers, or raw model JSON.
                 LOG.info("Memory edit not confirmed: requested=%s, candidate_count=%d, "
@@ -107,15 +105,15 @@ async def manage(request):
                          [o.get("action") for o in operations[:2]
                           if isinstance(o, dict)] if isinstance(operations, list) else [])
                 return web.json_response({"status": "not_found", "message": "Nem sikerült egyértelműen azonosítani az emléket."})
-            changed = store.apply_confirmed(op)
+            changed = store.apply_confirmed_batch(checked)
+            action = checked[0]["action"] if len(checked) == 1 else kind
+            LOG.info("Confirmed memory operations: %d, changed=%d", len(checked), changed)
+            message = {"delete": "A kért tartós emléket töröltem.",
+                       "update": "A kért tartós emléket módosítottam.",
+                       "add": "A kért információt megjegyeztem."}[action]
             if not changed:
-                return web.json_response({"status": "not_found", "message": "Nem történt módosítás."})
-            action = op["action"]
-            LOG.info("Confirmed memory operation: %s, memory id=%s", action, op.get("id", "new"))
-            return web.json_response({"status": "confirmed", "action": action,
-                                      "message": {"delete": "A kért tartós emléket töröltem.",
-                                                  "update": "A kért tartós emléket módosítottam.",
-                                                  "add": "A kért információt megjegyeztem."}[action]})
+                message = "Ez az információ már szerepel a memóriában."
+            return web.json_response({"status": "confirmed", "action": action, "message": message})
         except Exception as exc:
             LOG.warning("Synchronous memory operation failed: %s", type(exc).__name__)
             return web.json_response({"status": "error", "message": "A memóriaműveletet nem sikerült megerősíteni."})

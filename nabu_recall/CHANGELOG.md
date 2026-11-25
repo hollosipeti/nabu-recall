@@ -1,3 +1,7 @@
+## 2.0.3 — fejlesztési tesztverzió
+
+Memóriamentés és módosítás, többes mentés tranzakcióban, ismételt mentés, kontextus, összetett kérdések és naptári határnapok javítása. Éles HA-ellenőrzés szükséges.
+
 # Nabu Recall — kiadási napló
 
 ## 2.0.2 — 2026-11-25 (HA-integráció; APP 2.0.1)
