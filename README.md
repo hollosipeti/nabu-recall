@@ -205,7 +205,6 @@ A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py
 - Nyisd meg: Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Válassz egy naptár-entitást (pl. `calendar.esemenyek`). Ha üresen hagyod, a naptárfunkciók kikapcsolva maradnak.
 - A meglévő OpenAI Conversation ügynöknél legyen engedélyezve a Home Assistant **Assist (eszközvezérlés)** LLM API.
 - A kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, az eszközütközések elkerüléséhez vedd ki a natív Assist-kitettségből. Ettől a naptár és a Nabu Recall hozzáférése nem törlődik.
-- A régi kézi naptárszkriptek Assist-kitettségére és a régi naptárutasításokra nincs szükség. Ha korábban beállítottad őket, szüntesd meg a kettős vezérlést; a meglévő szkripteket nem kell törölni.
 
 ### Működés és példák
 
@@ -224,15 +223,11 @@ A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py
 | Többnapos esemény | „December 11-től 14-ig szabadságon leszek. Írd be a naptáramba!” | 2.0.2 |
 | Éjfélen átnyúló esemény | „December 9-én este tizenegytől másnap hajnali egyig karbantartás lesz. Írd be a naptáramba!” | 2.0.2 |
 
-A 2.0.0 is támogatja a mai, holnapi, hétvégi, konkrét napi és következő hét napos lekérdezést, valamint a következő eseményt és az időzített eseménylétrehozást. A 2.0.2-ben javult a magyar dátumok és időpontok értelmezése, az azonos órán belüli események kezelése, továbbá valódi egész napos és többnapos naptárbejegyzések hozhatók létre.
-
 A jövő hét hétfőtől vasárnapig tart; a következő két hét a mai naptól számított 14 naptári nap. A két konkrét dátum között kért lekérdezésnél mindkét határnap beleszámít. A név szerinti keresés alapértelmezésben 365 napra előre keres a naptári események címében; megadható szűkebb időszak is.
 
 Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alapértelmezés 30 perc. Ha hiányzik a szükséges dátum vagy időpont, illetve ellentmondás van a kérésben, az asszisztensnek pontosítást kell kérnie. Fontos eseménynél mindig ellenőrizd a tényleges naptárbejegyzést.
 
-**Korlátok:** a Nabu Recall csak a kiválasztott naptárat kezeli. Naptári események törlése és módosítása nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
-
-**Verzió:** a 2.0.2-es integráció a GitHub `main` ágáról telepíthető.
+**Korlátok:** a Nabu Recall csak a kiválasztott naptárat kezeli. Naptári események törlése és módosítása még nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
 
 ## 11. Gyakorlati példák
 
