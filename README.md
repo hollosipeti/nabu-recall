@@ -133,10 +133,9 @@ Válaszd ki a használni kivánt naptárt.
 
 Az APP és a HA-integráció egymástól függetlenül frissíthető. Nem kell mindkettőt újratelepíteni, ha csak az egyik változott.
 
-1. Készíts Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával. Részletek: [Biztonsági mentés és karbantartás](docs/SAFE_CLEANUP_HU.md).
-2. Ha az **APP** kapott új verziót, frissítsd a meglévő alkalmazást az alkalmazásboltból.
-3. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t.
-4. Ellenőrizd a két verziószámot, a memóriaadatokat, az eszközvezérlést és (ha be van állítva) a naptárt.
+1. Ha az **APP** kapott új verziót, frissítsd a meglévő alkalmazást az alkalmazásboltból.
+2. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t.
+3. Ellenőrizd a két verziószámot, a memóriaadatokat, az eszközvezérlést és (ha be van állítva) a naptárt.
 
 A frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő memóriát törölni.
 
