@@ -100,6 +100,8 @@ Válaszd ki azt az **OpenAI Conversation** ügynököt, amellyel eddig is vezér
 
 Nyisd meg egy másik lapon: **Beállítások → Alkalmazások → Nabu Recall → Információ**. Itt keresd a **Hostname** értékét: ez az alkalmazás *belső hálózati neve*, nem a Home Assistant általános hostneve vagy IP-címe.
 
+![default](Pics/hostname.png)
+
 Az integráció `url` mezőjébe ezt írd:
 
 ```text
