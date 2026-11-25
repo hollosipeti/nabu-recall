@@ -174,7 +174,7 @@ A modell alapbeállítása `gpt-4.1-mini`. Ezt csak akkor változtasd meg, ha tu
 | --- | --- |
 | Fontos tény mentése | „Jegyezd meg, hogy a tartalék elemek a kamra felső polcán vannak.” |
 | Korábbi tény visszakérdezése | „Hol vannak a tartalék elemek?” |
-| Egy emlék javítása | „Javítsd: a tartalék elemek most a garázsban vannak.” |
+| Egy emlék javítása | „Javítsd: a tartalék elemek mostantól a garázsban vannak.” |
 | Egy konkrét emlék törlése | „Töröld azt az emléket, hogy a tartalék elemek a garázsban vannak.” |
 | Korábbi beszélgetés felidézése | „Mit beszéltünk korábban a szerszámokról?” |
 
