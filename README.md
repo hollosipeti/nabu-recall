@@ -92,11 +92,11 @@ Ezután **indítsd újra a Home Assistant Core-t** (a terminálból: `ha core re
 
 ![default](Pics/integration.png)
 
-## Beszélgetési ügynök:
+### Beszélgetési ügynök:
 
 Válaszd ki azt az **OpenAI Conversation** ügynököt, amellyel eddig is vezérelted a Home Assistantot. Például egy „HUN” nevű, már működő OpenAI Conversation ügynököt. Az ügynök a Home Assistantban **beszélgetési entitásként** (`conversation.…`) szerepel. A Nabu Recall ezt fogja használni a válaszadáshoz és az eszközvezérléshez, tehát **ne töröld vagy cseréld le ezt a meglévő ügynököt**.
 
-## URL Cím:
+### URL Cím:
 
 Nyisd meg egy másik lapon: **Beállítások → Alkalmazások → Nabu Recall → Információ**. Itt keresd a **Hostname** értékét: ez az alkalmazás *belső hálózati neve*, nem a Home Assistant általános hostneve vagy IP-címe.
 
@@ -110,11 +110,11 @@ http://HOSTNAME:8765
 
 A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelzett Hostname értékre. Például ha a Hostname `abc123-nabu-recall`, akkor a cím `http://abc123-nabu-recall:8765`. **Ez csak szemléltető példa, nem a te rendszered valós címe.**
 
-## Token:
+### Token:
 
 Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét.
 
-## Calendar: (opcionális)
+### Calendar: (opcionális)
 
 Válaszd ki a használni kivánt naptárt.
 
