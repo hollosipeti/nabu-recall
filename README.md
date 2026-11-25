@@ -3,16 +3,10 @@
   Nabu Recall — HAOS alkalmazás és HA integráció
 </h1>
 
-## Aktuális stabil projektverzió: **2.0.2**
-
 | Komponens | Legfrissebb, élesben ellenőrzött verzió |
 | --- | --- |
 | Nabu Recall HAOS alkalmazás (APP) | **2.0.1** |
 | Nabu Recall HA-integráció | **2.0.2** |
-
-A 2.0.2-es kiadás kibővített naptárfunkciókat tartalmaz. Az APP 2.0.1 forgómemória-törlése változatlanul működik. Az éles tesztelés során mind a 35 magyar nyelvű teszt és a 4 végső rendszerellenőrzés sikeres volt a felhasználói visszajelzés szerint.
-
-**Telepítés:** a GitHub `main` ágáról a 2.0.2-es HA-integráció érhető el, a lent megadott telepítőparanccsal. Az APP verziója 2.0.1.
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -22,7 +16,7 @@ A 2.0.2-es kiadás kibővített naptárfunkciókat tartalmaz. Az APP 2.0.1 forg�
 - **[Az összes aktív OpenAI-utasítás pontos helye](NABU_RECALL_PROMPT.md)** — forrásfájlok, telepítési útvonalak, felhasználói HA-utasításokkal való összevetés.
 - **[Változásnapló](nabu_recall/CHANGELOG.md)** és [fejlesztési történet](HISTORY.md).
 
-> **Fontos:** A beszélgetésmemória az asszisztenst használók között közös. **Ne taníts be neki fontos, érzékeny személyes információkat**, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.
+> **Fontos!!! A beszélgetésmemória az asszisztenst használók között közös. Ne taníts be neki fontos, érzékeny személyes információkat, például jelszavakat, hozzáférési kulcsokat, pénzügyi vagy személyazonosító adatokat. A memóriaműveletek OpenAI API-feldolgozást is igénybe vesznek.**
 
 # Telepítési és használati útmutató
 
@@ -44,6 +38,7 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 - Home Assistant OS vagy olyan Home Assistant-telepítés, amely támogatja az alkalmazásokat.
 - Már beállított, működő **OpenAI Conversation** beszélgetési ügynök a Home Assistantban. OpenAI Platform API-kulcs. (A ChatGPT-előfizetés nem helyettesíti az API-használat külön díjazását.)
 - A Home Assistant helyes időzónája (Magyarországon: **Europe/Budapest**).
+- Opcionálisan Google Calendar integrációra
 
 ## 3. Telepítés
 
@@ -85,7 +80,7 @@ A Home Assistant **Terminal** felületén futtasd ezt az **egyetlen parancssort*
 curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu.sh && sh /tmp/install_nabu.sh main
 ```
 
-A parancs kizárólag a HA-integrációt telepíti vagy cseréli le, nem az APP-ot és nem annak adatait. A telepítő kiírja a telepített manifest verzióját, és a korábbi integrációfájlokat a `/config/nabu_recall_backups` könyvtárba menti. Külön Python-telepítés nem szükséges. Jelenleg a `main` integrációverziója 2.0.2.
+A parancs kizárólag a HA-integrációt telepíti vagy cseréli le, nem az APP-ot és nem annak adatait.
 
 Ezután **indítsd újra a Home Assistant Core-t** (a terminálból: `ha core restart`).
 
@@ -117,6 +112,10 @@ A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelz
 
 Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét.
 
+## Calendar: (opcionális)
+
+Válaszd ki a használni kivánt naptárt.
+
 4. Fejezd be az integráció hozzáadását.
 5. Nyisd meg a **Beállítások → Hangasszisztensek** (Settings → Voice assistants) oldalt. Kattints arra a hangasszisztensre, amelyet ténylegesen használsz (például az alapértelmezett Assist asszisztensre).
 6. A **Conversation agent** (Beszélgetési ügynök) legördülő mezőben a **Nabu Recall – memória** lehetőséget válaszd ki az eddig használt OpenAI Conversation helyett. Ez elengedhetetlen: amíg a Conversation agent mezőben a régi OpenAI Conversation ügynök szerepel, az Assist megkerüli a Nabu Recall memóriáját. A régi OpenAI Conversation ügynököt **nem szabad törölni**: az integráció azt használja a háttérben a válaszadáshoz és az eszközvezérléshez.
@@ -134,12 +133,12 @@ Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontba
 
 Az APP és a HA-integráció egymástól függetlenül frissíthető. Nem kell mindkettőt újratelepíteni, ha csak az egyik változott.
 
-1. Készíts ellenőrzött teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával. Részletek: [Biztonsági mentés és karbantartás](docs/SAFE_CLEANUP_HU.md).
+1. Készíts Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával. Részletek: [Biztonsági mentés és karbantartás](docs/SAFE_CLEANUP_HU.md).
 2. Ha az **APP** kapott új verziót, frissítsd a meglévő alkalmazást az alkalmazásboltból.
 3. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t.
 4. Ellenőrizd a két verziószámot, a memóriaadatokat, az eszközvezérlést és (ha be van állítva) a naptárt.
 
-A 2.0.x itt dokumentált frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő memóriát törölni. Az APP titkosított adatbázisát és kulcsát együtt őrizd meg.
+A frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő memóriát törölni.
 
 ## 5. Adatok, memória és titkosítás
 
