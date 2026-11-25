@@ -191,21 +191,14 @@ A 2.0.1-es alkalmazástól a **Web UI → Memóriakezelés → Forgó memória �
 - A feldolgozatlan sorok és az aktív tartós emlékek `source_turn` hivatkozásai által védett sorok nem törölhetők. Vegyes, védett tételt tartalmazó kijelölés teljes egészében elutasításra kerül.
 - Az előnézet megmutatja a kiválasztott sorok pontos tartalmát; külön megerősítés és jelölőnégyzet szükséges. Egyszerre legfeljebb 40 párbeszéd végleg törölhető.
 - **Nem archiválás, nincs alkalmazáson belüli visszaállítás.** A kijelölt bejegyzések az aktív titkosított adatbázisból törlődnek. A SQLite WAL-t a rendszer ellenőrzőpontozza; régebbi HA biztonsági mentésekben ettől még megmaradhatnak a korábbi adatok.
-- Törlés előtt készíts teljes, ellenőrzött HA-mentést. A tartós emlékek és a 45 napos normál lejárat logikája változatlan.
-
-Ez az **APP 2.0.1** funkciója; a HA-integrációt nem szükséges hozzá frissíteni. A 2.0.2-es naptárjavítás sem változtatja meg ezt a funkciót.
 
 ## 9. Nabu Recall AI-utasítások: csak a repóban
 
 A Nabu Recall memória- és válaszadási utasításait az integráció saját `custom_components/nabu_recall/repo_instructions.py` fájlja tartalmazza, és automatikusan továbbítja a meglévő OpenAI Conversation ügynöknek. **A Home Assistantban nem kell kézzel másolni vagy szerkeszteni a Nabu Recall promptját.**
 
-A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások forrástérképe](NABU_RECALL_PROMPT.md) az összes aktív fájlt és a telepítési helyüket mutatja; a régi másolandó promptmintát eltávolítottuk.
+A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások forrástérképe](NABU_RECALL_PROMPT.md) az összes aktív fájlt és a telepítési helyüket mutatja.
 
-**Fontos technikai határ:** az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át, mert az az eredeti HA-funkciókat is érintené. Az általános HA/eszközvezérlési szabályok maradhatnak, a régi Nabu-memória- és naptárutasításokat viszont ne duplikáld benne.
-
-## 10. Opcionális, beépített naptár
-
-A Nabu Recall a Home Assistantban már elérhető naptár-entitással dolgozik. Nem kell külön YAML-t vagy naptárszkriptet telepíteni. A naptár nélküli telepítés továbbra is teljes értékű tartós memória.
+**Fontos!** az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át, mert az az eredeti HA-funkciókat is érintené. 
 
 ### Beállítás
 
