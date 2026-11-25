@@ -5,6 +5,8 @@ No HA imports, no persistence, no guessing missing event times.
 from datetime import date, datetime, time, timedelta, timezone
 import re
 
+from .calendar_ranges import hungarian_month_day, range_window
+
 WEEKDAYS = {
     "hétfő": 0, "hétfőn": 0, "kedd": 1, "kedden": 1,
     "szerda": 2, "szerdán": 2, "csütörtök": 3, "csütörtökön": 3,
@@ -46,6 +48,9 @@ def resolve_day(value: str, now: datetime, hour: int = 0, minute: int = 0) -> da
             if datetime.combine(candidate, time(hour, minute), now.tzinfo) > now:
                 return candidate
         raise ValueError("Nincs érvényes jövőbeli dátum")
+    named = hungarian_month_day(key, now)
+    if named is not None:
+        return named
     raise ValueError("Ismeretlen dátum; kérj pontosítást")
 
 
@@ -60,9 +65,9 @@ def _valid_local_time(value: datetime) -> bool:
 
 def event_bounds(day: str, hour: int, minute: int, now: datetime,
                  duration: int | None = None, end_hour: int | None = None,
-                 end_minute: int = 0) -> tuple[datetime, datetime]:
+                 end_minute: int | None = None) -> tuple[datetime, datetime]:
     """Convert request to a validated pair of local datetimes."""
-    if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= end_minute <= 59):
+    if not (0 <= hour <= 23 and 0 <= minute <= 59 and (end_minute is None or 0 <= end_minute <= 59)):
         raise ValueError("Érvénytelen időpont")
     if duration is not None and not (1 <= duration <= 1440):
         raise ValueError("Érvénytelen időtartam")
@@ -75,25 +80,42 @@ def event_bounds(day: str, hour: int, minute: int, now: datetime,
     if start <= now:
         raise ValueError("A múltba nem hozható létre esemény")
     if end_hour is not None:
-        end = datetime.combine(resolved, time(end_hour, end_minute), now.tzinfo)
+        # If no ending minute was supplied, an explicit duration can supply it.
+        # Never override a deliberately supplied, contradictory minute.
+        if end_minute is None and duration is not None:
+            implied = (start.astimezone(timezone.utc) + timedelta(minutes=duration)).astimezone(now.tzinfo)
+            if implied.date() == resolved and implied.hour == end_hour:
+                end_minute = implied.minute
+        end = datetime.combine(resolved, time(end_hour, end_minute or 0), now.tzinfo)
         if not _valid_local_time(end):
             raise ValueError("Nem egyértelmű vagy nem létező befejezési időpont")
         if end <= start:
             raise ValueError("A befejezésnek a kezdés után kell lennie")
-        if duration is not None and (end - start) != timedelta(minutes=duration):
+        if duration is not None and (end.astimezone(timezone.utc) - start.astimezone(timezone.utc)) != timedelta(minutes=duration):
             raise ValueError("A megadott időtartam és a befejezés eltér")
     else:
-        end = start + timedelta(minutes=duration if duration is not None else 30)
+        end = (start.astimezone(timezone.utc) + timedelta(minutes=duration if duration is not None else 30)).astimezone(now.tzinfo)
     return start, end
 
 
-def query_window(period: str, now: datetime, day: str | None = None) -> tuple[datetime, datetime]:
+def query_window(period: str, now: datetime, day: str | None = None,
+                 start_date: str | None = None, end_date: str | None = None) -> tuple[datetime, datetime]:
     """Return half-open range in local HA timezone."""
     midnight = datetime.combine(now.date(), time.min, now.tzinfo)
+    if period == "range":
+        if day is not None or not start_date or not end_date:
+            raise ValueError("Adj meg két ISO dátumot: start_date, end_date (kizáró)")
+        return range_window(start_date, end_date, now)
+    if start_date is not None or end_date is not None:
+        raise ValueError("Egyedi dátumtartományhoz period=range szükséges")
+    if day is not None and period not in ("day", "week"):
+        raise ValueError("A date csak day vagy week módban használható")
     if period == "day":
         if not day:
             raise ValueError("Hiányzó nap a naptárlekérdezéshez")
-        resolved = resolve_day(day, now)
+        key = day.casefold().strip()
+        # A weekday query includes the current day, even after midnight.
+        resolved = now.date() if WEEKDAYS.get(key) == now.weekday() else resolve_day(day, now)
         start = datetime.combine(resolved, time.min, now.tzinfo)
         return start, start + timedelta(days=1)
     if period == "today":
@@ -105,7 +127,20 @@ def query_window(period: str, now: datetime, day: str | None = None) -> tuple[da
         saturday = midnight + timedelta(days=(5 - now.weekday()) if now.weekday() <= 5 else -1)
         return saturday, saturday + timedelta(days=2)
     if period == "week":
+        if day:
+            key = day.casefold().strip()
+            if key == "jövő hét":
+                first = midnight + timedelta(days=7 - now.weekday())
+            else:
+                resolved = now.date() if WEEKDAYS.get(key) == now.weekday() else resolve_day(day, now)
+                first = datetime.combine(resolved, time.min, now.tzinfo)
+            return first, first + timedelta(days=7)
         return midnight, midnight + timedelta(days=7)
+    if period == "next_week":
+        first = midnight + timedelta(days=7 - now.weekday())
+        return first, first + timedelta(days=7)
+    if period == "search":
+        return now, now + timedelta(days=365)
     if period == "next":
         return now, now + timedelta(days=45)
     raise ValueError("Ismeretlen naptári időszak")

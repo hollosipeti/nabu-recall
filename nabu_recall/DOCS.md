@@ -1,6 +1,6 @@
 # Nabu Recall 2.0.1 — Home Assistant alkalmazás
 
-Az alkalmazás **2.0.1**. A GitHub `main` ágáról a HA-integráció **2.0.0** telepíthető; a külön átadott **2.0.2** naptárjavítás ugyanezzel a 2.0.1-es APP-pal működik. A meglévő `nabu_recall` alkalmazást kell frissíteni, nem új alkalmazást létrehozni. Az APP és az integráció frissítése külön történik.
+Az alkalmazás **2.0.1**. A GitHub `main` ágáról a HA-integráció **2.0.2** telepíthető, amely a 2.0.1-es APP-pal működik. A meglévő `nabu_recall` alkalmazást kell frissíteni, nem új alkalmazást létrehozni. Az APP és az integráció frissítése külön történik.
 
 - [Teljes magyar telepítési és frissítési útmutató](https://github.com/hollosipeti/nabu-recall/blob/main/README.md)
 - [Az összes OpenAI-utasítás tényleges forrásfájlja és helye](https://github.com/hollosipeti/nabu-recall/blob/main/NABU_RECALL_PROMPT.md)
@@ -12,7 +12,7 @@ Az alkalmazás **2.0.1**. A GitHub `main` ágáról a HA-integráció **2.0.0** 
 
 1. Készíts és ellenőrizz teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával.
 2. Ha az APP régebbi, frissítsd a meglévő Nabu Recall alkalmazást 2.0.1-re.
-3. Az integrációt csak akkor frissítsd, ha a kívánt új verzió ténylegesen elérhető. A repó [`install_integration.sh`](https://github.com/hollosipeti/nabu-recall/blob/main/install_integration.sh) telepítője jelenleg 2.0.0-t telepít; ha már a külön 2.0.2-es naptárjavítást használod, ne írd felül ezzel. Integrációfrissítés után indítsd újra a HA Core-t. Az APP frissítése önmagában nem igényel integrációfrissítést.
+3. Az integrációt csak akkor frissítsd, ha a kívánt új verzió ténylegesen elérhető. A repó [`install_integration.sh`](https://github.com/hollosipeti/nabu-recall/blob/main/install_integration.sh) telepítője jelenleg 2.0.2-t telepít. Integrációfrissítés után indítsd újra a HA Core-t. Az APP frissítése önmagában nem igényel integrációfrissítést.
 4. Ellenőrizd a két verziószámot, a tartós memóriát, a forgó memória kezelését, az Assist-eszközvezérlést és a naptárat, ha beállítottad.
 
 A titkosított adatbázis és kulcsa az alkalmazás saját `/data/recall.sqlite3` és `/data/recall.key` fájljában van. Ezeket együtt kell biztonságosan menteni. A 45 napos napló és a tartós emlékek változatlan formában maradnak; **nem kell és nem szabad új adatbázist létrehozni**.
@@ -28,7 +28,7 @@ Ez **nem archiválás**; nincs visszavonás a felületen, a tartós emlékhez fo
 - 45 napig tárolt, szó szerinti beszélgetési napló, amelyből kérésre visszakeres.
 - AI által kezelt tartós emlékek, külön explicit mentés, módosítás és célzott törlés.
 - Védett Web UI a megtekintéshez, karbantartási előnézethez, jóváhagyott műveletekhez és visszavonáshoz.
-- Opcionális integrált HA naptárlekérdezés és eseménylétrehozás, külön YAML-szkriptek nélkül. A külön 2.0.2-es HA-integráció javítja a magyar dátum- és időkezelést, és támogatja a tetszőleges dátumtartományt, a név szerinti keresést, az egész napos, többnapos és éjfélen átnyúló eseményeket. Naptári eseménytörlés és -módosítás nem támogatott. A verziónkénti képességeket a [teljes útmutató naptárszakasza](https://github.com/hollosipeti/nabu-recall/blob/main/README.md#10-opcionális-beépített-naptár) részletezi.
+- Opcionális integrált HA naptárlekérdezés és eseménylétrehozás, külön YAML-szkriptek nélkül. A 2.0.2-es HA-integráció javítja a magyar dátum- és időkezelést, és támogatja a tetszőleges dátumtartományt, a név szerinti keresést, az egész napos, többnapos és éjfélen átnyúló eseményeket. Naptári eseménytörlés és -módosítás nem támogatott. A verziónkénti képességeket a [teljes útmutató naptárszakasza](https://github.com/hollosipeti/nabu-recall/blob/main/README.md#10-opcionális-beépített-naptár) részletezi.
 - Az eredeti OpenAI Conversation ügynök továbbra is végrehajtja a HA eszközvezérlést.
 
 ## AI-utasítások

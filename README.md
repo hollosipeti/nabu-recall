@@ -12,7 +12,7 @@
 
 A 2.0.2-es kiadás kibővített naptárfunkciókat tartalmaz. Az APP 2.0.1 forgómemória-törlése változatlanul működik. Az éles tesztelés során mind a 35 magyar nyelvű teszt és a 4 végső rendszerellenőrzés sikeres volt a felhasználói visszajelzés szerint.
 
-> **Letöltési állapot:** a 2.0.2-es integráció külön átadott javítócsomagként működik; a GitHub `main` ágán jelenleg még a 2.0.0-s integráció forrása található. Az alábbi telepítő ezért még 2.0.0-t telepít. Ha már 2.0.2 fut a rendszereden, ne írd felül a régebbi verzióval.
+**Telepítés:** a GitHub `main` ágáról a 2.0.2-es HA-integráció érhető el, a lent megadott telepítőparanccsal. Az APP verziója 2.0.1.
 
 **Magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -85,7 +85,7 @@ A Home Assistant **Terminal** felületén futtasd ezt az **egyetlen parancssort*
 curl -fsSL https://raw.githubusercontent.com/hollosipeti/nabu-recall/main/install_integration.sh -o /tmp/install_nabu.sh && sh /tmp/install_nabu.sh main
 ```
 
-A parancs kizárólag a HA-integrációt telepíti vagy cseréli le, nem az APP-ot és nem annak adatait. A telepítő kiírja a telepített manifest verzióját, és a korábbi integrációfájlokat a `/config/nabu_recall_backups` könyvtárba menti. Külön Python-telepítés nem szükséges. Jelenleg a `main` verziója 2.0.0.
+A parancs kizárólag a HA-integrációt telepíti vagy cseréli le, nem az APP-ot és nem annak adatait. A telepítő kiírja a telepített manifest verzióját, és a korábbi integrációfájlokat a `/config/nabu_recall_backups` könyvtárba menti. Külön Python-telepítés nem szükséges. Jelenleg a `main` integrációverziója 2.0.2.
 
 Ezután **indítsd újra a Home Assistant Core-t** (a terminálból: `ha core restart`).
 
@@ -136,7 +136,7 @@ Az APP és a HA-integráció egymástól függetlenül frissíthető. Nem kell m
 
 1. Készíts ellenőrzött teljes Home Assistant-mentést, benne a Nabu Recall alkalmazással, annak adataival és az integráció konfigurációjával. Részletek: [Biztonsági mentés és karbantartás](docs/SAFE_CLEANUP_HU.md).
 2. Ha az **APP** kapott új verziót, frissítsd a meglévő alkalmazást az alkalmazásboltból.
-3. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t. A külön átadott 2.0.2-es naptárjavítást ne írd felül a jelenlegi 2.0.0-s `main` verzióval.
+3. Ha a **HA-integráció** kapott új, a GitHub `main` ágán ténylegesen elérhető verziót, futtasd újra a 3.2. pont telepítőparancsát, majd indítsd újra a HA Core-t.
 4. Ellenőrizd a két verziószámot, a memóriaadatokat, az eszközvezérlést és (ha be van állítva) a naptárt.
 
 A 2.0.x itt dokumentált frissítéseihez nem szükséges új adatbázist létrehozni vagy a meglévő memóriát törölni. Az APP titkosított adatbázisát és kulcsát együtt őrizd meg.
@@ -195,7 +195,7 @@ A 2.0.1-es alkalmazástól a **Web UI → Memóriakezelés → Forgó memória �
 - **Nem archiválás, nincs alkalmazáson belüli visszaállítás.** A kijelölt bejegyzések az aktív titkosított adatbázisból törlődnek. A SQLite WAL-t a rendszer ellenőrzőpontozza; régebbi HA biztonsági mentésekben ettől még megmaradhatnak a korábbi adatok.
 - Törlés előtt készíts teljes, ellenőrzött HA-mentést. A tartós emlékek és a 45 napos normál lejárat logikája változatlan.
 
-Ez az **APP 2.0.1** funkciója; a HA-integrációt nem szükséges hozzá frissíteni. A külön 2.0.2-es naptárjavítás sem változtatja meg ezt a funkciót.
+Ez az **APP 2.0.1** funkciója; a HA-integrációt nem szükséges hozzá frissíteni. A 2.0.2-es naptárjavítás sem változtatja meg ezt a funkciót.
 
 ## 9. Nabu Recall AI-utasítások: csak a repóban
 
@@ -241,7 +241,7 @@ Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alap
 
 **Korlátok:** a Nabu Recall csak a kiválasztott naptárat kezeli. Naptári események törlése és módosítása nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
 
-**Verzió:** a 2.0.2 funkciói a külön átadott, éles tesztelésen ellenőrzött integrációjavításban találhatók; a GitHub `main` ágáról jelenleg a 2.0.0 telepíthető. Lásd a fenti verziótáblázatot.
+**Verzió:** a 2.0.2-es integráció a GitHub `main` ágáról telepíthető.
 
 ## 11. Gyakorlati példák
 
@@ -263,7 +263,7 @@ Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alap
 | Az asszisztens nem emlékszik | A Web UI-n megjelent-e a tartós emlék? Van-e OpenAI API-hiba az alkalmazás naplójában? |
 | Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
 | Naptári esemény nem jön létre | Van-e kiválasztott naptár, engedélyezett-e az Assist LLM API, és megadtad-e a szükséges dátumot (időzített eseménynél kezdési időt is)? A naptár támogatja-e az eseménylétrehozást? |
-| A kibővített naptárfunkciók nem működnek | Ellenőrizd a HA-integráció verzióját: ezekhez a külön 2.0.2-es javítás szükséges. Az APP 2.0.1 verziója önmagában nem elegendő. |
+| A kibővített naptárfunkciók nem működnek | Ellenőrizd a HA-integráció verzióját: ezekhez a 2.0.2-es javítás szükséges. Az APP 2.0.1 verziója önmagában nem elegendő. |
 
 További részletek: [Családi útmutató](CSALADI_UTMUTATO.md) · [Változásnapló](nabu_recall/CHANGELOG.md).
 

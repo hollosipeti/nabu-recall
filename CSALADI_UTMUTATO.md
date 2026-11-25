@@ -43,7 +43,7 @@ A példák nem garantált, szó szerint felismerendő parancsok. A válasz függ
 | Egész napos esemény | „December 6-án egész nap szabadságon leszek. Írd be a naptáramba!” |
 | Többnapos esemény | „December 11-től 14-ig szabadságon leszek. Írd be a naptáramba!” |
 
-A jövő heti, név szerinti, egész napos és többnapos példákhoz a külön 2.0.2-es naptárjavítás szükséges. A pontos verzióállapotot a [telepítési útmutató](README.md) tartalmazza. Fontos időpontnál ne csak az asszisztens válaszát, hanem a tényleges naptárbejegyzést is ellenőrizd.
+A jövő heti, név szerinti, egész napos és többnapos példákhoz a 2.0.2-es HA-integráció szükséges. A pontos verzióállapotot a [telepítési útmutató](README.md) tartalmazza. Fontos időpontnál ne csak az asszisztens válaszát, hanem a tényleges naptárbejegyzést is ellenőrizd.
 
 ## Háromperces családi próba
 

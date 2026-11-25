@@ -5,9 +5,20 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] /
-                       "custom_components" / "nabu_recall"))
-from calendar_logic import event_bounds, query_window, resolve_day, event_overlaps, present_event
+from types import ModuleType
+import importlib.util
+
+ROOT = Path(__file__).resolve().parents[1] / "custom_components" / "nabu_recall"
+package = ModuleType("_nabu_calendar_logic_test")
+package.__path__ = [str(ROOT)]
+sys.modules[package.__name__] = package
+spec = importlib.util.spec_from_file_location(package.__name__ + ".calendar_logic", ROOT / "calendar_logic.py")
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+event_bounds, query_window, resolve_day, event_overlaps, present_event = (
+    module.event_bounds, module.query_window, module.resolve_day, module.event_overlaps, module.present_event
+)
 
 TZ = ZoneInfo("Europe/Budapest")
 NOW = datetime(2026, 11, 23, 14, 0, tzinfo=TZ)

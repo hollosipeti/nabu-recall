@@ -11,7 +11,7 @@ A Nabu Recall **saját** AI-utasításait kizárólag a repó szállítja. A Hom
 | Explicit emlékmentés/-javítás/-törlés OpenAI-utasítás | [`nabu_recall/ai.py`](nabu_recall/ai.py) — `AI.manage` | `/app/ai.py` |
 | Memóriavisszakeresés, keresőkifejezések, optimalizálási javaslatok OpenAI-utasításai | [`nabu_recall/ai.py`](nabu_recall/ai.py) — `AI.recall`, `AI.search_terms`, `AI.optimize_memories` | `/app/ai.py` |
 
-**A GitHub `main` ágán ezek az APP 2.0.1 és a HA-integráció 2.0.0 aktív forrásai.** A külön 2.0.2-es naptárjavítás a naptáreszközök szabályait ugyanabban a `llm.py` fájlban pontosítja. A Python-fájlokban található szövegek az aktív rendszerutasítások. Ennek a dokumentumnak a célja, hogy pontosan megmutassa a helyüket; nem tartalmaz külön, elavuló másolatot.
+**A GitHub `main` ágán ezek az APP 2.0.1 és a HA-integráció 2.0.2 aktív forrásai.** A 2.0.2-es naptárjavítás a naptáreszközök szabályait ugyanabban a `llm.py` fájlban pontosítja. A Python-fájlokban található szövegek az aktív rendszerutasítások. Ennek a dokumentumnak a célja, hogy pontosan megmutassa a helyüket; nem tartalmaz külön, elavuló másolatot.
 
 ## Mit szerkeszthet a felhasználó?
 
