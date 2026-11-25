@@ -6,7 +6,7 @@
 | Komponens | GitHub `main` ágán elérhető verzió |
 | --- | --- |
 | HAOS alkalmazás (APP) | **2.0.1** |
-| HA-integráció | **2.0.0** |
+| HA-integráció | **2.0.2** |
 
 A külön átadott, éles használatban ellenőrzött **2.0.2-es HA-integráció** kibővített naptárfunkciókat tartalmaz (lásd a 10. pontot). Ez a javítócsomag még nem része a GitHub `main` ágának, ezért az alábbi GitHub-telepítő jelenleg a 2.0.0-s integrációt telepíti. Ha már 2.0.2 fut a rendszereden, ne telepítsd rá a régebbi verziót. Az APP mindkét integrációverzió mellett 2.0.1 marad.
 
