@@ -200,7 +200,7 @@ A Nabu Recall memória- és válaszadási utasításait az integráció saját `
 
 A naptáreszközök külön utasításai a `custom_components/nabu_recall/llm.py`, a memóriafeldolgozásé a `nabu_recall/ai.py` részei, szintén a GitHubon verziózva. Az [utasítások forrástérképe](NABU_RECALL_PROMPT.md) az összes aktív fájlt és a telepítési helyüket mutatja.
 
-**Fontos!** az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át, mert az az eredeti HA-funkciókat is érintené. 
+Az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van saját szerkeszthető általános rendszerutasítása. A Nabu Recall azt nem törli vagy írja át.
 
 ### Beállítás
 
