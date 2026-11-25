@@ -38,7 +38,7 @@ Az alkalmazás és az integráció verziója különbözhet; frissítésük is k
 - Home Assistant OS vagy olyan Home Assistant-telepítés, amely támogatja az alkalmazásokat.
 - Már beállított, működő **OpenAI Conversation** beszélgetési ügynök a Home Assistantban. OpenAI Platform API-kulcs. (A ChatGPT-előfizetés nem helyettesíti az API-használat külön díjazását.)
 - A Home Assistant helyes időzónája (Magyarországon: **Europe/Budapest**).
-- Opcionálisan Google Calendar integrációra
+- Opcionálisan Google Calendar integráció
 
 ## 3. Telepítés
 
