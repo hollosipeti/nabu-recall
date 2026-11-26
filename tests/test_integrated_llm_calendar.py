@@ -77,6 +77,10 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         module("homeassistant")
         module("homeassistant.components")
         module("homeassistant.components.llm", LLMTools=LLMTools)
+        module("homeassistant.components.homeassistant", async_should_expose=lambda hass, assistant, eid: eid in hass.exposed)
+        module("homeassistant.components.calendar.const", CalendarEntityFeature=SimpleNamespace(CREATE_EVENT=1))
+        module("homeassistant.helpers.entity_registry", async_get=lambda hass: SimpleNamespace(async_get=lambda eid: None))
+        module("homeassistant.helpers.intent", async_get_entity_aliases=lambda hass, entry, state: [state.name])
         module("homeassistant.core", HomeAssistant=object, callback=lambda fn: fn)
         module("homeassistant.helpers")
         module("homeassistant.helpers.llm", LLM_API_ASSIST="assist",
@@ -99,13 +103,15 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.entry = TestEntry(
             data={"upstream": "conversation.original",
                   "calendar_entity": "calendar.test"}, options={})
+        self.states = [SimpleNamespace(entity_id="calendar.test", name="Default", state="off", attributes={"supported_features": 1})]
         self.hass = SimpleNamespace(
+            exposed=set(),
             config_entries=SimpleNamespace(async_entries=lambda domain: [self.entry]),
-            states=SimpleNamespace(get=lambda eid: SimpleNamespace(entity_id=eid)),
+            states=SimpleNamespace(get=lambda eid: next((s for s in self.states if s.entity_id == eid), None), async_all=lambda domain: self.states),
             services=self.services,
         )
         self.ctx = SimpleNamespace(agent_id="conversation.original",
-                                   context=None)
+                                   context=None, assistant="conversation")
 
     async def asyncTearDown(self):
         sys.modules.pop("_nabu_test_package.llm", None)
@@ -239,6 +245,71 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         }), self.ctx)
         self.assertTrue(result.error)
         self.assertNotIn("status", result.data)
+
+    def add_calendar(self, eid, name, exposed=True, writable=True, state="off"):
+        self.states.append(SimpleNamespace(entity_id=eid, name=name, state=state,
+                           attributes={"supported_features": int(writable)}))
+        if exposed:
+            self.hass.exposed.add(eid)
+
+    async def test_multi_calendar_merged_order_and_visibility(self):
+        self.add_calendar("calendar.birthdays", "Születésnapok")
+        self.add_calendar("calendar.hidden", "Private", exposed=False)
+        async def fake_call(domain, service, data, **kwargs):
+            self.services.calls.append((domain, service, data, kwargs))
+            return {
+                "calendar.test": {"events": [{"start":"2026-11-27T18:00:00+01:00","end":"2026-11-27T19:00:00+01:00","summary":"Koncert"}]},
+                "calendar.birthdays": {"events": [{"start":"2026-11-27","end":"2026-11-28","summary":"Vivi névnap"}]},
+                "calendar.hidden": {"events": [{"start":"2026-11-27","end":"2026-11-28","summary":"Private"}]},
+            }
+        self.services.async_call = fake_call
+        tool = self.get_tools().tools[0]
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args={"period":"week"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual(len(self.services.calls),1)
+        self.assertEqual(set(self.services.calls[0][2]["entity_id"]), {"calendar.test","calendar.birthdays"})
+        self.assertEqual([e["summary"] for e in result.data["events"]], ["Vivi névnap","Koncert"])
+        self.assertEqual(result.data["events"][0]["calendar"],"calendar.birthdays")
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args={"period":"next"}), self.ctx)
+        self.assertEqual(result.data["events"][0]["summary"],"Vivi névnap")
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args={"period":"week","calendar":"Születésnapok"}), self.ctx)
+        self.assertEqual(self.services.calls[-1][2]["entity_id"],"calendar.birthdays")
+        self.assertEqual(result.data["event_count"],1)
+
+    async def test_discovery_and_explicit_single_write(self):
+        self.add_calendar("calendar.birthdays","Születésnapok")
+        self.add_calendar("calendar.hidden","Private",exposed=False)
+        self.add_calendar("calendar.readonly","Read only",writable=False)
+        tools = self.get_tools().tools
+        result = await tools[0].async_call(self.hass, SimpleNamespace(tool_args={"period":"calendars"}), self.ctx)
+        self.assertNotIn("calendar.hidden",result.data["calendars"])
+        self.assertFalse(self.services.calls)
+        args={"title":"Vivi névnap","date":"holnap","all_day":True}
+        for target in ("Private","Read only","missing"):
+            result = await tools[1].async_call(self.hass, SimpleNamespace(tool_args={**args,"calendar":target}), self.ctx)
+            self.assertTrue(result.error)
+        self.assertFalse(self.services.calls)
+        result = await tools[1].async_call(self.hass, SimpleNamespace(tool_args={**args,"calendar":"Születésnapok"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual(len(self.services.calls),1)
+        self.assertEqual(self.services.calls[0][2]["entity_id"],"calendar.birthdays")
+        result = await tools[1].async_call(self.hass, SimpleNamespace(tool_args=args), self.ctx)
+        self.assertEqual(self.services.calls[-1][2]["entity_id"],"calendar.test")
+
+    async def test_partial_failure_does_not_hide_healthy_calendar(self):
+        self.add_calendar("calendar.broken","Broken")
+        self.add_calendar("calendar.offline","Offline",state="unavailable")
+        original = self.services.async_call
+        async def fake_call(domain, service, data, **kwargs):
+            if isinstance(data["entity_id"],list) or data["entity_id"] == "calendar.broken":
+                raise RuntimeError("Provider failed")
+            return await original(domain,service,data,**kwargs)
+        self.services.async_call = fake_call
+        result = await self.get_tools().tools[0].async_call(self.hass, SimpleNamespace(tool_args={"period":"week"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual(result.data["calendars_queried"],["calendar.test"])
+        self.assertEqual(set(result.data["calendars_failed"]),{"calendar.broken","calendar.offline"})
+        self.assertEqual(result.data["event_count"],2)
 
 
 if __name__ == "__main__":

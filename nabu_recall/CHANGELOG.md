@@ -1,3 +1,7 @@
+## 2.0.5 — HA-integráció (APP változatlanul 2.0.4)
+
+Több naptár automatikus felismerése, közös időrendi lekérdezése és célzott írása. A meglévő alapértelmezett naptár és időkezelés megmarad.
+
 ## 2.0.4 — célzott hibajavítás
 
 Befoglaló naptári zárónap, összetett kérdések köztes szövegének szűrése, hiányzó új érték bekérése és kontextusfüggő mentés javítása. Éles ellenőrzés szükséges.

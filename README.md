@@ -6,7 +6,7 @@
 | Komponens | Legfrissebb, élesben ellenőrzött verzió |
 | --- | --- |
 | Nabu Recall HAOS alkalmazás (APP) | **2.0.4** |
-| Nabu Recall HA-integráció | **2.0.4** |
+| Nabu Recall HA-integráció | **2.0.5** |
 
 **Kifejezetten magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -113,9 +113,9 @@ A `HOSTNAME` szót cseréld ki **pontosan** a Nabu Recall alkalmazásnál kijelz
 
 Másold be a Nabu Recall alkalmazás **Konfiguráció** lapján, a **3.1. pontban** beállított `bridge_token` értékét.
 
-### Calendar: (opcionális)
+### Alapértelmezett naptár (opcionális)
 
-Válaszd ki a használni kivánt naptárt.
+Válaszd ki az új események alapértelmezett naptárát. Az Assist számára engedélyezett további naptárak automatikusan lekérdezhetők; kifejezetten megnevezett írható naptárba is lehet eseményt létrehozni.
 
 4. Fejezd be az integráció hozzáadását.
 5. Nyisd meg a **Beállítások → Hangasszisztensek** (Settings → Voice assistants) oldalt. Kattints arra a hangasszisztensre, amelyet ténylegesen használsz (például az alapértelmezett Assist asszisztensre).
