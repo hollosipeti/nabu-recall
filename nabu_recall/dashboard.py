@@ -172,6 +172,11 @@ def render(store, state, tab="memories"):
             state.get("last_recall", "Még nem történt visszakeresés."))
         body += "<h2>Utolsó AI-feldolgozás</h2><article>%s</article>" % escape(
             state.get("last_learn", "Még nem történt feldolgozás."))
+        usage = state.get("token_usage", {})
+        body += "<h2>APP OpenAI tokenfogyasztás (indítás óta)</h2>"
+        body += "<p>Csak a Nabu Recall APP sikeres API-válaszai; a HA OpenAI ügynök fogyasztása nincs benne.</p>"
+        for operation, row in sorted(usage.items()):
+            body += "<article>%s: %d hívás, %d bemeneti, %d kimeneti token; %d usage nélküli válasz</article>" % (escape(operation), row["calls"], row["input"], row["output"], row["unreported"])
         body += "<p>A napló szó szerinti, és 45 nap után törlődik. "
         body += "A tartós emlékek ettől függetlenül megmaradnak.</p>"
     summary = "".join(

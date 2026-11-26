@@ -1,3 +1,7 @@
+## 2.0.6
+
+Szemantikus naptárjelöltek, alapértelmezett naptár nélküli olvasás, szűk élő napirend gyorsút és munkamenetenkénti APP tokenstatisztika. A memória teljes visszakeresési útja bizonytalan kérdéseknél megmarad.
+
 ## 2.0.5 — HA-integráció (APP változatlanul 2.0.4)
 
 Több naptár automatikus felismerése, közös időrendi lekérdezése és célzott írása. A meglévő alapértelmezett naptár és időkezelés megmarad.

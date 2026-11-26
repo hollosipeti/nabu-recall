@@ -5,8 +5,8 @@
 
 | Komponens | Legfrissebb, élesben ellenőrzött verzió |
 | --- | --- |
-| Nabu Recall HAOS alkalmazás (APP) | **2.0.4** |
-| Nabu Recall HA-integráció | **2.0.5** |
+| Nabu Recall HAOS alkalmazás (APP) | **2.0.6** |
+| Nabu Recall HA-integráció | **2.0.6** |
 
 **Kifejezetten magyar nyelvű, AI-alapú tartós beszélgetési memória Home Assistant Assist alá.** A meglévő OpenAI Conversation ügynök eszközvezérlését megtartja, kiegészíti történeti visszakereséssel és tartós emlékekkel.
 
@@ -87,7 +87,7 @@ Ezután **indítsd újra a Home Assistant Core-t** (a terminálból: `ha core re
 
 1. Nyisd meg: **Settings > Devices & services > Add integration**.
 2. Keresd meg és válaszd ki a **Nabu Recall** integrációt.
-3. Töltsd ki a meglévő ügynök, belső URL és token mezőjét. **Opcionálisan válassz egy naptár-entitást** (pl. `calendar.esemenyek`). Ha üresen hagyod, a Nabu Recall naptárfunkciói kikapcsolva maradnak:
+3. Töltsd ki a meglévő ügynök, belső URL és token mezőjét. **Opcionálisan válassz egy naptár-entitást** (pl. `calendar.esemenyek`). Ha üresen hagyod, az Assist számára engedélyezett naptárak olvashatók:
 
 ![default](Pics/integration.png)
 
@@ -208,7 +208,7 @@ Az eredeti Home Assistant OpenAI Conversation ügynöknek továbbra is van sajá
 
 ### Beállítás
 
-- Nyisd meg: Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Válassz egy naptár-entitást (pl. `calendar.esemenyek`). Ha üresen hagyod, a naptárfunkciók kikapcsolva maradnak.
+- Nyisd meg: Beállítások → Eszközök és szolgáltatások → Nabu Recall → Konfigurálás / Beállítások → **Naptár (opcionális)**. Válassz egy naptár-entitást (pl. `calendar.esemenyek`). Ha üresen hagyod, az Assist számára engedélyezett naptárak olvashatók.
 - A meglévő OpenAI Conversation ügynöknél legyen engedélyezve a Home Assistant **Assist (eszközvezérlés)** LLM API.
 - A kiválasztott naptárt nem szükséges külön kitenni (Expose) a natív Assist naptáreszköznek. Ha korábban kitetted, az eszközütközések elkerüléséhez vedd ki a natív Assist-kitettségből. Ettől a naptár és a Nabu Recall hozzáférése nem törlődik.
 
@@ -233,7 +233,7 @@ A jövő hét hétfőtől vasárnapig tart; a következő két hét a mai naptó
 
 Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alapértelmezés 30 perc. Ha hiányzik a szükséges dátum vagy időpont, illetve ellentmondás van a kérésben, az asszisztensnek pontosítást kell kérnie. Fontos eseménynél mindig ellenőrizd a tényleges naptárbejegyzést.
 
-**Korlátok:** a Nabu Recall csak a kiválasztott naptárat kezeli. Naptári események törlése és módosítása még nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
+**Korlátok:** a Nabu Recall az alapértelmezett és az Assist számára engedélyezett naptárakat kezeli. Naptári események törlése és módosítása még nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
 
 ## 11. Gyakorlati példák
 

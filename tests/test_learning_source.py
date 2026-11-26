@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "nabu_recall"))
-from learning_source import assertion_turn, credible_extracted_fact
+from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only
 from ai import AI
 
 
@@ -29,6 +29,12 @@ class LearningSourceTests(unittest.TestCase):
         ):
             with self.subTest(utterance=utterance):
                 self.assertTrue(assertion_turn(utterance))
+
+    def test_agenda_fast_path_preserves_ambiguous_and_mixed_requests(self):
+        for q in ('Mi lesz holnap?', 'Milyen események lesznek decemberben?', 'Mi van mára a naptárban?'):
+            self.assertTrue(live_agenda_only(q), q)
+        for q in ('Mi lesz a projektemmel holnap?', 'Mi lesz holnap és mit beszéltünk tegnap?', 'Mikor lesz Vivi névnapja?', 'Mi volt tegnap?', 'Mi a kedvenc naptáram?'):
+            self.assertFalse(live_agenda_only(q), q)
 
     def test_absent_information_is_not_durable_fact(self):
         for fact in (

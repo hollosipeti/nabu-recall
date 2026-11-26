@@ -37,7 +37,7 @@ def schedule_learning():
         _learning_task = asyncio.create_task(process_pending())
 
 
-state = {'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.4'}
+state = {'token_usage': ai.usage if ai else {}, 'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.6'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -46,7 +46,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.4"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.6"})
 
 async def log_turn(request):
     data = await request.json()
@@ -190,6 +190,12 @@ async def recall(request):
     if ai is None:
         return web.json_response({"context": "", "ai_ready": False})
     try:
+        # Clear standalone agenda requests need live calendar data, not memory.
+        # Mixed, historical and ambiguous requests retain the full recall path.
+        from learning_source import live_agenda_only
+        if live_agenda_only(query):
+            state["last_recall"] = "Élő naptárlekérdezés: memória-AI kihagyva."
+            return web.json_response({"context": ""})
         terms = await ai.search_terms(query)
         # Search ALL durable facts before passing a bounded relevance shortlist.
         # Do not accidentally treat the newest 200 as the whole memory.
@@ -220,6 +226,9 @@ async def recall(request):
         # Diagnostic IDs only: never log memory facts or personal identifiers.
         LOG.info("Recall candidates: durable_ids=%s, journal_ids=%s",
                  [m["id"] for m in memories], [t["id"] for t in turns])
+        if not turns and not memories:
+            state["last_recall"] = "Nincs helyi találat; AI-szűrés kihagyva."
+            return web.json_response({"context": ""})
         selection = await ai.recall(query, turns, memories)
         tids = set(x for x in selection.get("turn_ids", []) if type(x) is int)
         mids = set(x for x in selection.get("memory_ids", []) if type(x) is int)

@@ -15,6 +15,7 @@ class AI:
     def __init__(self, key, model="gpt-4.1-mini"):
         self.key = key
         self.model = model
+        self.usage = {}
 
     async def json_answer(self, instruction, payload, timeout=25):
         req = {
@@ -42,6 +43,19 @@ class AI:
                         pass
                     raise OpenAIRequestError(response.status, error_code)
                 result = await response.json()
+        # Record only aggregate provider-reported usage, never prompt contents.
+        operation = ("search_terms" if "terms array only" in instruction else
+                     "recall" if "turn_ids" in instruction else
+                     "manage" if "exact memory-editing parser" in instruction else
+                     "learn" if "long-term memory for a Hungarian" in instruction else "maintenance")
+        usage = result.get("usage") or {}
+        row = self.usage.setdefault(operation, {"calls": 0, "input": 0, "output": 0, "unreported": 0})
+        row["calls"] += 1
+        if type(usage.get("prompt_tokens")) is int and type(usage.get("completion_tokens")) is int:
+            row["input"] += usage["prompt_tokens"]
+            row["output"] += usage["completion_tokens"]
+        else:
+            row["unreported"] += 1
         return json.loads(result["choices"][0]["message"]["content"])
 
     async def learn(self, turns, memories):

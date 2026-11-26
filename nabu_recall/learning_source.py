@@ -34,3 +34,19 @@ def credible_extracted_fact(fact: str) -> bool:
     if not isinstance(fact, str) or not fact.strip():
         return False
     return not _ABSENCE.search(fact)
+
+
+# Narrow, fail-open optimization: only generic agenda questions without a
+# named person, object, compound clause or reference to earlier conversation.
+_AGENDA_ONLY = re.compile(
+    r"^\s*(?:mi|mik|milyen események|milyen programok|milyen programjaim)"
+    r"\s+(?:van|vannak|lesz|lesznek)\s+(?:(?:a|az)\s+)?"
+    r"(?:naptárban|naptáramban|ma|mára|holnap|holnapra|hétvégén|jövő héten|"
+    r"a következő két hétben|a következő héten|decemberben|januárban|februárban|"
+    r"márciusban|áprilisban|májusban|júniusban|júliusban|augusztusban|"
+    r"szeptemberben|októberben|novemberben)"
+    r"(?:\s+a naptárban)?[?!. ]*$", re.I)
+
+
+def live_agenda_only(text):
+    return isinstance(text, str) and bool(_AGENDA_ONLY.fullmatch(text))

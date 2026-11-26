@@ -177,6 +177,14 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Previous conversation", context)
         self.assertEqual(len(server.store.recent_turns()), 1)
 
+    async def test_generic_agenda_skips_all_memory_ai(self):
+        class NoAI:
+            async def search_terms(self, query):
+                raise AssertionError('AI must not run')
+        server.ai = NoAI()
+        response = await self.client.post('/bridge/recall', json={'query':'Milyen események lesznek decemberben?'}, headers={'X-Recall-Token':'test-bridge-token'})
+        self.assertEqual(await response.json(), {'context':''})
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",
