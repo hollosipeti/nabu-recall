@@ -1,6 +1,6 @@
 ## 2.0.6
 
-Szemantikus naptárjelöltek, alapértelmezett naptár nélküli olvasás, szűk élő napirend gyorsút és munkamenetenkénti APP tokenstatisztika. A memória teljes visszakeresési útja bizonytalan kérdéseknél megmarad.
+Szemantikus naptárjelöltek, alapértelmezett naptár nélküli olvasás, szűk élő napirend gyorsút és munkamenetenkénti APP tokenstatisztika. A memória teljes visszakeresési útja bizonytalan kérdéseknél megmarad. Egyértelmű világítási parancsok kihagyása, kis emléktárnál egyetlen tanulási hívás, szűk helyi preferencia-gyorsút és tömörített AI-adatmezők.
 
 ## 2.0.5 — HA-integráció (APP változatlanul 2.0.4)
 

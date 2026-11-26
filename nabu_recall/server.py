@@ -10,7 +10,7 @@ from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
 from shopping_filter import is_shopping_list_action
-from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only, routine_control_only
+from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only, routine_control_only, simple_preference_query
 from journal_time import journal_window, in_window
 from management import operation_kind, validate_batch, previous_context, context_needed, identical_existing_fact
 from structured_context import enrich_selected_facts
@@ -180,7 +180,7 @@ async def process_pending():
                 skipped = len(pending) - len(learnable)
                 state["last_learn"] = (
                     f"{len(pending)} párbeszéd feldolgozva, {len(safe)} memória-művelet, "
-                    f"{skipped} bevásárlólista-művelet kihagyva.")
+                    f"{skipped} nem tanulható párbeszéd kihagyva.")
                 LOG.info("AI extraction OK: %d turns, %d operations", len(pending), len(safe))
             except OpenAIRequestError as exc:
                 state["last_learn"] = f"OpenAI hiba: HTTP {exc.status}, {exc.code}; újrapróbálás később."
@@ -207,7 +207,7 @@ async def recall(request):
         # A local exact named preference can be answered without model-generated
         # search terms. An empty match is NOT sufficient to skip the semantic path.
         local_terms = store.memory_query_terms(query)
-        if journal_window(query) is None:
+        if journal_window(query) is None and simple_preference_query(query):
             local_current = authoritative_preferences(query, store.memory_search(local_terms, limit=160))
             if local_current and len(local_current) == 1:
                 state["last_recall"] = "Egyértelmű helyi tartós emlék; AI-keresés kihagyva."

@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "nabu_recall"))
-from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only, routine_control_only
+from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only, routine_control_only, simple_preference_query
 from ai import AI
 
 
@@ -41,6 +41,11 @@ class LearningSourceTests(unittest.TestCase):
             self.assertTrue(routine_control_only(q), q)
         for q in ("Kapcsold fel a lámpát, és mondd meg mit szerettem tegnap", "A kedvenc lámpám zöld.", "Kapcsold fel a kedvenc lámpámat", "Kapcsold le a lámpát este nyolckor", "Hol van a lámpa?"):
             self.assertFalse(routine_control_only(q), q)
+
+    def test_simple_preference_does_not_skip_compound_requests(self):
+        self.assertTrue(simple_preference_query('Mi Teszt Orion kedvenc gyümölcse?'))
+        self.assertFalse(simple_preference_query('Mi Teszt Orion kedvenc gyümölcse, és milyen a lámpa?'))
+        self.assertFalse(simple_preference_query('Mi volt Teszt Orion kedvenc gyümölcse?'))
 
     def test_absent_information_is_not_durable_fact(self):
         for fact in (

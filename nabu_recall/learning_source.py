@@ -64,3 +64,10 @@ _LIGHT_CONTROL = re.compile(
 
 def routine_control_only(text):
     return isinstance(text, str) and bool(_LIGHT_CONTROL.fullmatch(text))
+
+
+def simple_preference_query(text):
+    """Only a standalone named favourite-attribute question qualifies."""
+    return isinstance(text, str) and bool(re.fullmatch(
+        r"(?:mi|milyen)\s+[\w-]+(?:\s+[\w-]+)?\s+kedvenc\s+\w+[?!. ]*",
+        text.strip(), re.I))
