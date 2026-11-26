@@ -8,7 +8,7 @@
           "upstream": "Meglévő beszélgetőügynök",
           "url": "Belső alkalmazáscím",
           "token": "Kapcsolati token",
-          "calendar_entity": "Naptár (opcionális)"
+          "calendar_entity": "Alapértelmezett naptár"
         }
       }
     },
@@ -26,7 +26,7 @@
         "title": "Nabu Recall – beállítások",
         "description": "Válassz egy naptárt. Ha üresen hagyod, a naptárfunkció kikapcsol.",
         "data": {
-          "calendar_entity": "Naptár (opcionális)"
+          "calendar_entity": "Alapértelmezett naptár"
         }
       }
     },

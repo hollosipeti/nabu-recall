@@ -8,7 +8,7 @@
           "upstream": "Existing conversation agent",
           "url": "Internal application URL",
           "token": "Bridge token",
-          "calendar_entity": "Calendar (optional)"
+          "calendar_entity": "Default calendar"
         }
       }
     },
@@ -26,7 +26,7 @@
         "title": "Nabu Recall settings",
         "description": "Choose one calendar. Leave empty to disable the calendar feature.",
         "data": {
-          "calendar_entity": "Calendar (optional)"
+          "calendar_entity": "Default calendar"
         }
       }
     },
