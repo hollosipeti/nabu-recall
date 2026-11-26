@@ -147,7 +147,7 @@ def query_window(period: str, now: datetime, day: str | None = None,
         return first, first + timedelta(days=7)
     if period == "search":
         return now, now + timedelta(days=365)
-    if period == "next":
+    if period in ("next", "upcoming"):
         return now, now + timedelta(days=45)
     raise ValueError("Ismeretlen naptári időszak")
 

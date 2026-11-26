@@ -129,6 +129,9 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.ctx.agent_id = "conversation.original"
         self.entry.options = {"calendar_entity": ""}
         self.assertIsNone(self.get_tools())
+        self.hass.exposed.add("calendar.test")
+        self.assertEqual(len(self.get_tools().tools), 2)
+        self.hass.exposed.clear()
         self.entry.options = {"calendar_entity": "calendar.test"}
         self.assertEqual(len(self.get_tools().tools), 2)
 
@@ -311,6 +314,26 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(result.data["calendars_failed"]),{"calendar.broken","calendar.offline"})
         self.assertEqual(result.data["event_count"],2)
 
+    async def test_upcoming_returns_candidates_without_truncating_to_first(self):
+        tool = self.get_tools().tools[0]
+        result = await tool.async_call(self.hass, SimpleNamespace(tool_args={"period":"upcoming"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual(result.data["event_count"],2)
+        self.assertIsNone(result.data["title_filter"])
+        self.assertTrue(result.data["title_filter_is_literal"])
+
+    async def test_no_default_read_and_explicit_write(self):
+        self.entry.options = {"calendar_entity": ""}
+        self.hass.exposed.add("calendar.test")
+        tools = self.get_tools().tools
+        result = await tools[0].async_call(self.hass, SimpleNamespace(tool_args={"period":"week"}), self.ctx)
+        self.assertFalse(result.error)
+        args={"title":"Test","date":"holnap","all_day":True}
+        result = await tools[1].async_call(self.hass, SimpleNamespace(tool_args=args), self.ctx)
+        self.assertTrue(result.error)
+        self.assertEqual(len(self.services.calls),1)
+        result = await tools[1].async_call(self.hass, SimpleNamespace(tool_args={**args,"calendar":"Default"}), self.ctx)
+        self.assertFalse(result.error)
 
 if __name__ == "__main__":
     unittest.main()

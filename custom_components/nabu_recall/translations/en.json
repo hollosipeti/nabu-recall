@@ -24,7 +24,7 @@
     "step": {
       "init": {
         "title": "Nabu Recall settings",
-        "description": "Choose one calendar. Leave empty to disable the calendar feature.",
+        "description": "Choose a default write calendar. Assist-exposed calendars remain readable without a default.",
         "data": {
           "calendar_entity": "Default calendar"
         }

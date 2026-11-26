@@ -24,7 +24,7 @@
     "step": {
       "init": {
         "title": "Nabu Recall – beállítások",
-        "description": "Válassz egy naptárt. Ha üresen hagyod, a naptárfunkció kikapcsol.",
+        "description": "Válaszd ki az alapértelmezett írási naptárat. Üresen hagyva is lekérdezhetők az Assist számára engedélyezett naptárak.",
         "data": {
           "calendar_entity": "Alapértelmezett naptár"
         }
