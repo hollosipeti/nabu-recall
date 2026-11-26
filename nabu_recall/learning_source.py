@@ -50,3 +50,17 @@ _AGENDA_ONLY = re.compile(
 
 def live_agenda_only(text):
     return isinstance(text, str) and bool(_AGENDA_ONLY.fullmatch(text))
+
+
+# Only standalone, unqualified commands on ordinary lighting entities qualify.
+# Other devices, preferences, compound instructions and contextual follow-ups
+# remain on the existing semantic path. This is intentionally conservative.
+_LIGHT_CONTROL = re.compile(
+    r"^\s*(?:kapcsold\s+(?:fel|le|be|ki)|oltsd\s+(?:el|le))\s+"
+    r"(?:a|az)\s+(?:(?:nappali|konyhai|hálószobai|fürdőszobai|"
+    r"garázsban\s+lévő|dolgozószobai|műhelyi)\s+)?"
+    r"(?:lámpát|világítást|villanyt|fényt)[!.? ]*$", re.I)
+
+
+def routine_control_only(text):
+    return isinstance(text, str) and bool(_LIGHT_CONTROL.fullmatch(text))

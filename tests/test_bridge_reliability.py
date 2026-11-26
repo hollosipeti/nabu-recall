@@ -27,8 +27,10 @@ class FakeAI:
     def __init__(self, fail=False):
         self.fail = fail
         self.learn_calls = 0
+        self.search_calls = 0
 
     async def search_terms(self, query):
+        self.search_calls += 1
         return ["műhelyben"]
 
     async def learn(self, turns, memories):
@@ -132,6 +134,26 @@ class BridgeReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(server.store.pending(), [])
         self.assertEqual(fake.learn_calls, 1)
         self.assertEqual(len(server.store.memory_list()), 1)
+
+    async def test_small_store_learning_needs_only_one_model_call(self):
+        server.ai = FakeAI()
+        server.store.add_turn("A műhelyben kék Makita csavarbehajtó van.", "Rendben.")
+        server.store.add_turn("Kapcsold fel a lámpát!", "Felkapcsoltam.")
+        await server.process_pending()
+        self.assertEqual(server.ai.search_calls, 0)
+        self.assertEqual(server.ai.learn_calls, 1)
+        self.assertEqual(server.store.statistics()["turns"], 2)
+        self.assertEqual(server.store.pending(), [])
+
+    async def test_lighting_command_skips_recall_and_learning(self):
+        server.ai = FakeAI()
+        response = await self.client.post("/bridge/recall", json={"query":"Kapcsold fel a lámpát!"}, headers=self.headers)
+        self.assertEqual((await response.json())["context"], "")
+        server.store.add_turn("Kapcsold fel a lámpát!", "Felkapcsoltam.")
+        await server.process_pending()
+        self.assertEqual(server.ai.search_calls, 0)
+        self.assertEqual(server.ai.learn_calls, 0)
+        self.assertEqual(server.store.statistics()["turns"], 1)
 
     async def test_invalid_api_payload_does_not_create_journal(self):
         for data in ({"user": "", "assistant": "ok"},

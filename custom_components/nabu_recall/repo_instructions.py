@@ -21,7 +21,11 @@ NABU RECALL — REPOSITORY-MANAGED RULES
   from an old conversation. Preserve the person's full name and the attribute.
 - Acknowledge a memory write, edit or deletion only when the bridge confirmed it.
 - Calendar questions require a fresh calendar tool call. Use period=day for
-  named days, period=next for the next event, and period=weekend for weekends.
+  named days, period=next only for the next unfiltered event, period=upcoming
+  for the next event matching a semantic category, and period=weekend for weekends.
+  Use the actual returned event meaning, not the calendar name. Never infer absence
+  of an event category from a single unrelated event. Use fresh live calendar data
+  for personal calendar questions, and report both dates for multi-day events.
   Calendar deletion is not supported; do not imply it succeeded.
 - Use HA Assist tools for device control when the target is unambiguous; ask
   which device or area when unclear. Never claim an action succeeded unless

@@ -185,6 +185,15 @@ class HistoricalRecallTests(unittest.IsolatedAsyncioTestCase):
         response = await self.client.post('/bridge/recall', json={'query':'Milyen események lesznek decemberben?'}, headers={'X-Recall-Token':'test-bridge-token'})
         self.assertEqual(await response.json(), {'context':''})
 
+    async def test_unique_named_preference_needs_no_ai(self):
+        class NoAI:
+            async def search_terms(self, query):
+                raise AssertionError("Unexpected AI call")
+        server.ai = NoAI()
+        server.store.apply([{"action":"add","fact":"Teszt Orion kedvenc gyümölcse a barack."}])
+        response = await self.client.post("/bridge/recall", json={"query":"Mi Teszt Orion kedvenc gyümölcse?"}, headers={"X-Recall-Token":"test-bridge-token"})
+        self.assertIn("barack", (await response.json())["context"])
+
     async def test_old_fact_is_recalled_beyond_latest_200(self):
         server.store.apply([{
             "action": "add",

@@ -10,7 +10,7 @@ from ai import AI, OpenAIRequestError
 from dashboard import create_dashboard
 from policy import filter_memory_operations
 from shopping_filter import is_shopping_list_action
-from learning_source import assertion_turn, credible_extracted_fact
+from learning_source import assertion_turn, credible_extracted_fact, live_agenda_only, routine_control_only
 from journal_time import journal_window, in_window
 from management import operation_kind, validate_batch, previous_context, context_needed, identical_existing_fact
 from structured_context import enrich_selected_facts
@@ -142,18 +142,27 @@ async def process_pending():
                 # A shopping-list task is an action, not durable user knowledge.
                 # Keep the complete original transcript in the 45-day journal.
                 learnable = [row for row in pending if assertion_turn(row["user_text"]) and
+                             not live_agenda_only(row["user_text"]) and
+                             not routine_control_only(row["user_text"]) and
                              not is_shopping_list_action(
                                  row["user_text"], row["assistant_text"])]
                 if learnable:
-                    recent_memories = store.memory_list(40)
-                    terms = await ai.search_terms(" ".join(
-                        row["user_text"][:160] for row in learnable)[:1000])
-                    relevant = store.memory_search(
-                        terms[:6] + store.memory_query_terms(
-                            " ".join(x["user_text"] for x in learnable))[:6],
-                        limit=120)
-                    by_id = {r["id"]: r for r in recent_memories + relevant}
-                    operations = await ai.learn(learnable, list(by_id.values())[:160])
+                    # Small memory stores already fit in one extraction request.
+                    # No keyword-planning call is needed when every fact is included.
+                    all_small = store.memory_list(41)
+                    if len(all_small) <= 40:
+                        candidates = all_small
+                    else:
+                        recent_memories = all_small[:40]
+                        terms = await ai.search_terms(" ".join(
+                            row["user_text"][:160] for row in learnable)[:1000])
+                        relevant = store.memory_search(
+                            terms[:6] + store.memory_query_terms(
+                                " ".join(x["user_text"] for x in learnable))[:6],
+                            limit=120)
+                        by_id = {r["id"]: r for r in recent_memories + relevant}
+                        candidates = list(by_id.values())[:160]
+                    operations = await ai.learn(learnable, candidates)
                     safe = [op for op in filter_memory_operations(
                         operations, [x["user_text"] for x in learnable])
                             if op.get("action") not in ("add", "update") or
@@ -192,10 +201,17 @@ async def recall(request):
     try:
         # Clear standalone agenda requests need live calendar data, not memory.
         # Mixed, historical and ambiguous requests retain the full recall path.
-        from learning_source import live_agenda_only
-        if live_agenda_only(query):
-            state["last_recall"] = "Élő naptárlekérdezés: memória-AI kihagyva."
+        if live_agenda_only(query) or routine_control_only(query):
+            state["last_recall"] = "Egyértelmű élő művelet: memória-AI kihagyva."
             return web.json_response({"context": ""})
+        # A local exact named preference can be answered without model-generated
+        # search terms. An empty match is NOT sufficient to skip the semantic path.
+        local_terms = store.memory_query_terms(query)
+        if journal_window(query) is None:
+            local_current = authoritative_preferences(query, store.memory_search(local_terms, limit=160))
+            if local_current and len(local_current) == 1:
+                state["last_recall"] = "Egyértelmű helyi tartós emlék; AI-keresés kihagyva."
+                return web.json_response({"context": "CURRENT CONFIRMED DURABLE FACTS ONLY.\nFact: " + local_current[0]["fact"]})
         terms = await ai.search_terms(query)
         # Search ALL durable facts before passing a bounded relevance shortlist.
         # Do not accidentally treat the newest 200 as the whole memory.
@@ -226,7 +242,7 @@ async def recall(request):
         # Diagnostic IDs only: never log memory facts or personal identifiers.
         LOG.info("Recall candidates: durable_ids=%s, journal_ids=%s",
                  [m["id"] for m in memories], [t["id"] for t in turns])
-        if not turns and not memories:
+        if not turns and not memories and time_range is None:
             state["last_recall"] = "Nincs helyi találat; AI-szűrés kihagyva."
             return web.json_response({"context": ""})
         selection = await ai.recall(query, turns, memories)
