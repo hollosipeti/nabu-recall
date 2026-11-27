@@ -4,7 +4,7 @@ set -eu
 # Optional controlled branch selection for one-at-a-time staging.
 BRANCH="${1:-main}"
 case "$BRANCH" in
-  main|stable-2026-11-24-before-v2|dev-2.0.3-qa|stable-2.0.6-before-3.0.0) ;;
+  main|stable-2026-11-24-before-v2|dev-2.0.3-qa|stable-2.0.6-before-3.0.0|stable-3.0.0-before-3.0.1|dev-3.0.1-qa) ;;
   *) echo "HIBA: nem engedélyezett ág." >&2; exit 1 ;;
 esac
 if [ ! -d /config ]; then

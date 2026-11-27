@@ -17,12 +17,23 @@ def agenda_args(text, now):
     # Require explicit agenda vocabulary or the established 'mi van mára' idiom.
     if text == "mi van mára":
         return {"period":"today"}
-    m = re.fullmatch(r"(?:mi(?:lyen)? (?:program(?:jaim|om|ok)?|esemény(?:eim|em|ek)?) (?:van|vannak|lesz|lesznek)|(?:mi|mik) (?:van|vannak|lesz|lesznek) (?:a )?naptár(?:amban|ban)) (.+)", text)
+    m = re.fullmatch(r"(?:mi(?:lyen)? (?:program(?:jaim|om|ok)?|esemény(?:eim|em|ek)?) (?:van|vannak|lesz|lesznek)|(?:mi|mik) (?:van|vannak|lesz|lesznek) (?:a )?naptár(?:amban|ban|ba)) (.+)", text)
     if not m:
-        m = re.fullmatch(r"(?:mi|mik) (?:van|vannak|lesz|lesznek) (.+) (?:a )?naptár(?:amban|ban)", text)
+        m = re.fullmatch(r"(?:mi|mik) (?:van|vannak|lesz|lesznek) (.+) (?:a )?naptár(?:amban|ban|ba)", text)
+    if not m:
+        m = re.fullmatch(r"(?:a )?(jövő (?:héten|hétre|7-en|7-re)) (?:mi|mik) (?:van|vannak|lesz|lesznek)(?: beírva)? (?:a )?naptár(?:amban|ban|ba)", text)
     if not m:
         return None
     value = m.group(1)
+    value = {"jövő 7-en":"jövő héten", "jövő 7-re":"jövő héten", "jövő hétre":"jövő héten"}.get(value,value)
+    weeks = re.fullmatch(r"(?:a )?következő (?:(egy|két|három|négy|[1-9]|[1-4][0-9]|5[0-2]) )?hét(?:ben|re)", value)
+    if weeks:
+        word = weeks.group(1) or "egy"
+        count = {"egy":1,"két":2,"három":3,"négy":4}.get(word)
+        if count is None:
+            count = int(word)
+        first = now.date()
+        return {"period":"range","start_date":first.isoformat(),"last_day_inclusive":(first+timedelta(days=7*count-1)).isoformat()}
     if value in _PERIODS:
         return {"period":_PERIODS[value]}
     if value in _MONTHS:
@@ -70,7 +81,7 @@ async def direct_agenda(hass, entry, user_input):
     default = entry.options.get("calendar_entity", entry.data.get("calendar_entity"))
     ctx = SimpleNamespace(assistant="conversation", context=user_input.context)
     if not available_calendars(hass, ctx, default):
-        return None
+        return "Nincs elérhető naptár a lekérdezéshez."
     result = await QueryCalendarTool(default).async_call(hass, SimpleNamespace(tool_args=args), ctx)
     if result.error:
         return "A naptárat most nem sikerült lekérdezni."

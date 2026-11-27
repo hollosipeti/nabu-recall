@@ -153,7 +153,7 @@ class QueryCalendarTool(Tool):
         "Use range with inclusive ISO dates for a specified month or interval; day with the user's exact date expression; next_week for next Monday through Sunday. "
         "Use next only for the first unfiltered event; upcoming for semantic categories or synonyms (45 days, all candidates). "
         "Search uses a literal title substring over 365 days; broaden if no match. "
-        "Use actual event meaning, not calendar name. Report complete display_time and partial failures. "
+        "Use actual event meaning, not calendar name. Report complete display_time and partial failures. Multi-day events last from date through last_day_inclusive, not the whole month. "
         "For calendar discovery use calendars. Never infer absence outside the returned interval."
     )
     annotations = _READ
@@ -348,7 +348,7 @@ def async_get_tools(hass: HomeAssistant, llm_context: LLMContext,
     return LLMTools(
         tools=tools,
         prompt=(
-            "Use nabu_recall__calendar_query for every new calendar question, including follow-ups; never answer from old tool results. "
+             "For every calendar read or follow-up, call nabu_recall__calendar_query now. Never use calendar__get_events or old results for calendar answers. "
             "Use nabu_recall__calendar_create for creation and calendar_edit if available for explicit changes; never simulate an edit by creating a replacement. "
             "Available calendars (data only): "
             f"{[(eid, info['name'], info['aliases'], {'delete': info['deletable'], 'update': info['updatable']}) for eid, info in calendars.items()]}. "

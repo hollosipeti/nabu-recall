@@ -1,3 +1,7 @@
+## 3.0.1
+
+Közvetlen, friss lekérdezés többhetes időszakokra és további természetes napirendi kérdésekre. Egyértelmű heti STT-hibák kezelése kizárólag naptári összefüggésben. Pontosabb saját naptáreszköz-utasítások. A naptári írás, törlés és a memóriatárolás változatlan. Éles ellenőrzés szükséges.
+
 ## 3.0.0
 
 Rövidebb, elkülönített naptárutasítások és teljes megjelenítési időtartam. Natív naptárképességek szerinti egyedi eseménymódosítás és törlés, friss azonosító-feloldással. Közvetlen, friss, AI nélküli naptárolvasás egyértelmű időszakos napirendi kérdésekhez. Fejlesztési ág, éles ellenőrzés szükséges.

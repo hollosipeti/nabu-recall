@@ -360,6 +360,18 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(read.await_count,2)
         self.assertTrue(read.call_args.args[2]["start_date_time"].startswith("2026-12-01T00:00"))
 
+    async def test_two_week_agenda_uses_full_range(self):
+        from _nabu_test_package.calendar_agenda import direct_agenda, agenda_args
+        now = datetime(2026,11,27,11,tzinfo=TZ)
+        for phrase in ("Mi van a naptárban a következő két hétben?", "Milyen programok lesznek a következő 2 hétben?"):
+            self.assertEqual(agenda_args(phrase,now),{"period":"range","start_date":"2026-11-27","last_day_inclusive":"2026-12-10"})
+        for phrase in ("Jövő 7-en mi van a naptárba?", "A jövő 7-re mi van beírva a naptárba?"):
+            self.assertEqual(agenda_args(phrase,now),{"period":"next_week"})
+        self.assertIsNone(agenda_args("Mi lesz a következő két hétben az időjárás?",now))
+        result = await direct_agenda(self.hass,self.entry,SimpleNamespace(text="Mi van a naptárban a következő két hétben?",context=None))
+        self.assertIn("Saturday event",result)
+        self.assertTrue(self.services.calls[-1][2]["end_date_time"].startswith("2026-12-07T00:00"))
+
     async def test_direct_agenda_does_not_intercept_other_requests(self):
         from _nabu_test_package.calendar_agenda import direct_agenda
         for text in ("Milyen idő lesz holnap?", "Mi lesz holnap?", "Mikor lesz a következő névnap?", "Milyen események lesznek decemberben és kapcsold fel a lámpát!", "Milyen programok lesznek holnap a tévében?"):

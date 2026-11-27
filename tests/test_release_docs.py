@@ -21,11 +21,11 @@ class ReleaseDocsTests(unittest.TestCase):
         manifest=json.loads((ROOT/"custom_components/nabu_recall/manifest.json").read_text())
         config=(ROOT/"nabu_recall/config.yaml").read_text()
         server=(ROOT/"nabu_recall/server.py").read_text()
-        self.assertEqual(manifest["version"],"3.0.0")
-        self.assertIn('version: "3.0.0"', config)
-        self.assertIn("'version': '3.0.0'",server)
+        self.assertEqual(manifest["version"],"3.0.1")
+        self.assertIn('version: "3.0.1"', config)
+        self.assertIn("'version': '3.0.1'",server)
         notes=(ROOT/"nabu_recall/CHANGELOG.md").read_text()
-        self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["3.0.0","2.0.6","2.0.5","2.0.4","2.0.3","2.0.2","2.0.1","2.0.0"])
+        self.assertEqual(re.findall(r"^## (\d+\.\d+\.\d+)", notes, re.M),["3.0.1","3.0.0","2.0.6","2.0.5","2.0.4","2.0.3","2.0.2","2.0.1","2.0.0"])
 
     def test_prompt_map_links_exact_live_sources(self):
         instructions = (ROOT/"NABU_RECALL_PROMPT.md").read_text()
