@@ -31,7 +31,7 @@ class PromptOwnershipTests(unittest.TestCase):
         self.assertEqual(source.count("result = await conversation.async_converse("), 1)
         self.assertNotIn("upstream_text", source)
         self.assertNotIn("complementary_question", source)
-        self.assertNotIn("result.response.async_set_speech(answer)", source)
+        self.assertIn("if not fresh_calendar_result(contents) and not has_write(contents):", source)
 
     def test_repo_owned_prompt_document_has_only_current_sources(self):
         guide = (ROOT / "NABU_RECALL_PROMPT.md").read_text()

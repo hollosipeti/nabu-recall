@@ -1,6 +1,6 @@
 """Transparent wrapper retaining the actual assistant speech and device control."""
 import logging
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext as _passthrough
 from homeassistant.components import conversation
 from homeassistant.components.conversation import ConversationEntity
 from homeassistant.components.conversation.const import ConversationEntityFeature
@@ -11,6 +11,7 @@ from .exact_recall import extract_precise
 from .current_preference_reply import extract_current_preference
 from .repo_instructions import compose_instructions
 from .calendar_agenda import direct_agenda
+from .calendar_guard import calendar_read_question, fresh_calendar_result, has_write, calendar_tool_scope
 import re
 
 _LOGGER = logging.getLogger(__name__)
@@ -181,13 +182,31 @@ class RecallAgent(ConversationEntity):
         # and are never copied into the user's editable OpenAI Instructions field.
         # The upstream HA OpenAI agent still controls HA tools and chat behavior.
         extra = compose_instructions(user_input.extra_system_prompt, memory)
-        result = await conversation.async_converse(
-            self.hass, text=user_input.text,
-            conversation_id=user_input.conversation_id,
-            context=user_input.context, language=user_input.language,
-            agent_id=upstream, device_id=user_input.device_id,
-            satellite_id=user_input.satellite_id, extra_system_prompt=extra)
+        # The HA chat log is scoped to the current Assist turn, not global.
+        from homeassistant.components.conversation.chat_log import current_chat_log
+        chat = current_chat_log.get()
+        verify = calendar_read_question(user_input.text)
+        if chat is not None and verify:
+            extra += "\nCalendar read: use the fresh Nabu Recall calendar query in this turn. Do not answer from historical results."
+        start = len(chat.content) if chat is not None else 0
+        with calendar_tool_scope(chat):
+            with suppress_nested_text() if verify and chat is not None else _passthrough():
+                result = await conversation.async_converse(
+                    self.hass, text=user_input.text,
+                    conversation_id=user_input.conversation_id,
+                    context=user_input.context, language=user_input.language,
+                    agent_id=upstream, device_id=user_input.device_id,
+                    satellite_id=user_input.satellite_id, extra_system_prompt=extra)
         answer = extract_spoken_answer(result)
+        if verify and chat is not None:
+            contents = chat.content[start:]
+            if not fresh_calendar_result(contents) and not has_write(contents):
+                answer = "A naptárból most nem kaptam ellenőrzött, friss választ."
+                result.response.async_set_speech(answer)
+                # Replace the last assistant text so subsequent turns cannot reuse it.
+                from dataclasses import replace
+                if chat.content and getattr(chat.content[-1], "role", None) == "assistant":
+                    chat.content[-1] = replace(chat.content[-1], content=answer)
         self.hass.async_create_background_task(
             self._log(bridge, user_input.text, answer,
                       result.conversation_id or user_input.conversation_id or ""),

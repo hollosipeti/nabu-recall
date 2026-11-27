@@ -17,6 +17,8 @@ def agenda_args(text, now):
     # Require explicit agenda vocabulary or the established 'mi van mára' idiom.
     if text == "mi van mára":
         return {"period":"today"}
+    if re.fullmatch(r"van (?:valami|esemény|program) (?:a )?naptár(?:amban|ban) mára", text):
+        return {"period":"today"}
     m = re.fullmatch(r"(?:mi(?:lyen)? (?:program(?:jaim|om|ok)?|esemény(?:eim|em|ek)?) (?:van|vannak|lesz|lesznek)|(?:mi|mik) (?:van|vannak|lesz|lesznek) (?:a )?naptár(?:amban|ban|ba)) (.+)", text)
     if not m:
         m = re.fullmatch(r"(?:mi|mik) (?:van|vannak|lesz|lesznek) (.+) (?:a )?naptár(?:amban|ban|ba)", text)
@@ -82,7 +84,10 @@ async def direct_agenda(hass, entry, user_input):
     ctx = SimpleNamespace(assistant="conversation", context=user_input.context)
     if not available_calendars(hass, ctx, default):
         return "Nincs elérhető naptár a lekérdezéshez."
-    result = await QueryCalendarTool(default).async_call(hass, SimpleNamespace(tool_args=args), ctx)
-    if result.error:
-        return "A naptárat most nem sikerült lekérdezni."
-    return format_agenda(result.data, now.tzinfo)
+    try:
+        result = await QueryCalendarTool(default).async_call(hass, SimpleNamespace(tool_args=args), ctx)
+        if not result.error:
+            return format_agenda(result.data, now.tzinfo)
+    except Exception:
+        pass
+    return "A naptárat most nem sikerült lekérdezni."
