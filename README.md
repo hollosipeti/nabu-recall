@@ -233,7 +233,7 @@ A jövő hét hétfőtől vasárnapig tart; a következő két hét a mai naptó
 
 Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alapértelmezés 30 perc. Ha hiányzik a szükséges dátum vagy időpont, illetve ellentmondás van a kérésben, az asszisztensnek pontosítást kell kérnie. Fontos eseménynél mindig ellenőrizd a tényleges naptárbejegyzést.
 
-**Korlátok:** a Nabu Recall az alapértelmezett és az Assist számára engedélyezett naptárakat kezeli. Naptári események törlése és módosítása még nem támogatott; ezeket a naptár saját felületén végezd el. A naptári események és a tartós emlékek külön kezelendők.
+A 3.0.0 egyértelmű időszakos napirendi kérdéseknél közvetlenül, AI nélkül kérdezi le a naptárat. Egyedi esemény törlése és módosítása a naptárszolgáltató támogatásától függ; a Google Naptár HA-integrációja jelenleg törlést támogat, módosítást nem. Teljes ismétlődő sorozat módosítása vagy törlése nem támogatott. A Nabu Recall az alapértelmezett és az Assist számára engedélyezett naptárakat kezeli. A naptári események és a tartós emlékek külön kezelendők.
 
 ## 11. Gyakorlati példák
 

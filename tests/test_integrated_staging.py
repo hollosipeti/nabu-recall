@@ -12,7 +12,7 @@ class InstallerStagingTests(unittest.TestCase):
 
     def test_only_explicit_staging_and_stable_branches(self):
         script = (ROOT / "install_integration.sh").read_text(encoding="utf-8")
-        self.assertIn('main|stable-2026-11-24-before-v2|dev-2.0.3-qa)', script)
+        self.assertIn('main|stable-2026-11-24-before-v2|dev-2.0.3-qa|stable-2.0.6-before-3.0.0)', script)
         self.assertIn('BRANCH="${1:-main}"', script)
         self.assertIn('refs/heads/${BRANCH}.zip', script)
         self.assertIn('nabu-recall-${BRANCH}/custom_components/nabu_recall', script)
