@@ -15,6 +15,7 @@ class ReleaseDocsTests(unittest.TestCase):
         self.assertIn("nabu_recall__calendar_query", llm)
         self.assertIn("nabu_recall__calendar_create", llm)
         self.assertNotIn("calendar.delete_event", llm)
+        self.assertIn("nabu_recall__calendar_edit", llm)
 
     def test_v2_single_version_and_release_notes(self):
         manifest=json.loads((ROOT/"custom_components/nabu_recall/manifest.json").read_text())

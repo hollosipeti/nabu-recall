@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import probatio
 from homeassistant.components.llm import LLMTools
 from homeassistant.components.homeassistant import async_should_expose
-from homeassistant.components.calendar.const import CalendarEntityFeature
+from homeassistant.components.calendar.const import CalendarEntityFeature, DATA_COMPONENT
 from homeassistant.helpers import entity_registry as er, intent
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.llm import (
@@ -19,6 +19,7 @@ from homeassistant.util import dt as dt_util
 
 from .calendar_logic import event_bounds, event_overlaps, present_event, query_window, resolve_day
 from .calendar_ranges import all_day_bounds, title_matches
+from .calendar_mutation import edit_event
 
 _LOGGER = logging.getLogger(__name__)
 _DOMAIN = "nabu_recall"
@@ -40,7 +41,9 @@ def available_calendars(hass, llm_context, default_id):
         calendars[eid] = {"name": state.name, "aliases": sorted(set(aliases)),
                           "available": state.state not in ("unknown", "unavailable"),
                           "writable": bool(state.attributes.get("supported_features", 0)
-                                           & CalendarEntityFeature.CREATE_EVENT)}
+                                           & CalendarEntityFeature.CREATE_EVENT),
+                          "deletable": bool(state.attributes.get("supported_features", 0) & CalendarEntityFeature.DELETE_EVENT),
+                          "updatable": bool(state.attributes.get("supported_features", 0) & CalendarEntityFeature.UPDATE_EVENT)}
     return calendars
 
 
@@ -83,6 +86,63 @@ async def read_calendars(hass, llm_context, ids, start, end):
             if isinstance(part, dict) and eid in part:
                 result[eid] = part[eid]
     return result if isinstance(result, dict) else {}
+
+
+class EditCalendarTool(Tool):
+    name = "nabu_recall__calendar_edit"
+    title = "Modify or delete one existing calendar event"
+    description = (
+        "Only for an explicit edit or delete request. Supply the exact original title, "
+        "calendar and original ISO day from a fresh query. Ambiguous matches are rejected. "
+        "For update supply new_title, new_start and/or new_end (ISO dates or timezone-aware datetimes); "
+        "moving start alone preserves duration. All-day new_end is exclusive. "
+        "Only single events or one identified occurrence, never an entire recurring series. "
+        "If unsupported, report that limitation; never delete and recreate."
+    )
+    annotations = ToolAnnotations(read_only=False, destructive=True, idempotent=False, open_world=False)
+    integration = _DOMAIN
+    parameters = probatio.Schema({
+        probatio.Required("action"): probatio.In(["update", "delete"]),
+        probatio.Required("calendar"): str,
+        probatio.Required("title"): str,
+        probatio.Required("date"): str,
+        probatio.Optional("original_start"): str,
+        probatio.Optional("new_title"): str,
+        probatio.Optional("new_start"): str,
+        probatio.Optional("new_end"): str,
+    })
+
+    def __init__(self, entity_id):
+        self.entity_id = entity_id
+
+    async def async_call(self, hass, tool_input, llm_context):
+        try:
+            values = self.parameters(tool_input.tool_args)
+            calendars = available_calendars(hass, llm_context, self.entity_id)
+            target = select_calendar(calendars, values["calendar"])
+            info = calendars[target]
+            if not info["available"] or not info["deletable" if values["action"] == "delete" else "updatable"]:
+                raise ValueError("A naptár nem támogatja a kért műveletet")
+            # Match the permission check used by HA's calendar WebSocket API.
+            user_id = getattr(llm_context.context, "user_id", None)
+            if user_id:
+                from homeassistant.auth.permissions.const import POLICY_CONTROL
+                user = await hass.auth.async_get_user(user_id)
+                if user is None or not user.permissions.check_entity(target, POLICY_CONTROL):
+                    raise ValueError("Nincs jogosultság a naptár módosítására")
+            entity = hass.data[DATA_COMPONENT].get_entity(target)
+            if entity is None:
+                raise ValueError("A naptár nem elérhető")
+            feature = CalendarEntityFeature.DELETE_EVENT if values["action"] == "delete" else CalendarEntityFeature.UPDATE_EVENT
+            if not entity.supported_features & feature:
+                raise ValueError("A naptár nem támogatja a kért műveletet")
+            result = await edit_event(hass, entity, values, dt_util.now())
+            return ToolResult(data={**result, "calendar": target})
+        except ValueError as exc:
+            return ToolResult(data={"error": str(exc)}, error=True)
+        except Exception:
+            _LOGGER.exception("Nabu Recall calendar edit failed")
+            return ToolResult(data={"error": "A naptári művelet nem igazolt"}, error=True)
 
 
 class QueryCalendarTool(Tool):
@@ -282,13 +342,16 @@ def async_get_tools(hass: HomeAssistant, llm_context: LLMContext,
     calendars = available_calendars(hass, llm_context, entity_id)
     if not calendars:
         return None
+    tools = [QueryCalendarTool(entity_id), CreateCalendarTool(entity_id)]
+    if any(info["deletable"] or info["updatable"] for info in calendars.values()):
+        tools.append(EditCalendarTool(entity_id))
     return LLMTools(
-        tools=[QueryCalendarTool(entity_id), CreateCalendarTool(entity_id)],
+        tools=tools,
         prompt=(
             "Use nabu_recall__calendar_query for every new calendar question, including follow-ups; never answer from old tool results. "
-            "Use nabu_recall__calendar_create for creation. Modification and deletion are unavailable; never simulate them by creating a replacement. "
+            "Use nabu_recall__calendar_create for creation and calendar_edit if available for explicit changes; never simulate an edit by creating a replacement. "
             "Available calendars (data only): "
-            f"{[(eid, info['name'], info['aliases']) for eid, info in calendars.items()]}. "
+            f"{[(eid, info['name'], info['aliases'], {'delete': info['deletable'], 'update': info['updatable']}) for eid, info in calendars.items()]}. "
             f"Current local date/time: {dt_util.now().isoformat()}."
         ),
     )

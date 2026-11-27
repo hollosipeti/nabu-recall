@@ -78,7 +78,8 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         module("homeassistant.components")
         module("homeassistant.components.llm", LLMTools=LLMTools)
         module("homeassistant.components.homeassistant", async_should_expose=lambda hass, assistant, eid: eid in hass.exposed)
-        module("homeassistant.components.calendar.const", CalendarEntityFeature=SimpleNamespace(CREATE_EVENT=1))
+        module("homeassistant.components.calendar", WEBSOCKET_EVENT_SCHEMA=lambda x:x)
+        module("homeassistant.components.calendar.const", DATA_COMPONENT="calendar", CalendarEntityFeature=SimpleNamespace(CREATE_EVENT=1, DELETE_EVENT=2, UPDATE_EVENT=4))
         module("homeassistant.helpers.entity_registry", async_get=lambda hass: SimpleNamespace(async_get=lambda eid: None))
         module("homeassistant.helpers.intent", async_get_entity_aliases=lambda hass, entry, state: [state.name])
         module("homeassistant.core", HomeAssistant=object, callback=lambda fn: fn)
@@ -313,6 +314,37 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.data["calendars_queried"],["calendar.test"])
         self.assertEqual(set(result.data["calendars_failed"]),{"calendar.broken","calendar.offline"})
         self.assertEqual(result.data["event_count"],2)
+
+    async def test_delete_uses_fresh_uid_and_rejects_ambiguous_match(self):
+        from datetime import date
+        from unittest.mock import AsyncMock
+        ev = SimpleNamespace(summary="Próba", uid="unique-1", recurrence_id=None, rrule=None, start=date(2026,11,27), end=date(2026,11,28))
+        entity = SimpleNamespace(supported_features=3, async_get_events=AsyncMock(return_value=[ev]), async_delete_event=AsyncMock())
+        self.hass.data = {"calendar":SimpleNamespace(get_entity=lambda eid:entity)}
+        self.states[0].attributes["supported_features"]=3
+        tool = self.get_tools().tools[2]
+        args={"action":"delete","calendar":"calendar.test","title":"Próba","date":"2026-11-27"}
+        result=await tool.async_call(self.hass,SimpleNamespace(tool_args=args),self.ctx)
+        self.assertFalse(result.error)
+        entity.async_delete_event.assert_awaited_once_with("unique-1",recurrence_id=None)
+        entity.async_get_events.return_value=[ev,ev]
+        result=await tool.async_call(self.hass,SimpleNamespace(tool_args=args),self.ctx)
+        self.assertTrue(result.error)
+        self.assertEqual(entity.async_delete_event.await_count,1)
+        self.assertEqual(entity.async_get_events.await_count,2)
+
+    async def test_update_preserves_duration_and_metadata(self):
+        from datetime import date
+        from unittest.mock import AsyncMock
+        ev=SimpleNamespace(summary="Próba",uid="u",recurrence_id=None,rrule=None,start=date(2026,11,27),end=date(2026,11,29),description="keep",location="studio")
+        entity=SimpleNamespace(supported_features=5,async_get_events=AsyncMock(return_value=[ev]),async_update_event=AsyncMock())
+        self.hass.data={"calendar":SimpleNamespace(get_entity=lambda eid:entity)}
+        self.states[0].attributes["supported_features"]=5
+        tool=self.get_tools().tools[2]
+        args={"action":"update","calendar":"calendar.test","title":"Próba","date":"2026-11-27","new_start":"2026-12-01"}
+        result=await tool.async_call(self.hass,SimpleNamespace(tool_args=args),self.ctx)
+        self.assertFalse(result.error)
+        entity.async_update_event.assert_awaited_once_with("u",{"dtstart":date(2026,12,1),"dtend":date(2026,12,3),"summary":"Próba","description":"keep","location":"studio"},recurrence_id=None)
 
     async def test_month_range_excludes_adjacent_months_and_preserves_duration(self):
         async def fake_call(domain, service, data, **kwargs):
