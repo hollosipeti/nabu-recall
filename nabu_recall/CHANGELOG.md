@@ -1,3 +1,7 @@
+## 3.0.0
+
+Rövidebb, elkülönített naptárutasítások és teljes megjelenítési időtartam. Fejlesztési ág, éles ellenőrzés szükséges.
+
 ## 2.0.6
 
 Szemantikus naptárjelöltek, alapértelmezett naptár nélküli olvasás, szűk élő napirend gyorsút és munkamenetenkénti APP tokenstatisztika. A memória teljes visszakeresési útja bizonytalan kérdéseknél megmarad. Egyértelmű világítási parancsok kihagyása, kis emléktárnál egyetlen tanulási hívás, szűk helyi preferencia-gyorsút és tömörített AI-adatmezők.

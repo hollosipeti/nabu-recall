@@ -188,6 +188,7 @@ def present_event(event: dict) -> dict:
                 result["date"] = start
                 if last_day.isoformat() != start:
                     result["last_day_inclusive"] = last_day.isoformat()
+                result["display_time"] = start if last_day.isoformat() == start else f"{start} – {last_day.isoformat()} (inclusive)"
                 return result
         except ValueError:
             pass
@@ -196,4 +197,6 @@ def present_event(event: dict) -> dict:
         result["start"] = start
     if end is not None:
         result["end"] = end
+    if start is not None and end is not None:
+        result["display_time"] = f"{start} – {end}"
     return result

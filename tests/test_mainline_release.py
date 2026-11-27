@@ -1,4 +1,4 @@
-"""Release 2.0.6 keeps the existing HAOS app identity and stored data location."""
+"""Release 3.0.0 keeps the existing HAOS app identity and stored data location."""
 import unittest
 from pathlib import Path
 
@@ -8,7 +8,7 @@ class MainlineReleaseTests(unittest.TestCase):
     def test_same_stable_addon_slug(self):
         config=(ROOT/"nabu_recall"/"config.yaml").read_text(encoding="utf-8")
         self.assertIn("slug: nabu_recall\n",config)
-        self.assertIn('version: "2.0.6"',config)
+        self.assertIn('version: "3.0.0"',config)
         self.assertIn("stage: stable",config)
         self.assertNotIn("slug: nabu_recall_beta",config)
 
@@ -16,11 +16,11 @@ class MainlineReleaseTests(unittest.TestCase):
         script=(ROOT/"nabu_recall"/"run.sh").read_text(encoding="utf-8")
         self.assertIn("DB_PATH=/data/recall.sqlite3",script)
         manifest=(ROOT/"custom_components"/"nabu_recall"/"manifest.json").read_text(encoding="utf-8")
-        self.assertIn('"version":"2.0.6"',manifest)
+        self.assertIn('"version":"3.0.0"',manifest)
 
     def test_server_version(self):
         server=(ROOT/"nabu_recall"/"server.py").read_text(encoding="utf-8")
-        self.assertIn('2.0.6',server)
+        self.assertIn('3.0.0',server)
 
     def test_container_includes_every_local_server_import(self):
         """Catch imports that pass host tests but crash the packaged add-on."""

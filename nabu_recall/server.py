@@ -37,7 +37,7 @@ def schedule_learning():
         _learning_task = asyncio.create_task(process_pending())
 
 
-state = {'token_usage': ai.usage if ai else {}, 'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '2.0.6'}
+state = {'token_usage': ai.usage if ai else {}, 'last_learn': 'Még nincs adat.', 'last_recall': 'Még nincs adat.', 'version': '3.0.0'}
 
 @web.middleware
 async def authorization(request, handler):
@@ -46,7 +46,7 @@ async def authorization(request, handler):
     return await handler(request)
 
 async def ping(request):
-    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "2.0.6"})
+    return web.json_response({"ok": True, "ai_ready": ai is not None, "version": "3.0.0"})
 
 async def log_turn(request):
     data = await request.json()

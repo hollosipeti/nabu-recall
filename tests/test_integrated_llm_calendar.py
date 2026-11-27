@@ -314,6 +314,20 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(result.data["calendars_failed"]),{"calendar.broken","calendar.offline"})
         self.assertEqual(result.data["event_count"],2)
 
+    async def test_month_range_excludes_adjacent_months_and_preserves_duration(self):
+        async def fake_call(domain, service, data, **kwargs):
+            self.services.calls.append((domain, service, data, kwargs))
+            return {"calendar.test":{"events":[
+                {"summary":"November","start":"2026-11-27","end":"2026-11-28"},
+                {"summary":"Vízóra","start":"2026-12-10","end":"2026-12-14"},
+                {"summary":"January","start":"2027-01-01","end":"2027-01-02"}]}}
+        self.services.async_call = fake_call
+        result = await self.get_tools().tools[0].async_call(self.hass, SimpleNamespace(tool_args={"period":"range","start_date":"2026-12-01","last_day_inclusive":"2026-12-31"}), self.ctx)
+        self.assertFalse(result.error)
+        self.assertEqual(result.data["event_count"],1)
+        self.assertEqual(result.data["events"][0]["display_time"],"2026-12-10 – 2026-12-13 (inclusive)")
+        self.assertTrue(self.services.calls[-1][2]["end_date_time"].startswith("2027-01-01T00:00"))
+
     async def test_upcoming_returns_candidates_without_truncating_to_first(self):
         tool = self.get_tools().tools[0]
         result = await tool.async_call(self.hass, SimpleNamespace(tool_args={"period":"upcoming"}), self.ctx)
