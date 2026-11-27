@@ -1,6 +1,6 @@
 ## 3.0.0
 
-Rövidebb, elkülönített naptárutasítások és teljes megjelenítési időtartam. Natív naptárképességek szerinti egyedi eseménymódosítás és törlés, friss azonosító-feloldással. Fejlesztési ág, éles ellenőrzés szükséges.
+Rövidebb, elkülönített naptárutasítások és teljes megjelenítési időtartam. Natív naptárképességek szerinti egyedi eseménymódosítás és törlés, friss azonosító-feloldással. Közvetlen, friss, AI nélküli naptárolvasás egyértelmű időszakos napirendi kérdésekhez. Fejlesztési ág, éles ellenőrzés szükséges.
 
 ## 2.0.6
 

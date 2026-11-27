@@ -346,6 +346,26 @@ class CalendarPlatformTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result.error)
         entity.async_update_event.assert_awaited_once_with("u",{"dtstart":date(2026,12,1),"dtend":date(2026,12,3),"summary":"Próba","description":"keep","location":"studio"},recurrence_id=None)
 
+    async def test_direct_agenda_requeries_and_preserves_dates(self):
+        from _nabu_test_package.calendar_agenda import direct_agenda
+        from unittest.mock import AsyncMock
+        read = AsyncMock(return_value={"calendar.test":{"events":[{"summary":"Mérőóra","start":"2026-12-10","end":"2026-12-14"}]}})
+        self.services.async_call = read
+        request = SimpleNamespace(text="Milyen események lesznek decemberben?",context=None)
+        result = await direct_agenda(self.hass,self.entry,request)
+        self.assertIn("december 10.",result)
+        self.assertIn("december 13.",result)
+        read.return_value={"calendar.test":{"events":[]}}
+        self.assertIn("nincs esemény",await direct_agenda(self.hass,self.entry,request))
+        self.assertEqual(read.await_count,2)
+        self.assertTrue(read.call_args.args[2]["start_date_time"].startswith("2026-12-01T00:00"))
+
+    async def test_direct_agenda_does_not_intercept_other_requests(self):
+        from _nabu_test_package.calendar_agenda import direct_agenda
+        for text in ("Milyen idő lesz holnap?", "Mi lesz holnap?", "Mikor lesz a következő névnap?", "Milyen események lesznek decemberben és kapcsold fel a lámpát!", "Milyen programok lesznek holnap a tévében?"):
+            self.assertIsNone(await direct_agenda(self.hass,self.entry,SimpleNamespace(text=text,context=None)),text)
+        self.assertFalse(self.services.calls)
+
     async def test_month_range_excludes_adjacent_months_and_preserves_duration(self):
         async def fake_call(domain, service, data, **kwargs):
             self.services.calls.append((domain, service, data, kwargs))

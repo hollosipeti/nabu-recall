@@ -10,6 +10,7 @@ from .gateway import Bridge
 from .exact_recall import extract_precise
 from .current_preference_reply import extract_current_preference
 from .repo_instructions import compose_instructions
+from .calendar_agenda import direct_agenda
 import re
 
 _LOGGER = logging.getLogger(__name__)
@@ -142,6 +143,19 @@ class RecallAgent(ConversationEntity):
                 except Exception:
                     _LOGGER.warning("Nabu Recall management transcript logging failed")
                 return result
+        # Only unambiguous standalone agenda reads bypass the AI.
+        try:
+            agenda = await direct_agenda(self.hass, self.entry, user_input)
+        except Exception:
+            agenda = None
+            _LOGGER.warning("Direct agenda unavailable; original agent continues")
+        if agenda is not None:
+            from homeassistant.helpers import intent
+            response = intent.IntentResponse(language=user_input.language)
+            response.async_set_speech(agenda)
+            result = conversation.ConversationResult(response=response, conversation_id=user_input.conversation_id or "")
+            self.hass.async_create_background_task(self._log(bridge, user_input.text, agenda, result.conversation_id), "Nabu Recall: store live agenda")
+            return result
         try:
             memory = await bridge.recall(user_input.text)
         except Exception:
