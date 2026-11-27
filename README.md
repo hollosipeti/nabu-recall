@@ -233,7 +233,39 @@ A jövő hét hétfőtől vasárnapig tart; a következő két hét a mai naptó
 
 Ha egy időzített eseményhez nincs befejezés vagy időtartam megadva, az alapértelmezés 30 perc. Ha hiányzik a szükséges dátum vagy időpont, illetve ellentmondás van a kérésben, az asszisztensnek pontosítást kell kérnie. Fontos eseménynél mindig ellenőrizd a tényleges naptárbejegyzést.
 
-A 3.0.0 egyértelmű időszakos napirendi kérdéseknél közvetlenül, AI nélkül kérdezi le a naptárat. Egyedi esemény törlése és módosítása a naptárszolgáltató támogatásától függ; a Google Naptár HA-integrációja jelenleg törlést támogat, módosítást nem. Teljes ismétlődő sorozat módosítása vagy törlése nem támogatott. A Nabu Recall az alapértelmezett és az Assist számára engedélyezett naptárakat kezeli. A naptári események és a tartós emlékek külön kezelendők.
+A 3.0.0 egyértelmű időszakos napirendi kérdéseknél közvetlenül, AI nélkül kérdezi le a naptárat. A Nabu Recall az alapértelmezett és az Assist számára engedélyezett naptárakat kezeli.
+
+### Google Calendar – támogatott műveletek és korlátok
+
+A Google Calendar Home Assistant-integrációján keresztül a Nabu Recall képes eseményeket lekérdezni, létrehozni és törölni. **Meglévő esemény közvetlen módosítása vagy áthelyezése nem támogatott.** Ez a HA naptárintegrációjának korlátja, nem a Google Calendar webes felületének vagy a Nabu Recall nyelvi feldolgozásának hibája.
+
+Az alábbi természetes magyar mondatok a 2026. november 27-i gyakorlati tesztsorozatból származnak. A relatív dátumok mindig a kérés időpontjához igazodnak.
+
+| Mit szeretnél? | Hangutasítás | Működés |
+| --- | --- | --- |
+| Programok lekérdezése | „Mi van a naptárban a következő két hétben?” | Támogatott |
+| Új időzített esemény | „Holnap délután kettőtől háromig legyen Nabu tesztmegbeszélés.” | Támogatott |
+| Új egész napos esemény | „December ötödikére egész napos eseményként írd be, hogy Tesztnap.” | Támogatott |
+| Esemény kezdete | „Mikor kezdődik a műszaki ellenőrzés?” | Támogatott |
+| Esemény törlése | „Töröld a naptárból a december ötödikei Tesztnapot!” | Sikeresen tesztelve |
+| Esemény áthelyezése | „Tedd át a műszaki ellenőrzést délelőtt tíz órára!” | Nem támogatott |
+| Pontos dátummal megadott áthelyezés | „Tedd át a december elsejei műszaki ellenőrzést délelőtt tíz órára!” | Nem támogatott |
+
+Az áthelyezési tesztben az asszisztens helyesen azonosította az eseményt és megőrizte a 30 perces időtartamot, de a naptár elutasította a műveletet: „A naptár nem támogatja a kért műveletet”. Ilyenkor a Google Naptár saját felületén módosítsd az eseményt. A Nabu Recall nem helyettesíti automatikusan a módosítást törléssel és újralétrehozással.
+
+**Fontos a kérés egyértelmű megfogalmazása.** A „Töröld a december ötödikei Tesztnapot!” mondat a tesztben tévesen memóriatörlési visszaigazolást eredményezett. A „Töröld a naptárból a december ötödikei Tesztnapot!” kérés viszont sikeresen törölte a naptáreseményt. Törléskor ezért célszerű kimondani, hogy a naptárból szeretnéd törölni az eseményt. A naptári események és a tartós emlékek külön kezelendők.
+
+Egy teljes ismétlődő eseménysorozat módosítása vagy törlése nem támogatott. Más HA-naptárintegrációk képességei eltérhetnek.
+
+#### A naptár képességeinek ellenőrzése
+
+A Home Assistant **Fejlesztői eszközök → Sablonok** felületén futtasd az alábbi sablont (szükség esetén cseréld ki az entitásazonosítót):
+
+```jinja
+{{ state_attr('calendar.esemenyek', 'supported_features') }}
+```
+
+A tesztelt Google Calendar entitás eredménye **3**, vagyis a létrehozás (1) és a törlés (2) támogatott, a módosítás (4) nem. Ezek összeadható képességjelzők; a lekérdezés nem része ennek a három jelzőnek. A 7-es érték mindhárom írási művelet támogatását jelzi.
 
 ## 11. Gyakorlati példák
 
@@ -255,6 +287,7 @@ A 3.0.0 egyértelmű időszakos napirendi kérdéseknél közvetlenül, AI nélk
 | Az asszisztens nem emlékszik | A Web UI-n megjelent-e a tartós emlék? Van-e OpenAI API-hiba az alkalmazás naplójában? |
 | Az eszközvezérlés nem működik | Az integrációnál a megfelelő, korábban működő OpenAI Conversation ügynök van-e kiválasztva? |
 | Naptári esemény nem jön létre | Van-e kiválasztott naptár, engedélyezett-e az Assist LLM API, és megadtad-e a szükséges dátumot (időzített eseménynél kezdési időt is)? A naptár támogatja-e az eseménylétrehozást? |
+| A Google Naptár eseménye nem helyezhető át | Ellenőrizd a `supported_features` értéket. Ha 3, a közvetlen módosítás nem támogatott; használd a Google Naptár saját felületét. |
 | A kibővített naptárfunkciók nem működnek | Ellenőrizd a HA-integráció verzióját: ezekhez a 2.0.2-es javítás szükséges. Az APP 2.0.1 verziója önmagában nem elegendő. |
 
 További részletek: [Változásnapló](nabu_recall/CHANGELOG.md).
