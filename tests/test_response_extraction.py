@@ -49,6 +49,11 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
         from exact_recall import extract_precise
         from current_preference_reply import extract_current_preference
         from repo_instructions import compose_instructions
+        from calendar_guard import calendar_read_question, fresh_calendar_result, has_write, calendar_tool_scope
+        from contextlib import nullcontext
+        from contextvars import ContextVar
+        self.chat_context = ContextVar('test_chat', default=None)
+        self.fresh = False
 
         self.calls = []
         self.logged = []
@@ -76,6 +81,11 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
             ConversationResult = Result
             async def async_converse(self, hass, **kwargs):
                 parent.calls.append(kwargs)
+                chat = parent.chat_context.get()
+                if chat is not None:
+                    await chat.async_provide_llm_data()
+                    if parent.fresh:
+                        chat.content.append(SimpleNamespace(role='tool_result', tool_name='nabu_recall__calendar_query', result=SimpleNamespace(error=False)))
                 r = IntentResponse()
                 r.async_set_speech("Az eredeti asszisztens válasza.")
                 return Result(r, kwargs["conversation_id"])
@@ -121,6 +131,12 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
             "compose_instructions": compose_instructions,
             "extract_spoken_answer": extract_spoken_answer,
             "_LOGGER": SimpleNamespace(warning=lambda *args: None),
+            "calendar_read_question": calendar_read_question,
+            "fresh_calendar_result": fresh_calendar_result,
+            "has_write": has_write,
+            "calendar_tool_scope": calendar_tool_scope,
+            "suppress_nested_text": nullcontext,
+            "_passthrough": nullcontext,
         }
         exec(compile(ast.Module(body=[method], type_ignores=[]),
                      str(SOURCE), "exec"), namespace)
@@ -129,8 +145,11 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
         ha = ModuleType("homeassistant")
         helpers = ModuleType("homeassistant.helpers")
         helpers.intent = SimpleNamespace(IntentResponse=IntentResponse)
+        chat_module = ModuleType("homeassistant.components.conversation.chat_log")
+        chat_module.current_chat_log = self.chat_context
         self.patch = patch.dict(sys.modules, {
-            "homeassistant": ha, "homeassistant.helpers": helpers})
+            "homeassistant": ha, "homeassistant.helpers": helpers,
+            "homeassistant.components.conversation.chat_log": chat_module})
         self.patch.start()
 
     async def asyncTearDown(self):
@@ -195,3 +214,20 @@ class RealAgentRoutingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.calls), 1)
         self.assertEqual(extract_spoken_answer(result),
                          "Az eredeti asszisztens válasza.")
+
+    async def test_explicit_calendar_requires_fresh_result(self):
+        class Chat:
+            content = []
+            llm_api = None
+            async def async_provide_llm_data(self): pass
+        chat = Chat()
+        self.chat_context.set(chat)
+        result = await self.ask("Mikor lesz a következő körmös?")
+        self.assertIn("nem kaptam ellenőrzött", extract_spoken_answer(result))
+        self.fresh = True
+        result = await self.ask("Mikor lesz a következő körmös?")
+        self.assertEqual(extract_spoken_answer(result), "Az eredeti asszisztens válasza.")
+        self.fresh = False
+        result = await self.ask("Mikor lesz a következő körmös?")
+        self.assertIn("nem kaptam ellenőrzött", extract_spoken_answer(result))
+        self.assertEqual(len(self.calls),3)

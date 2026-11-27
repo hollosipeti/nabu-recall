@@ -183,8 +183,11 @@ class RecallAgent(ConversationEntity):
         # The upstream HA OpenAI agent still controls HA tools and chat behavior.
         extra = compose_instructions(user_input.extra_system_prompt, memory)
         # The HA chat log is scoped to the current Assist turn, not global.
-        from homeassistant.components.conversation.chat_log import current_chat_log
-        chat = current_chat_log.get()
+        try:
+            from homeassistant.components.conversation.chat_log import current_chat_log
+            chat = current_chat_log.get()
+        except ImportError:
+            chat = None
         verify = calendar_read_question(user_input.text)
         if chat is not None and verify:
             extra += "\nCalendar read: use the fresh Nabu Recall calendar query in this turn. Do not answer from historical results."
@@ -207,6 +210,9 @@ class RecallAgent(ConversationEntity):
                 from dataclasses import replace
                 if chat.content and getattr(chat.content[-1], "role", None) == "assistant":
                     chat.content[-1] = replace(chat.content[-1], content=answer)
+            listener = getattr(chat, "delta_listener", None)
+            if listener is not None:
+                listener(chat, {"role": "assistant", "content": answer})
         self.hass.async_create_background_task(
             self._log(bridge, user_input.text, answer,
                       result.conversation_id or user_input.conversation_id or ""),
